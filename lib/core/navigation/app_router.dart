@@ -7,6 +7,7 @@ import '../../features/instruments/piano/piano_screen.dart';
 import '../../features/instruments/drums/drums_screen.dart';
 import '../../features/instruments/xylophone/xylophone_screen.dart';
 import '../../features/instruments/organ/organ_screen.dart';
+import '../../features/songs/songs_screen.dart';
 
 /// Central place where all application routes are declared.
 ///
@@ -57,7 +58,7 @@ class AppRouter {
         path: '/songs',
         name: 'songs',
         builder: (BuildContext context, GoRouterState state) {
-          return const PlaceholderScreen(title: 'Cântece');
+          return const SongsScreen();
         },
       ),
       GoRoute(

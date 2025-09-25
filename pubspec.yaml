@@ -45,3 +45,5 @@ flutter:
     - assets/images/instruments/drums/
     - assets/images/instruments/xylophone/
     - assets/images/instruments/organ/
+    # Animations for the songs module
+    - assets/animations/
