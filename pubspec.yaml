@@ -6,7 +6,7 @@ version: 1.0.0+1
 
 environment:
   # ACTUALIZARE CRITICĂ: Permite funcționalități noi și rezolvă erorile de limbaj
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: '>=3.8.0 <4.0.0'
 
 dependencies:
   flutter:
@@ -15,9 +15,14 @@ dependencies:
   go_router: ^13.0.1
   flutter_bloc: ^8.1.3
   get_it: ^7.6.4
-  flame: ^1.10.0
-  flame_rive: ^1.2.0
+  # Modern versions of Flame and related packages.  These versions
+  # require Dart 3.8 or later and are compatible with each other.
+  flame: ^1.32.0
+  flame_rive: ^1.10.19
   flutter_soloud: ^3.3.7
+  # Rive remains on the latest stable release for compatibility with
+  # flame_rive.  The dev release (0.14.0-dev.8) is intentionally
+  # avoided here.
   rive: ^0.13.20
   google_fonts: ^4.0.0
   flutter_tts: ^3.6.3

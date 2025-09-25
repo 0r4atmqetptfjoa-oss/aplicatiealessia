@@ -7,7 +7,10 @@ plugins {
 
 android {
     namespace = "com.example.alesia_faza_1_meniu"
-    compileSdk = flutter.compileSdkVersion
+    // Explicitly target a modern API level for compatibility with
+    // contemporary libraries.  This replaces the older use of
+    // flutter.compileSdkVersion and flutter.targetSdkVersion.
+    compileSdk = 34
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -25,7 +28,8 @@ android {
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        // Use the same modern SDK level as compileSdk.
+        targetSdk = 34
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }

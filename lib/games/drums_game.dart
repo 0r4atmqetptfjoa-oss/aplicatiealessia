@@ -89,7 +89,11 @@ class _DrumComponent extends SpriteComponent with TapCallbacks {
       add(
         ScaleEffect.to(
           Vector2(1.1, 1.1),
-          EffectController(duration: 0.1, reverseDuration: 0.1, curve: Curves.easeOutBack),
+          EffectController(
+            duration: 0.1,
+            reverseDuration: 0.1,
+            curve: Curves.easeOutBack,
+          ),
           onComplete: () {
             scale = Vector2.all(1.0);
             onScored();
@@ -113,27 +117,28 @@ class _DrumComponent extends SpriteComponent with TapCallbacks {
   /// Emit rising bubble particles from the drum's centre.
   void _spawnBubbles(FlameGame game) {
     final Vector2 centre = absolutePosition + size / 2;
+    final Color colour = _colorForIndex(index).withOpacity(0.7);
+    final rand = math.Random();
+    final particles = List<Particle>.generate(8, (i) {
+      final double angle = math.pi / 2 + (rand.nextDouble() - 0.5) * 0.5;
+      final double speed = 40 + rand.nextDouble() * 40;
+      final Vector2 velocity = Vector2(math.cos(angle), math.sin(angle)) * speed;
+      final Vector2 acceleration = Vector2(0, -speed * 0.5);
+      final double radius = 4 + rand.nextDouble() * 2;
+      return CircleParticle(
+        radius: radius,
+        paint: Paint()..color = colour,
+        lifespan: 0.8,
+      ).accelerated(
+        acceleration: acceleration,
+        velocity: velocity,
+      );
+    });
+    final particle = ComposedParticle(children: particles, lifespan: 0.8);
     game.add(
       ParticleSystemComponent(
         position: centre,
-        particle: Particle.generate(
-          count: 8,
-          lifespan: 0.8,
-          generator: (i) {
-            final double angle = math.pi / 2 + (math.Random().nextDouble() - 0.5) * 0.5;
-            final double speed = 40 + math.Random().nextDouble() * 40;
-            final Vector2 velocity = Vector2(math.cos(angle), math.sin(angle)) * speed;
-            final Color color = _colorForIndex(index).withOpacity(0.7);
-            return AcceleratedParticle(
-              speed: velocity,
-              acceleration: Vector2(0, -speed * 0.5),
-              child: CircleParticle(
-                radius: 4 + math.Random().nextDouble() * 2,
-                paint: Paint()..color = color,
-              ),
-            );
-          },
-        ),
+        particle: particle,
       ),
     );
   }

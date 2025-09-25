@@ -1,10 +1,10 @@
-import 'dart:ui';
 import 'dart:math' as math;
+import 'dart:ui';
 
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
-import 'package:flame/game.dart';
 import 'package:flame/events.dart';
+import 'package:flame/game.dart';
 import 'package:flame/particles.dart';
 import 'package:flutter/material.dart' hide Image;
 
@@ -20,7 +20,12 @@ import '../services/gamification_bloc.dart';
 class PianoGame extends FlameGame {
   PianoGame({required this.audioService, required this.gamificationBloc});
 
+  /// Service used to play notes.  This is injected so that the game
+  /// does not depend directly on a global locator.
   final AudioEngineService audioService;
+
+  /// Bloc used to track gamification points.  Points are awarded
+  /// whenever a key is released.
   final GamificationBloc gamificationBloc;
 
   // List of asset names for each piano key.
@@ -71,8 +76,14 @@ class _PianoKeyComponent extends SpriteComponent with TapCallbacks {
     required this.onScored,
   }) : super(sprite: sprite, size: size);
 
+  /// Index of this key in the keyboard.  Used to determine colour.
   final int index;
+
+  /// Callback invoked when the key is pressed.
   final VoidCallback onPressed;
+
+  /// Callback invoked when the key is released and points should be
+  /// awarded.
   final VoidCallback onScored;
 
   bool _pressed = false;
@@ -100,7 +111,11 @@ class _PianoKeyComponent extends SpriteComponent with TapCallbacks {
       add(
         ScaleEffect.to(
           Vector2(1.05, 1.05),
-          EffectController(duration: 0.1, reverseDuration: 0.1, curve: Curves.easeOutBack),
+          EffectController(
+            duration: 0.1,
+            reverseDuration: 0.1,
+            curve: Curves.easeOutBack,
+          ),
           onComplete: () {
             scale = Vector2.all(1.0);
             onScored();
@@ -124,26 +139,31 @@ class _PianoKeyComponent extends SpriteComponent with TapCallbacks {
   /// Emit a burst of small sparkle particles above the key.
   void _spawnSparkle(FlameGame game) {
     final Vector2 center = absolutePosition + size / 2;
+    final Color color = _colorForIndex(index);
+
+    // Create a list of small circle particles arranged in a circle.  Each
+    // particle is given an initial velocity and acceleration using the
+    // `accelerated` extension on [Particle].  The individual circles are
+    // composed into a single [ComposedParticle] so that the entire burst
+    // shares the same lifecycle.
+    final particles = List<Particle>.generate(12, (i) {
+      final double angle = math.pi * 2 * (i / 12);
+      final Vector2 velocity = Vector2(math.cos(angle), math.sin(angle)) * 60;
+      final Vector2 acceleration = -velocity * 2;
+      return CircleParticle(
+        radius: 2,
+        paint: Paint()..color = color.withOpacity(0.8),
+        lifespan: 0.5,
+      ).accelerated(
+        acceleration: acceleration,
+        velocity: velocity,
+      );
+    });
+    final particle = ComposedParticle(children: particles, lifespan: 0.5);
     game.add(
       ParticleSystemComponent(
         position: center,
-        particle: Particle.generate(
-          count: 12,
-          lifespan: 0.5,
-          generator: (i) {
-            final double angle = math.pi * 2 * (i / 12);
-            final Vector2 velocity = Vector2(math.cos(angle), math.sin(angle)) * 60;
-            final Color color = _colorForIndex(index);
-            return AcceleratedParticle(
-              speed: velocity,
-              acceleration: -velocity * 2,
-              child: CircleParticle(
-                radius: 2,
-                paint: Paint()..color = color.withOpacity(0.8),
-              ),
-            );
-          },
-        ),
+        particle: particle,
       ),
     );
   }

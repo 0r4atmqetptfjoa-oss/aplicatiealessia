@@ -130,7 +130,11 @@ class _OrganKey extends SpriteComponent with TapCallbacks {
       add(
         ScaleEffect.to(
           Vector2(1.1, 1.1),
-          EffectController(duration: 0.12, reverseDuration: 0.12, curve: Curves.easeOutBack),
+          EffectController(
+            duration: 0.12,
+            reverseDuration: 0.12,
+            curve: Curves.easeOutBack,
+          ),
           onComplete: () {
             scale = Vector2.all(1.0);
             onScored();
@@ -154,27 +158,27 @@ class _OrganKey extends SpriteComponent with TapCallbacks {
   /// Emit gentle rising bubbles when the key is pressed.
   void _spawnBubbles(FlameGame game) {
     final Vector2 origin = absolutePosition + Vector2(size.x / 2, 0);
+    final rand = math.Random();
+    final particles = List<Particle>.generate(10, (i) {
+      final double angle = -math.pi / 2 + (rand.nextDouble() - 0.5) * math.pi / 6;
+      final double speed = 20 + rand.nextDouble() * 20;
+      final Vector2 velocity = Vector2(math.cos(angle), math.sin(angle)) * speed;
+      final Vector2 acceleration = Vector2(0, -speed * 0.2);
+      final double radius = 3 + rand.nextDouble() * 3;
+      return CircleParticle(
+        radius: radius,
+        paint: Paint()..color = colour.withOpacity(0.8),
+        lifespan: 1.2,
+      ).accelerated(
+        acceleration: acceleration,
+        velocity: velocity,
+      );
+    });
+    final particle = ComposedParticle(children: particles, lifespan: 1.2);
     game.add(
       ParticleSystemComponent(
         position: origin,
-        particle: Particle.generate(
-          count: 10,
-          lifespan: 1.2,
-          generator: (i) {
-            final double angle = -math.pi / 2 + (math.Random().nextDouble() - 0.5) * math.pi / 6;
-            final double speed = 20 + math.Random().nextDouble() * 20;
-            final Vector2 velocity = Vector2(math.cos(angle), math.sin(angle)) * speed;
-            final double radius = 3 + math.Random().nextDouble() * 3;
-            return AcceleratedParticle(
-              speed: velocity,
-              acceleration: Vector2(0, -speed * 0.2),
-              child: CircleParticle(
-                radius: radius,
-                paint: Paint()..color = colour.withOpacity(0.8),
-              ),
-            );
-          },
-        ),
+        particle: particle,
       ),
     );
   }

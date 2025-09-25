@@ -25,7 +25,7 @@ class _StoriesScreenState extends State<StoriesScreen> {
   final List<String> _storyParagraphs = const <String>[
     'A fost odată ca niciodată o pădure fermecată, plină de luminițe ce zburdau printre copaci. În mijlocul ei trăia o mică zână curajoasă pe nume Alesia, care iubea să asculte muzica naturii.',
     'Într-o zi, Alesia a întâlnit un iepuraș trist și un căprioară speriată. Ei i-au povestit că un nor întunecat acoperea castelul din depărtare și nu mai auzeau cântecele păsărilor.',
-    'Hotărâtă să aducă iarăși bucuria, Alesia a pornit spre castel. Pe drum, prietenii ei s-au alăturat, iar împreună au cântat atât de frumos încât norul cel negru s-a risipit, iar soarele a luminat din nou pământul.'
+    'Hotărâtă să aducă iarăși bucuria, Alesia a pornit spre castel. Pe drum, prietenii ei s-au alăturat, iar împreună au cântat atât de frumos încât norul cel negru s-a risipit, iar soarele a luminat din nou pământul.',
   ];
 
   final TtsService _ttsService = TtsService();
@@ -117,9 +117,7 @@ class _StoriesScreenState extends State<StoriesScreen> {
                     child: const Text('Redă'),
                   ),
                   ElevatedButton(
-                    onPressed: _currentIndex < _storyParagraphs.length - 1
-                        ? _next
-                        : null,
+                    onPressed: _currentIndex < _storyParagraphs.length - 1 ? _next : null,
                     child: const Text('Următor'),
                   ),
                 ],

@@ -88,7 +88,11 @@ class _XylophoneBar extends SpriteComponent with TapCallbacks {
       add(
         ScaleEffect.to(
           Vector2(1.1, 1.1),
-          EffectController(duration: 0.12, reverseDuration: 0.12, curve: Curves.easeOutBack),
+          EffectController(
+            duration: 0.12,
+            reverseDuration: 0.12,
+            curve: Curves.easeOutBack,
+          ),
           onComplete: () {
             scale = Vector2.all(1.0);
             onScored();
@@ -113,27 +117,27 @@ class _XylophoneBar extends SpriteComponent with TapCallbacks {
   void _spawnMagicDust(FlameGame game) {
     final Vector2 centre = absolutePosition + size / 2;
     final Color colour = _colorForIndex(index);
+    final rand = math.Random();
+    final particles = List<Particle>.generate(15, (i) {
+      final double angle = -math.pi / 2 + (rand.nextDouble() - 0.5) * math.pi / 4;
+      final double speed = 30 + rand.nextDouble() * 30;
+      final Vector2 velocity = Vector2(math.cos(angle), math.sin(angle)) * speed;
+      final Vector2 acceleration = Vector2(0, -speed * 0.3);
+      final double radius = 2 + rand.nextDouble() * 3;
+      return CircleParticle(
+        radius: radius,
+        paint: Paint()..color = colour.withOpacity(0.9),
+        lifespan: 0.8,
+      ).accelerated(
+        acceleration: acceleration,
+        velocity: velocity,
+      );
+    });
+    final particle = ComposedParticle(children: particles, lifespan: 0.8);
     game.add(
       ParticleSystemComponent(
         position: centre,
-        particle: Particle.generate(
-          count: 15,
-          lifespan: 0.8,
-          generator: (i) {
-            final double angle = -math.pi / 2 + (math.Random().nextDouble() - 0.5) * math.pi / 4;
-            final double speed = 30 + math.Random().nextDouble() * 30;
-            final Vector2 velocity = Vector2(math.cos(angle), math.sin(angle)) * speed;
-            final double radius = 2 + math.Random().nextDouble() * 3;
-            return AcceleratedParticle(
-              speed: velocity,
-              acceleration: Vector2(0, -speed * 0.3),
-              child: CircleParticle(
-                radius: radius,
-                paint: Paint()..color = colour.withOpacity(0.9),
-              ),
-            );
-          },
-        ),
+        particle: particle,
       ),
     );
   }

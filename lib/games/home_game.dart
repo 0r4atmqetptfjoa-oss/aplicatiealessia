@@ -130,7 +130,9 @@ class _MenuButton extends SpriteComponent with TapCallbacks {
           // Use GetIt to access registered singletons.  The service
           // locator pattern avoids the need for a global `locator()` helper.
           final getIt = GetIt.instance;
+          // Navigate to the desired route.
           getIt<GoRouter>().go(route);
+          // Play a UI click sound.
           getIt<AudioEngineService>().playSample('assets/audio/ui/sfx_1.wav');
         },
       ),

@@ -5,6 +5,9 @@ allprojects {
     }
 }
 
+// Relocate the project build directory so that Flutter and Gradle play
+// nicely together when run inside a modular environment.  Without this
+// adjustment the build artifacts would end up in sibling directories.
 val newBuildDir: Directory =
     rootProject.layout.buildDirectory
         .dir("../../build")
@@ -19,6 +22,6 @@ subprojects {
     project.evaluationDependsOn(":app")
 }
 
-tasks.register<Delete>("clean") {
+tasks.register("clean") {
     delete(rootProject.layout.buildDirectory)
 }

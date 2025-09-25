@@ -15,8 +15,7 @@ class AlphabetScreen extends StatefulWidget {
   State<AlphabetScreen> createState() => _AlphabetScreenState();
 }
 
-class _AlphabetScreenState extends State<AlphabetScreen>
-    with SingleTickerProviderStateMixin {
+class _AlphabetScreenState extends State<AlphabetScreen> with SingleTickerProviderStateMixin {
   final TtsService _ttsService = TtsService();
   final List<String> _letters = ['A', 'B', 'C', 'D'];
   final Map<String, String> _assetMap = {

@@ -23,10 +23,10 @@ class SongsScreen extends StatefulWidget {
 class _SongsScreenState extends State<SongsScreen> {
   Artboard? _artboard;
   StateMachineController? _stateMachine;
-  SMIInput<bool>? _idle;
-  SMIInput<bool>? _danceSlow;
-  SMIInput<bool>? _danceFast;
-  SMIInput<bool>? _endingPose;
+  SMIInput? _idle;
+  SMIInput? _danceSlow;
+  SMIInput? _danceFast;
+  SMIInput? _endingPose;
 
   @override
   void initState() {

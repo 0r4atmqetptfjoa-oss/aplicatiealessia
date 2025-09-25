@@ -23,7 +23,7 @@ import '../../features/stories/stories_screen.dart';
 /// complete feature implementations.
 class AppRouter {
   static final GoRouter router = GoRouter(
-    routes: <GoRoute>[
+    routes: [
       GoRoute(
         path: '/',
         name: 'home',
@@ -37,7 +37,7 @@ class AppRouter {
         builder: (BuildContext context, GoRouterState state) {
           return const PlaceholderScreen(title: 'Instrumente');
         },
-        routes: <GoRoute>[
+        routes: [
           GoRoute(
             path: 'piano',
             name: 'piano',
@@ -80,22 +80,22 @@ class AppRouter {
         builder: (BuildContext context, GoRouterState state) {
           return const GamesMenuScreen();
         },
-        routes: <GoRoute>[
+        routes: [
           GoRoute(
             path: 'alphabet',
             name: 'alphabet',
             builder: (context, state) => const AlphabetScreen(),
           ),
-            GoRoute(
-              path: 'memory',
-              name: 'memory',
-              builder: (context, state) => const MemoryScreen(),
-            ),
-            GoRoute(
-              path: 'puzzle',
-              name: 'puzzle',
-              builder: (context, state) => const PuzzleScreen(),
-            ),
+          GoRoute(
+            path: 'memory',
+            name: 'memory',
+            builder: (context, state) => const MemoryScreen(),
+          ),
+          GoRoute(
+            path: 'puzzle',
+            name: 'puzzle',
+            builder: (context, state) => const PuzzleScreen(),
+          ),
         ],
       ),
       GoRoute(

@@ -107,7 +107,7 @@ class _SoundItem {
 }
 
 /// Sprite component representing an interactive sound icon.
-class _SoundIcon extends SpriteComponent with TapCallbacks, HasGameRef<FlameGame> {
+class _SoundIcon extends SpriteComponent with TapCallbacks, HasGameRef {
   _SoundIcon({
     required Sprite sprite,
     required this.positionFraction,
@@ -132,30 +132,40 @@ class _SoundIcon extends SpriteComponent with TapCallbacks, HasGameRef<FlameGame
   @override
   void onTapDown(TapDownEvent event) {
     // Shrink slightly on tap down
-    add(ScaleEffect.to(
-      Vector2(0.8, 0.8),
-      EffectController(duration: 0.1, curve: Curves.easeOut),
-    ));
+    add(
+      ScaleEffect.to(
+        Vector2(0.8, 0.8),
+        EffectController(duration: 0.1, curve: Curves.easeOut),
+      ),
+    );
   }
 
   @override
   void onTapUp(TapUpEvent event) {
     // Bounce back and trigger sound
-    add(ScaleEffect.to(
-      Vector2(1.2, 1.2),
-      EffectController(duration: 0.2, reverseDuration: 0.2, curve: Curves.easeOutBack),
-      onComplete: () {
-        scale = Vector2.all(1);
-        onTap(soundIndex);
-      },
-    ));
+    add(
+      ScaleEffect.to(
+        Vector2(1.2, 1.2),
+        EffectController(
+          duration: 0.2,
+          reverseDuration: 0.2,
+          curve: Curves.easeOutBack,
+        ),
+        onComplete: () {
+          scale = Vector2.all(1);
+          onTap(soundIndex);
+        },
+      ),
+    );
   }
 
   @override
   void onTapCancel(TapCancelEvent event) {
-    add(ScaleEffect.to(
-      Vector2(1, 1),
-      EffectController(duration: 0.1, curve: Curves.easeOut),
-    ));
+    add(
+      ScaleEffect.to(
+        Vector2(1, 1),
+        EffectController(duration: 0.1, curve: Curves.easeOut),
+      ),
+    );
   }
 }
