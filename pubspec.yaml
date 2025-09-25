@@ -1,58 +1,49 @@
 name: alesia_faza_1_meniu
-description: >-
-  The first phase of the premium Alesia app for children.  This project
-  contains the foundational Flutter structure and implements a playful
-  main menu with a parallax background, interactive Pixar‑styled buttons and
-  placeholder routes using go_router.
-publish_to: 'none'
-
+description: "Alesia - O lume magică de joacă"
+publish_to: 'none' 
 version: 1.0.0+1
 
 environment:
-  sdk: '>=2.17.0 <3.0.0'
+  # ACTUALIZAT: Permite funcționalități moderne și compatibilitate cu pachete noi.
+  sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.2
-  go_router: ^7.0.0
-  get_it: ^7.2.0
-  flutter_bloc: ^8.1.0
-  flame: ^1.2.0
-  flame_rive: ^1.2.0
+  go_router: ^13.0.1
+  flutter_bloc: ^8.1.3
+  get_it: ^7.6.4
+  flame: ^1.10.0
+  flame_flutter: ^1.10.0
   flutter_soloud: ^3.3.7
-  rive: 0.13.20
-  google_fonts: ^4.0.0
-  flutter_tts: ^3.6.3
-
+  # ACTUALIZAT: Rezolvă conflictul de dependențe cu flutter_soloud.
+  rive: ^0.13.20 
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  # ADĂUGAT: Recomandat pentru a menține un cod curat și consistent.
   flutter_lints: ^3.0.0
 
 flutter:
   uses-material-design: true
   assets:
-    - assets/images/background_back.png
-    - assets/images/background_middle.png
-    - assets/images/background_front.png
-    - assets/images/icon_harp.png
-    - assets/images/icon_music_box.png
-    - assets/images/icon_storybook.png
-    - assets/images/icon_block_a.png
-    - assets/images/icon_shell.png
-    # Include all instrument assets (piano, drums, xylophone, organ)
-    - assets/images/instruments/piano/
+    - assets/images/
+    - assets/images/instruments/
     - assets/images/instruments/drums/
-    - assets/images/instruments/xylophone/
     - assets/images/instruments/organ/
-    # Animations for the songs module
-    - assets/animations/
-    # Illustrations for the stories module
-    - assets/images/stories/
-    # Games assets
+    - assets/images/instruments/piano/
+    - assets/images/instruments/xylophone/
+    - assets/images/games/
     - assets/images/games/alphabet/
     - assets/images/games/memory/
     - assets/images/games/puzzle/
-    # Sounds assets
     - assets/images/sounds/
+    - assets/images/stories/
+    - assets/audio/
+    - assets/audio/drums/
+    - assets/audio/notes/
+    - assets/audio/songs/
+    - assets/audio/ui/
+    - assets/rive/
+    - assets/content/
