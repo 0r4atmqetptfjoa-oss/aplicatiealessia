@@ -23,6 +23,7 @@ dependencies:
   flutter_soloud: ^3.3.7
   rive: ^0.10.0
   google_fonts: ^4.0.0
+  flutter_tts: ^3.6.3
 
 dev_dependencies:
   flutter_test:
@@ -47,3 +48,11 @@ flutter:
     - assets/images/instruments/organ/
     # Animations for the songs module
     - assets/animations/
+    # Illustrations for the stories module
+    - assets/images/stories/
+    # Games assets
+    - assets/images/games/alphabet/
+    - assets/images/games/memory/
+    - assets/images/games/puzzle/
+    # Sounds assets
+    - assets/images/sounds/

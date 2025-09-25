@@ -8,6 +8,12 @@ import '../../features/instruments/drums/drums_screen.dart';
 import '../../features/instruments/xylophone/xylophone_screen.dart';
 import '../../features/instruments/organ/organ_screen.dart';
 import '../../features/songs/songs_screen.dart';
+import '../../features/games/games_menu_screen.dart';
+import '../../features/games/alphabet/alphabet_screen.dart';
+import '../../features/games/memory/memory_screen.dart';
+import '../../features/games/puzzle/puzzle_screen.dart';
+import '../../features/sounds/sounds_screen.dart';
+import '../../features/stories/stories_screen.dart';
 
 /// Central place where all application routes are declared.
 ///
@@ -65,21 +71,38 @@ class AppRouter {
         path: '/stories',
         name: 'stories',
         builder: (BuildContext context, GoRouterState state) {
-          return const PlaceholderScreen(title: 'Povești');
+          return const StoriesScreen();
         },
       ),
       GoRoute(
         path: '/games',
         name: 'games',
         builder: (BuildContext context, GoRouterState state) {
-          return const PlaceholderScreen(title: 'Jocuri');
+          return const GamesMenuScreen();
         },
+        routes: <GoRoute>[
+          GoRoute(
+            path: 'alphabet',
+            name: 'alphabet',
+            builder: (context, state) => const AlphabetScreen(),
+          ),
+            GoRoute(
+              path: 'memory',
+              name: 'memory',
+              builder: (context, state) => const MemoryScreen(),
+            ),
+            GoRoute(
+              path: 'puzzle',
+              name: 'puzzle',
+              builder: (context, state) => const PuzzleScreen(),
+            ),
+        ],
       ),
       GoRoute(
         path: '/sounds',
         name: 'sounds',
         builder: (BuildContext context, GoRouterState state) {
-          return const PlaceholderScreen(title: 'Sunete');
+          return const SoundsScreen();
         },
       ),
     ],
