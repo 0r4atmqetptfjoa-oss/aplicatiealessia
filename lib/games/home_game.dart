@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 
 import '../core/service_locator.dart';
 import '../services/audio_engine_service.dart';
+import 'package:get_it/get_it.dart';
 
 /// The main menu scene of the Alesia app.
 ///
@@ -126,8 +127,11 @@ class _MenuButton extends SpriteComponent with TapCallbacks {
         EffectController(duration: 0.1),
         onComplete: () {
           // Navigate to the route via GoRouter and play a UI sound.
-          locator<GoRouter>().go(route);
-          locator<AudioEngineService>().playSample('assets/audio/ui/sfx_1.wav');
+          // Use GetIt to access registered singletons.  The service
+          // locator pattern avoids the need for a global `locator()` helper.
+          final getIt = GetIt.instance;
+          getIt<GoRouter>().go(route);
+          getIt<AudioEngineService>().playSample('assets/audio/ui/sfx_1.wav');
         },
       ),
     );

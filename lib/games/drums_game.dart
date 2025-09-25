@@ -100,7 +100,7 @@ class _DrumComponent extends SpriteComponent with TapCallbacks {
   }
 
   @override
-  void onTapCancel() {
+  void onTapCancel(TapCancelEvent event) {
     _pressed = false;
     add(
       ScaleEffect.to(

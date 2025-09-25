@@ -107,7 +107,7 @@ class _SoundItem {
 }
 
 /// Sprite component representing an interactive sound icon.
-class _SoundIcon extends SpriteComponent with TapCallbacks {
+class _SoundIcon extends SpriteComponent with TapCallbacks, HasGameRef<FlameGame> {
   _SoundIcon({
     required Sprite sprite,
     required this.positionFraction,
@@ -152,7 +152,7 @@ class _SoundIcon extends SpriteComponent with TapCallbacks {
   }
 
   @override
-  void onTapCancel() {
+  void onTapCancel(TapCancelEvent event) {
     add(ScaleEffect.to(
       Vector2(1, 1),
       EffectController(duration: 0.1, curve: Curves.easeOut),

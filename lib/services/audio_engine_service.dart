@@ -51,6 +51,48 @@ class AudioEngineService {
     await playSample('assets/audio/notes/note_$label.wav', volume: volume);
   }
 
+  // ---------------------------------------------------------------------------
+  // Convenience wrappers used by the various mini‑games.  These methods map
+  // an integer index to a file path and delegate to [playSample].  They
+  // provide a simple, stable API for the games to call without tying them
+  // directly to file naming conventions.  If you add real audio assets in
+  // the future, update the mappings below accordingly.
+
+  /// Play a piano note by index.  Maps indices 0‑6 to note files.  If
+  /// additional keys are needed, update the list accordingly.
+  Future<void> playPianoKey(int index, {double volume = 1.0}) async {
+    const List<String> noteFiles = [
+      'C', // 0
+      'D', // 1
+      'E', // 2
+      'F', // 3
+      'G', // 4
+      'A', // 5
+      'B', // 6
+    ];
+    final String label = (index < noteFiles.length) ? noteFiles[index] : noteFiles[0];
+    await playNote(label, volume: volume);
+  }
+
+  /// Play a drum sound by index.  Maps indices to drum sample filenames.
+  Future<void> playDrum(int index, {double volume = 1.0}) async {
+    final String fileName = 'drum_$index.wav';
+    await playSample('assets/audio/drums/$fileName', volume: volume);
+  }
+
+  /// Play a xylophone bar sound by index.  Maps indices to xylophone sample
+  /// filenames.
+  Future<void> playXylophone(int index, {double volume = 1.0}) async {
+    final String fileName = 'xylophone_$index.wav';
+    await playSample('assets/audio/notes/$fileName', volume: volume);
+  }
+
+  /// Play an organ note by index.  Maps indices to organ sample filenames.
+  Future<void> playOrgan(int index, {double volume = 1.0}) async {
+    final String fileName = 'organ_$index.wav';
+    await playSample('assets/audio/notes/$fileName', volume: volume);
+  }
+
   /// Play an arbitrary audio asset.  The asset will be loaded and cached
   /// on first use, then reused on subsequent calls.  Returns a [SoundHandle]
   /// which can be used to control the playback if needed.
