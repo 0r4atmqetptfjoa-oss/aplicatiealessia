@@ -356,10 +356,10 @@
       "languageVersion": "3.3"
     },
     {
-      "name": "alesia_faza_1_meniu",
+      "name": "alesia",
       "rootUri": "../",
       "packageUri": "lib/",
-      "languageVersion": "2.17"
+      "languageVersion": "3.0"
     }
   ],
   "generator": "pub",
