@@ -1,7 +1,7 @@
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flame/game.dart';
-import 'package:flame/input.dart';
+import 'package:flame/events.dart';
 import 'package:flutter/material.dart' hide Image;
 
 import '../services/audio_engine_service.dart';
@@ -12,7 +12,7 @@ import '../services/audio_engine_service.dart';
 /// zone contains icons that can be tapped to trigger a sound via
 /// [AudioEngineService].  Icons animate with a gentle scale effect when
 /// activated.
-class SoundsGame extends FlameGame with HasTappables {
+class SoundsGame extends FlameGame {
   SoundsGame();
 
   final List<_SoundItem> _items = [
@@ -107,7 +107,7 @@ class _SoundItem {
 }
 
 /// Sprite component representing an interactive sound icon.
-class _SoundIcon extends SpriteComponent with Tappable {
+class _SoundIcon extends SpriteComponent with TapCallbacks {
   _SoundIcon({
     required Sprite sprite,
     required this.positionFraction,
@@ -130,17 +130,16 @@ class _SoundIcon extends SpriteComponent with Tappable {
   }
 
   @override
-  bool onTapDown(TapDownEvent event) {
+  void onTapDown(TapDownEvent event) {
     // Shrink slightly on tap down
     add(ScaleEffect.to(
       Vector2(0.8, 0.8),
       EffectController(duration: 0.1, curve: Curves.easeOut),
     ));
-    return true;
   }
 
   @override
-  bool onTapUp(TapUpEvent event) {
+  void onTapUp(TapUpEvent event) {
     // Bounce back and trigger sound
     add(ScaleEffect.to(
       Vector2(1.2, 1.2),
@@ -150,15 +149,13 @@ class _SoundIcon extends SpriteComponent with Tappable {
         onTap(soundIndex);
       },
     ));
-    return true;
   }
 
   @override
-  bool onTapCancel() {
+  void onTapCancel() {
     add(ScaleEffect.to(
       Vector2(1, 1),
       EffectController(duration: 0.1, curve: Curves.easeOut),
     ));
-    return true;
   }
 }

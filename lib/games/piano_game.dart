@@ -4,7 +4,8 @@ import 'dart:math' as math;
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flame/game.dart';
-import 'package:flame/input.dart';
+import 'package:flame/events.dart';
+import 'package:flame/particles.dart';
 import 'package:flutter/material.dart' hide Image;
 
 import '../services/audio_engine_service.dart';
@@ -16,7 +17,7 @@ import '../services/gamification_bloc.dart';
 /// effect and increment the score via the [GamificationBloc].  The
 /// keys are sized dynamically based on the game viewport to fill the
 /// available space in landscape orientation.
-class PianoGame extends FlameGame with HasTappables {
+class PianoGame extends FlameGame {
   PianoGame({required this.audioService, required this.gamificationBloc});
 
   final AudioEngineService audioService;
@@ -61,7 +62,7 @@ class PianoGame extends FlameGame with HasTappables {
 }
 
 /// Internal component representing a single piano key.
-class _PianoKeyComponent extends SpriteComponent with Tappable {
+class _PianoKeyComponent extends SpriteComponent with TapCallbacks {
   _PianoKeyComponent({
     required this.index,
     required Sprite sprite,
@@ -77,7 +78,7 @@ class _PianoKeyComponent extends SpriteComponent with Tappable {
   bool _pressed = false;
 
   @override
-  bool onTapDown(TapDownEvent event) {
+  void onTapDown(TapDownEvent event) {
     _pressed = true;
     onPressed();
     // Squash effect when pressed.
@@ -89,11 +90,10 @@ class _PianoKeyComponent extends SpriteComponent with Tappable {
     );
     // Spawn sparkle particles at the key centre.
     _spawnSparkle(parent as FlameGame);
-    return true;
   }
 
   @override
-  bool onTapUp(TapUpEvent event) {
+  void onTapUp(TapUpEvent event) {
     if (_pressed) {
       _pressed = false;
       // Stretch and bounce back.
@@ -108,11 +108,10 @@ class _PianoKeyComponent extends SpriteComponent with Tappable {
         ),
       );
     }
-    return true;
   }
 
   @override
-  bool onTapCancel() {
+  void onTapCancel() {
     _pressed = false;
     add(
       ScaleEffect.to(
@@ -120,7 +119,6 @@ class _PianoKeyComponent extends SpriteComponent with Tappable {
         EffectController(duration: 0.05, curve: Curves.easeOut),
       ),
     );
-    return true;
   }
 
   /// Emit a burst of small sparkle particles above the key.

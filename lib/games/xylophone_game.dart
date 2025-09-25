@@ -4,7 +4,8 @@ import 'dart:ui';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flame/game.dart';
-import 'package:flame/input.dart';
+import 'package:flame/events.dart';
+import 'package:flame/particles.dart';
 import 'package:flutter/material.dart' hide Image;
 
 import '../services/audio_engine_service.dart';
@@ -14,7 +15,7 @@ import '../services/gamification_bloc.dart';
 ///
 /// Each bar glows and releases magical dust when tapped.  Bars are laid
 /// out horizontally and sized relative to the screen.
-class XylophoneGame extends FlameGame with HasTappables {
+class XylophoneGame extends FlameGame {
   XylophoneGame({required this.audioService, required this.gamificationBloc});
 
   final AudioEngineService audioService;
@@ -53,7 +54,7 @@ class XylophoneGame extends FlameGame with HasTappables {
 }
 
 /// Internal component representing a single xylophone bar.
-class _XylophoneBar extends SpriteComponent with Tappable {
+class _XylophoneBar extends SpriteComponent with TapCallbacks {
   _XylophoneBar({
     required this.index,
     required Sprite sprite,
@@ -68,7 +69,7 @@ class _XylophoneBar extends SpriteComponent with Tappable {
   bool _pressed = false;
 
   @override
-  bool onTapDown(TapDownEvent event) {
+  void onTapDown(TapDownEvent event) {
     _pressed = true;
     onPressed();
     add(
@@ -78,11 +79,10 @@ class _XylophoneBar extends SpriteComponent with Tappable {
       ),
     );
     _spawnMagicDust(parent as FlameGame);
-    return true;
   }
 
   @override
-  bool onTapUp(TapUpEvent event) {
+  void onTapUp(TapUpEvent event) {
     if (_pressed) {
       _pressed = false;
       add(
@@ -96,11 +96,10 @@ class _XylophoneBar extends SpriteComponent with Tappable {
         ),
       );
     }
-    return true;
   }
 
   @override
-  bool onTapCancel() {
+  void onTapCancel() {
     _pressed = false;
     add(
       ScaleEffect.to(
@@ -108,7 +107,6 @@ class _XylophoneBar extends SpriteComponent with Tappable {
         EffectController(duration: 0.05, curve: Curves.easeOut),
       ),
     );
-    return true;
   }
 
   /// Emit magic dust particles with a gentle upward drift.

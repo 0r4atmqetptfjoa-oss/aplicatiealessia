@@ -4,7 +4,8 @@ import 'dart:ui';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flame/game.dart';
-import 'package:flame/input.dart';
+import 'package:flame/events.dart';
+import 'package:flame/particles.dart';
 import 'package:flutter/material.dart' hide Image;
 
 import '../services/audio_engine_service.dart';
@@ -14,7 +15,7 @@ import '../services/gamification_bloc.dart';
 ///
 /// Each drum pops like a bubble when tapped, plays a drum sound and
 /// awards points.  Bubble particles rise from the drum after each hit.
-class DrumsGame extends FlameGame with HasTappables {
+class DrumsGame extends FlameGame {
   DrumsGame({required this.audioService, required this.gamificationBloc});
 
   final AudioEngineService audioService;
@@ -53,7 +54,7 @@ class DrumsGame extends FlameGame with HasTappables {
 }
 
 /// Internal component representing a single drum.
-class _DrumComponent extends SpriteComponent with Tappable {
+class _DrumComponent extends SpriteComponent with TapCallbacks {
   _DrumComponent({
     required this.index,
     required Sprite sprite,
@@ -68,7 +69,7 @@ class _DrumComponent extends SpriteComponent with Tappable {
   bool _pressed = false;
 
   @override
-  bool onTapDown(TapDownEvent event) {
+  void onTapDown(TapDownEvent event) {
     _pressed = true;
     onPressed();
     // Squash slightly
@@ -79,11 +80,10 @@ class _DrumComponent extends SpriteComponent with Tappable {
       ),
     );
     _spawnBubbles(parent as FlameGame);
-    return true;
   }
 
   @override
-  bool onTapUp(TapUpEvent event) {
+  void onTapUp(TapUpEvent event) {
     if (_pressed) {
       _pressed = false;
       add(
@@ -97,11 +97,10 @@ class _DrumComponent extends SpriteComponent with Tappable {
         ),
       );
     }
-    return true;
   }
 
   @override
-  bool onTapCancel() {
+  void onTapCancel() {
     _pressed = false;
     add(
       ScaleEffect.to(
@@ -109,7 +108,6 @@ class _DrumComponent extends SpriteComponent with Tappable {
         EffectController(duration: 0.05, curve: Curves.easeOut),
       ),
     );
-    return true;
   }
 
   /// Emit rising bubble particles from the drum's centre.

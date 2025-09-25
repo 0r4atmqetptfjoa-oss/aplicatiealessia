@@ -4,7 +4,8 @@ import 'dart:ui';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flame/game.dart';
-import 'package:flame/input.dart';
+import 'package:flame/events.dart';
+import 'package:flame/particles.dart';
 import 'package:flutter/material.dart' hide Image;
 
 import '../services/audio_engine_service.dart';
@@ -16,7 +17,7 @@ import '../services/gamification_bloc.dart';
 /// Five seashell keys sit in front of colourful coral pipes.  When
 /// tapped they emit rising bubbles, play organ sounds and increment the
 /// gamification score.
-class OrganGame extends FlameGame with HasTappables {
+class OrganGame extends FlameGame {
   OrganGame({required this.audioService, required this.gamificationBloc});
 
   final AudioEngineService audioService;
@@ -85,7 +86,7 @@ class OrganGame extends FlameGame with HasTappables {
 }
 
 /// Internal component representing a single seashell key.
-class _OrganKey extends SpriteComponent with Tappable {
+class _OrganKey extends SpriteComponent with TapCallbacks {
   _OrganKey({
     required this.index,
     required Sprite sprite,
@@ -110,7 +111,7 @@ class _OrganKey extends SpriteComponent with Tappable {
   }
 
   @override
-  bool onTapDown(TapDownEvent event) {
+  void onTapDown(TapDownEvent event) {
     _pressed = true;
     onPressed();
     add(
@@ -120,11 +121,10 @@ class _OrganKey extends SpriteComponent with Tappable {
       ),
     );
     _spawnBubbles(parent as FlameGame);
-    return true;
   }
 
   @override
-  bool onTapUp(TapUpEvent event) {
+  void onTapUp(TapUpEvent event) {
     if (_pressed) {
       _pressed = false;
       add(
@@ -138,11 +138,10 @@ class _OrganKey extends SpriteComponent with Tappable {
         ),
       );
     }
-    return true;
   }
 
   @override
-  bool onTapCancel() {
+  void onTapCancel() {
     _pressed = false;
     add(
       ScaleEffect.to(
@@ -150,7 +149,6 @@ class _OrganKey extends SpriteComponent with Tappable {
         EffectController(duration: 0.05, curve: Curves.easeOut),
       ),
     );
-    return true;
   }
 
   /// Emit gentle rising bubbles when the key is pressed.

@@ -123,9 +123,9 @@
     },
     {
       "name": "go_router",
-      "rootUri": "file:///C:/Users/razva/AppData/Local/Pub/Cache/hosted/pub.dev/go_router-7.1.1",
+      "rootUri": "file:///C:/Users/razva/AppData/Local/Pub/Cache/hosted/pub.dev/go_router-13.2.5",
       "packageUri": "lib/",
-      "languageVersion": "2.18"
+      "languageVersion": "3.2"
     },
     {
       "name": "google_fonts",
@@ -356,7 +356,7 @@
       "languageVersion": "3.3"
     },
     {
-      "name": "alesia",
+      "name": "alesia_faza_1_meniu",
       "rootUri": "../",
       "packageUri": "lib/",
       "languageVersion": "3.0"

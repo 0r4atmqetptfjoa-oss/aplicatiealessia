@@ -1,11 +1,15 @@
-import 'dart:math' as math;
+import 'dart:async';
+import 'dart:collection';
+
 import 'package:flutter_soloud/flutter_soloud.dart';
 
-/// A singleton service responsible for playing audio for the instruments.
+/// A singleton service responsible for playing audio samples and notes.
 ///
-/// In later phases this service can load real sound files and trigger
-/// them on demand.  At this point it simply initialises a [Soloud]
-/// instance and provides stubbed methods for each type of instrument.
+/// This service wraps the [`SoLoud`](https://pub.dev/packages/flutter_soloud)
+/// instance and caches loaded audio sources to avoid reloading the same
+/// asset multiple times.  It exposes convenience methods for playing
+/// instrument notes (e.g. piano keys) and arbitrary samples, and allows
+/// setting the global volume.
 class AudioEngineService {
   AudioEngineService._internal();
 
@@ -14,61 +18,61 @@ class AudioEngineService {
   /// Access the shared instance of the service.
   factory AudioEngineService() => _instance;
 
-  final Soloud _soloud = Soloud();
+  final SoLoud _soloud = SoLoud.instance;
+  final Map<String, AudioSource> _sampleCache = HashMap();
+  bool _inited = false;
 
-  bool _initialised = false;
-
-  /// Initialise the underlying audio engine.
+  /// Initialise the audio engine if it hasn't been initialised yet.
   Future<void> init() async {
-    if (_initialised) return;
+    if (_inited) return;
     await _soloud.init();
-    _initialised = true;
+    _inited = true;
   }
 
-  /// Play a piano key sound for the given [index].
+  /// Dispose all loaded samples and deinitialise the engine.
+  Future<void> dispose() async {
+    for (final src in _sampleCache.values) {
+      try {
+        await _soloud.disposeSource(src);
+      } catch (_) {}
+    }
+    _sampleCache.clear();
+    try {
+      _soloud.deinit();
+    } catch (_) {}
+    _inited = false;
+  }
+
+  /// Play a note sample with the given [label] at the provided [volume].
   ///
-  /// In a production version this would load and play a sampled note
-  /// corresponding to the key index.  For now it simply triggers a short
-  /// sine tone via the Soloud API.
-  void playPianoKey(int index) {
-    if (!_initialised) return;
-    final double freq = 220.0 * (1 << (index ~/ 12)) *
-        _pitchFactor(index % 12);
-    final Sfxr sfx = Sfxr();
-    sfx.setParamsString('sine&freq=$freq&decay=0.3');
-    _soloud.play(sfx);
+  /// This assumes you have audio files named like `note_C.wav` in
+  /// `assets/audio/notes/`.  The [volume] will be clamped between 0 and 1.
+  Future<void> playNote(String label, {double volume = 1.0}) async {
+    await playSample('assets/audio/notes/note_$label.wav', volume: volume);
   }
 
-  /// Play a drum hit corresponding to [index].
-  void playDrum(int index) {
-    if (!_initialised) return;
-    final Sfxr sfx = Sfxr();
-    sfx.setParamsString('square&freq=100&decay=0.2');
-    _soloud.play(sfx);
+  /// Play an arbitrary audio asset.  The asset will be loaded and cached
+  /// on first use, then reused on subsequent calls.  Returns a [SoundHandle]
+  /// which can be used to control the playback if needed.
+  Future<SoundHandle> playSample(String assetPath, {double volume = 1.0}) async {
+    final src = await _getOrLoadAsset(assetPath);
+    final handle = await _soloud.play(src, volume: volume.clamp(0.0, 1.0));
+    return handle;
   }
 
-  /// Play a xylophone bar corresponding to [index].
-  void playXylophone(int index) {
-    if (!_initialised) return;
-    final double base = 523.25; // C5
-    final double freq = base * _pitchFactor(index);
-    final Sfxr sfx = Sfxr();
-    sfx.setParamsString('triangle&freq=$freq&decay=0.4');
-    _soloud.play(sfx);
+  /// Adjust the global volume for all sounds.  [volume] should be between
+  /// 0.0 (muted) and 1.0 (full volume).
+  Future<void> setMasterVolume(double volume) async {
+    _soloud.setGlobalVolume(volume.clamp(0.0, 1.0));
   }
 
-  /// Play an organ key corresponding to [index].
-  void playOrgan(int index) {
-    if (!_initialised) return;
-    final double base = 261.63; // C4
-    final double freq = base * _pitchFactor(index);
-    final Sfxr sfx = Sfxr();
-    sfx.setParamsString('sine&freq=$freq&decay=0.5');
-    _soloud.play(sfx);
-  }
-
-  /// Helper function returning a pitch multiplier for a semitone offset.
-  double _pitchFactor(int semitone) {
-    return math.pow(2.0, semitone / 12.0).toDouble();
+  /// Load an asset from the given path or return the cached source if
+  /// already loaded.
+  Future<AudioSource> _getOrLoadAsset(String assetPath) async {
+    final cached = _sampleCache[assetPath];
+    if (cached != null) return cached;
+    final src = await _soloud.loadAsset(assetPath);
+    _sampleCache[assetPath] = src;
+    return src;
   }
 }

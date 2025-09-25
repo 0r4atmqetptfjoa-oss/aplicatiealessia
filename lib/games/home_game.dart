@@ -1,97 +1,63 @@
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
+import 'package:flame/events.dart';
 import 'package:flame/game.dart';
-import 'package:flame/input.dart';
-import 'package:flutter/animation.dart';
-import 'package:flutter/material.dart' hide Image;
+import 'package:flame/parallax.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
-/// Signature for a callback that initiates navigation to another route.
-typedef NavigateCallback = void Function(String route);
+import '../core/service_locator.dart';
+import '../services/audio_engine_service.dart';
 
-/// A small Flame game used to render the main menu scene.
+/// The main menu scene of the Alesia app.
 ///
-/// The scene consists of a parallax background made from three separate
-/// layers, a floating title and a row of interactive buttons.  Each
-/// button triggers navigation to a different placeholder route when tapped.
-class HomeGame extends FlameGame with HasTappables {
-  HomeGame({required this.onNavigate});
-
-  /// Callback invoked when the user taps one of the menu buttons.
-  final NavigateCallback onNavigate;
-
-  /// Provide a custom camera zoom so that the scene scales nicely across
-  /// devices with different resolutions.  A smaller zoom shows more of the
-  /// parallax art.
-  @override
-  double get zoom => 1.0;
-
+/// This game draws a parallax background, a floating title and a set of
+/// interactive buttons that navigate to different modules of the app.
+class HomeGame extends FlameGame {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    // Preload the image assets referenced by the parallax and buttons.
-    await images.loadAll([
-      'background_back.png',
-      'background_middle.png',
-      'background_front.png',
-      'icon_harp.png',
-      'icon_music_box.png',
-      'icon_storybook.png',
-      'icon_block_a.png',
-      'icon_shell.png',
-    ]);
 
-    // Build the parallax from back to front.  The base velocity controls
-    // the scroll speed of the nearest layer; farther layers move more
-    // slowly by default.  The velocityMultiplierDelta scales down the
-    // velocity per layer so that the farthest layer moves the least.
-    final ParallaxComponent parallax = await loadParallaxComponent(
+    // Load and add a parallax with three layers.  A higher base velocity
+    // makes the closest layer scroll faster than the far ones.
+    final parallax = await ParallaxComponent.load(
       [
         ParallaxImageData('background_back.png'),
         ParallaxImageData('background_middle.png'),
         ParallaxImageData('background_front.png'),
       ],
-      baseVelocity: Vector2(5, 0),
-      velocityMultiplierDelta: Vector2(1.5, 0),
-      // The parallax component will size itself to the game viewport.
+      baseVelocity: Vector2(10, 0),
+      velocityMultiplierDelta: Vector2(1.8, 1.0),
     );
     add(parallax);
 
-    // Add the animated title.  A floating effect makes the text gently
-    // oscillate up and down to feel alive.
-    final title = TextComponent(
-      text: 'Alesia',
-      textRenderer: TextPaint(
-        style: TextStyle(
-          fontSize: 64,
-          fontWeight: FontWeight.w800,
-          color: Colors.white,
-          shadows: [
-            Shadow(
-              offset: const Offset(2, 2),
-              blurRadius: 4,
-              color: Colors.black.withOpacity(0.3),
+    // Add the floating title text with a gentle up/down movement.
+    add(
+      TextComponent(
+        text: 'Alesia',
+        position: size / 2,
+        anchor: Anchor.center,
+        textRenderer: TextPaint(
+          style: const TextStyle(
+            fontSize: 64,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      )
+        ..add(
+          MoveEffect.by(
+            Vector2(0, 20),
+            EffectController(
+              duration: 2,
+              alternate: true,
+              infinite: true,
             ),
-          ],
+          ),
         ),
-      ),
-    )
-      ..anchor = Anchor.center
-      ..position = Vector2(size.x / 2, size.y * 0.25);
-    // Create a perpetual floating effect.
-    title.add(
-      MoveEffect.by(
-        Vector2(0, -10),
-        EffectController(
-          duration: 2,
-          reverseDuration: 2,
-          infinite: true,
-          curve: Curves.easeInOut,
-        ),
-      ),
     );
-    add(title);
 
-    // Define the menu items: asset name and destination route.
+    // Define menu items with their asset names and destination routes.
     final List<({String asset, String route})> items = [
       (asset: 'icon_harp.png', route: '/instruments'),
       (asset: 'icon_music_box.png', route: '/songs'),
@@ -100,91 +66,70 @@ class HomeGame extends FlameGame with HasTappables {
       (asset: 'icon_shell.png', route: '/sounds'),
     ];
 
-    // Layout variables for the buttons.
-    const double buttonSize = 96;
-    const double horizontalSpacing = 24;
-    final double totalWidth = items.length * buttonSize + (items.length - 1) * horizontalSpacing;
-    double xStart = (size.x - totalWidth) / 2 + buttonSize / 2;
-    final double yPos = size.y * 0.7;
+    // Precalculate positions for the buttons on screen.
+    final positions = [
+      Vector2(size.x * 0.2, size.y * 0.75),
+      Vector2(size.x * 0.35, size.y * 0.8),
+      Vector2(size.x * 0.5, size.y * 0.75),
+      Vector2(size.x * 0.65, size.y * 0.8),
+      Vector2(size.x * 0.8, size.y * 0.75),
+    ];
 
     // Create and add each menu button.
-    for (final item in items) {
-      final sprite = await loadSprite(item.asset);
+    for (var i = 0; i < items.length; i++) {
       final button = _MenuButton(
-        sprite: sprite,
-        size: Vector2.all(buttonSize),
-        onTap: () => onNavigate(item.route),
+        asset: items[i].asset,
+        route: items[i].route,
       )
-        ..anchor = Anchor.center
-        ..position = Vector2(xStart, yPos);
+        ..position = positions[i]
+        ..size = Vector2.all(size.y * 0.2)
+        ..anchor = Anchor.center;
       add(button);
-      xStart += buttonSize + horizontalSpacing;
     }
   }
 }
 
-/// Private helper component representing an interactive menu button.
+/// A button component used on the home screen.
 ///
-/// The button scales down slightly when pressed and springs back with an
-/// elastic effect when released.  When tapped, it invokes the supplied
-/// [onTap] callback.
-class _MenuButton extends SpriteComponent with Tappable {
-  _MenuButton({
-    required Sprite sprite,
-    required Vector2 size,
-    required this.onTap,
-  }) : super(sprite: sprite, size: size);
+/// This component loads a sprite from the given asset, reacts to taps
+/// with a scale effect and triggers navigation and sound effects via
+/// service locators.
+class _MenuButton extends SpriteComponent with TapCallbacks {
+  _MenuButton({required this.asset, required this.route});
 
-  final VoidCallback onTap;
-
-  bool _pressed = false;
+  final String asset;
+  final String route;
 
   @override
-  bool onTapDown(TapDownEvent event) {
-    _pressed = true;
-    // Start a quick squash effect when the user presses down.
-    add(
-      ScaleEffect.to(
-        Vector2(0.85, 0.85),
-        EffectController(duration: 0.1, curve: Curves.easeOut),
-      ),
-    );
-    return true;
+  Future<void> onLoad() async {
+    super.onLoad();
+    sprite = await Sprite.load(asset);
   }
 
   @override
-  bool onTapUp(TapUpEvent event) {
-    if (_pressed) {
-      _pressed = false;
-      // Stretch past the original size then settle back to 1.0 with an
-      // elastic easing curve.
-      add(
-        ScaleEffect.to(
-          Vector2(1.15, 1.15),
-          EffectController(duration: 0.2, reverseDuration: 0.2, curve: Curves.easeOutBack),
-          onComplete: () {
-            // Reset to original scale and call callback once the effect is
-            // complete.  Use microtask to avoid interfering with Flame's
-            // internals.
-            scale = Vector2.all(1.0);
-            Future.microtask(onTap);
-          },
-        ),
-      );
-    }
-    return true;
+  void onTapDown(TapDownEvent event) {
+    // Shrink slightly when pressed.
+    add(
+      ScaleEffect.to(
+        Vector2.all(0.9),
+        EffectController(duration: 0.1),
+      ),
+    );
   }
 
   @override
-  bool onTapCancel() {
-    _pressed = false;
-    // If the touch is cancelled, smoothly return to original scale.
+  void onTapUp(TapUpEvent event) {
+    // Bounce back to original size and navigate once the effect completes.
     add(
       ScaleEffect.to(
-        Vector2(1.0, 1.0),
-        EffectController(duration: 0.1, curve: Curves.easeOut),
+        Vector2.all(1.0),
+        EffectController(duration: 0.1),
+        onComplete: () {
+          // Navigate to the route via GoRouter and play a UI sound.
+          locator<GoRouter>().go(route);
+          locator<AudioEngineService>().playSample('assets/audio/ui/sfx_1.wav');
+        },
       ),
     );
-    return true;
   }
 }

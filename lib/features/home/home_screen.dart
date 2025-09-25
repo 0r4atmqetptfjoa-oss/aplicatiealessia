@@ -17,30 +17,8 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: GameWidget(
-        game: HomeGame(
-          onNavigate: (route) => _handleNavigate(context, route),
-        ),
+        game: HomeGame(),
       ),
     );
-  }
-
-  /// Wrap the navigation callback to ensure it is executed on the next
-  /// microtask, avoiding any potential conflicts with Flame's internal
-  /// event handling.
-  void _handleNavigate(BuildContext context, String route) {
-    // Use Future.microtask so the call is deferred until after the tap
-    // event completes.  Without this, push/pop operations inside the
-    // render loop can sometimes lead to exceptions.
-    Future.microtask(() {
-      // Use go_router's extension to navigate.  If go_router isn't set up
-      // correctly, fall back to Navigator.  The dynamic cast allows
-      // the same callback to be used from within Flame where context.go
-      // isn't directly available.
-      try {
-        context.go(route);
-      } catch (_) {
-        Navigator.of(context).pushNamed(route);
-      }
-    });
   }
 }
