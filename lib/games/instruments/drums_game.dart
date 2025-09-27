@@ -4,6 +4,9 @@ import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
+// Import Flame particles to access AcceleratedParticle, CircleParticle and
+// other particle classes. Required when using ParticleSystemComponent.
+import 'package:flame/particles.dart';
 import 'package:flutter/material.dart';
 
 /// A game that displays four gummy drum pads. Each pad can be tapped to
@@ -70,11 +73,15 @@ class _DrumPad extends SpriteComponent with TapCallbacks {
     const int count = 12;
     for (int i = 0; i < count; i++) {
       final velocity = Vector2((_random.nextDouble() - 0.5) * 80, -_random.nextDouble() * 120 - 40);
-      final particle = ParticleComponent(
+      // Use ParticleSystemComponent instead of ParticleComponent. The
+      // AcceleratedParticle provides a physics-based trajectory for
+      // each bubble, while CircleParticle draws the bubble itself. We
+      // randomize the horizontal spawn position along the top edge of
+      // the drum pad.
+      final particle = ParticleSystemComponent(
         particle: AcceleratedParticle(
           acceleration: Vector2(0, 60),
           speed: velocity,
-          // Spawn from a random point along the top edge of the drum pad.
           position: Vector2(_random.nextDouble() * size.x, 0),
           child: CircleParticle(
             radius: 4 + _random.nextDouble() * 2,
@@ -82,8 +89,8 @@ class _DrumPad extends SpriteComponent with TapCallbacks {
           ),
           lifespan: 1.2,
         ),
-      );
-      particle.priority = 10;
+      )
+        ..priority = 10;
       add(particle);
     }
   }

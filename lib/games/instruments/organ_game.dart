@@ -4,6 +4,9 @@ import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
+// Import Flame particles library to access AcceleratedParticle and
+// CircleParticle classes. This is required for the new particle API.
+import 'package:flame/particles.dart';
 import 'package:flutter/material.dart';
 
 /// A game representing an underwater pipe organ. Keys are iridescent shells
@@ -77,11 +80,15 @@ class _OrganKey extends SpriteComponent with TapCallbacks {
     const int count = 8;
     for (int i = 0; i < count; i++) {
       final velocity = Vector2((_random.nextDouble() - 0.5) * 20, -_random.nextDouble() * 60 - 20);
-      final particle = ParticleComponent(
+      // Use ParticleSystemComponent to wrap our particle effect.
+      // Each bubble uses an AcceleratedParticle with a downward
+      // acceleration simulating water resistance. CircleParticle
+      // draws the bubble itself. We randomize the horizontal position
+      // for variation.
+      final particle = ParticleSystemComponent(
         particle: AcceleratedParticle(
           acceleration: Vector2(0, 30),
           speed: velocity,
-          // Emit bubbles from random positions along the top of the key.
           position: Vector2(_random.nextDouble() * size.x, 0),
           child: CircleParticle(
             radius: 5 + _random.nextDouble() * 3,
@@ -89,8 +96,8 @@ class _OrganKey extends SpriteComponent with TapCallbacks {
           ),
           lifespan: 1.5,
         ),
-      );
-      particle.priority = 10;
+      )
+        ..priority = 10;
       add(particle);
     }
   }

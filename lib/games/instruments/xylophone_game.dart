@@ -4,6 +4,10 @@ import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
+// Include the Flame particles library to access particle classes such as
+// AcceleratedParticle and CircleParticle. Without this import, these
+// classes are not available when compiling with the latest Flame version.
+import 'package:flame/particles.dart';
 import 'package:flutter/material.dart';
 
 /// A game presenting a magical xylophone. Bars glow softly and emit
@@ -80,11 +84,14 @@ class _XyloBar extends SpriteComponent with TapCallbacks {
     const int count = 15;
     for (int i = 0; i < count; i++) {
       final velocity = Vector2((_random.nextDouble() - 0.5) * 40, -_random.nextDouble() * 100 - 30);
-      final particle = ParticleComponent(
+      // Create the particle using ParticleSystemComponent for Flame 1.23+.
+      // AcceleratedParticle adds velocity and acceleration physics and
+      // CircleParticle draws the glowing dust. We randomize the spawn
+      // position along the top of the bar for a dispersed effect.
+      final particle = ParticleSystemComponent(
         particle: AcceleratedParticle(
           acceleration: Vector2(0, 70),
           speed: velocity,
-          // Emit dust from random points along the top edge of the bar.
           position: Vector2(_random.nextDouble() * size.x, 0),
           child: CircleParticle(
             radius: 2 + _random.nextDouble() * 2,
@@ -92,8 +99,8 @@ class _XyloBar extends SpriteComponent with TapCallbacks {
           ),
           lifespan: 1.2,
         ),
-      );
-      particle.priority = 10;
+      )
+        ..priority = 10;
       add(particle);
     }
   }

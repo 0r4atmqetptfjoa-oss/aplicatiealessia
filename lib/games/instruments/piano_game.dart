@@ -4,6 +4,11 @@ import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
+// Import the particles library to gain access to AcceleratedParticle,
+// CircleParticle and other particle-related classes. Without this
+// import, these types will not be available when using newer versions
+// of Flame (1.23+), leading to compilation errors.
+import 'package:flame/particles.dart';
 import 'package:flutter/material.dart';
 
 /// A simple piano game that divides a sprite into multiple tappable keys.
@@ -81,11 +86,16 @@ class _PianoKey extends SpriteComponent with TapCallbacks {
     const int count = 10;
     for (int i = 0; i < count; i++) {
       final velocity = Vector2((_random.nextDouble() - 0.5) * 50, -_random.nextDouble() * 80 - 20);
-      final particle = ParticleComponent(
+      // Use ParticleSystemComponent instead of the deprecated ParticleComponent.
+      // ParticleSystemComponent wraps a Particle and handles its lifecycle
+      // automatically. AcceleratedParticle provides simple physics with
+      // acceleration and speed; CircleParticle renders a simple circle. A
+      // random horizontal spawn position makes the burst appear across the
+      // width of the key.
+      final particle = ParticleSystemComponent(
         particle: AcceleratedParticle(
           acceleration: Vector2(0, 50),
           speed: velocity,
-          // Spawn at a random horizontal position along the top edge of the key.
           position: Vector2(_random.nextDouble() * size.x, 0),
           child: CircleParticle(
             radius: 3 + _random.nextDouble() * 2,
@@ -93,8 +103,8 @@ class _PianoKey extends SpriteComponent with TapCallbacks {
           ),
           lifespan: 1.0,
         ),
-      );
-      particle.priority = 10;
+      )
+        ..priority = 10;
       add(particle);
     }
   }
