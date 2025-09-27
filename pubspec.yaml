@@ -1,32 +1,36 @@
 name: alesia
-description: >-
-  Alesia is a premium educational and entertainment app for kids. This
-  project lays the foundation for the application by setting up the core
-  architecture, dependencies and assets needed for the main menu.
+description: "Alesia — schelet complet funcțional, cu resurse placeholder și TODO-uri pentru înlocuire."
+publish_to: "none"
+version: 0.1.0+1
 
-# The following section defines the versions of the Dart SDK that the
-# package is compatible with. It needs to be updated when the minimum
-# supported Flutter version changes.
 environment:
-  # flutter_soloud 3.x requires at least Dart 3.4.0, so bump the lower
-  # bound accordingly. Adjust this as needed based on your installed
-  # Flutter SDK version.
-  sdk: '>=3.4.0 <4.0.0'
+  sdk: ">=3.3.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  # Routing and dependency injection
-  go_router: ^7.0.1
-  get_it: ^7.6.0
-  flutter_bloc: ^8.1.3
-  # Game engine and audio/animation packages
-  # Use a more recent Flame version that contains the TapCallbacks API.
-  # 1.23.0 is compatible with Dart >= 3.4 and includes the new tap event API.
-  flame: ^1.23.0
-  # Updated to the latest stable version as 0.0.6 no longer exists on pub.dev.
+
+  # Navigație declarativă
+  go_router: ^16.2.4  # Confirmat: publicat acum ~3 zile
+
+  # DI / Service Locator
+  get_it: ^8.2.0
+
+  # BLoC (pregătit pentru stări, dacă e necesar în fazele următoare)
+  flutter_bloc: ^9.1.1
+
+  # Engine de joc
+  flame: ^1.32.0
+
+  # Rive (numele de pachet actual). NOTĂ: 'flutter_rive' a fost înlocuit de 'rive' pe pub.dev.
+  # Recomandare oficială: folosiți cea mai nouă versiune dev 0.14.x (vedeți README pentru detalii).
+  rive: ^0.14.0-dev.8
+
+  # Audio: SoLoud
   flutter_soloud: ^3.3.7
-  rive: ^0.12.3
+
+  # Animații declarative de UI
+  flutter_animate: ^4.5.2
 
 dev_dependencies:
   flutter_test:
@@ -35,19 +39,6 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/images/parallax_back.png
-    - assets/images/parallax_middle.png
-    - assets/images/parallax_front.png
-    - assets/images/harp.png
-    - assets/images/music_box.png
-    - assets/images/story_book.png
-    - assets/images/play_cube.png
-    - assets/images/seashell.png
-    # Individual instrument sprites and backgrounds
-    # Include all sprites in these directories rather than single sprite sheets
-    - assets/images/piano/
-    - assets/images/drums/
-    - assets/images/xylophone/
-    - assets/images/organ/
-    - assets/images/backgrounds/
-    - assets/images/previews/
+    - assets/images/
+    - assets/audio/
+    - assets/rive/
