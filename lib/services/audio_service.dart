@@ -1,60 +1,77 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_soloud/flutter_soloud.dart';
 
-/// Serviciu audio bazat pe SoLoud (flutter_soloud).
-/// Conceput să fie *rezistent* la lipsa resurselor (fallback silențios).
 class AudioService {
   final SoLoud _soloud = SoLoud.instance;
-  AudioSource? _tapSource;
-  SoundHandle? _bgmHandle;
+  final Map<String, AudioSource> _cache = {};
+  AudioSource? _tap;
+  AudioSource? _bg;
+  bool _ready = false;
 
   Future<void> init() async {
     try {
-      if (!_soloud.isInitialized) {
-        await _soloud.init(automaticCleanup: true);
+      await _soloud.init(bufferSize: 1024);
+    SoLoud.instance.setVisualizationEnabled(true);
+    SoLoud.instance.setFftSmoothing(0.7);
+      // TODO (Răzvan): Înlocuiește cu sunetul final, ex: 'assets/audio/final/tap.mp3'
+      _tap = await _load('assets/audio/placeholders/placeholder_sound.mp3');
+      // TODO (Răzvan): Poți adăuga un fundal în 'assets/audio/final/bg_music.mp3'
+      _bg = await _load('assets/audio/final/bg_music.mp3');
+      _ready = true;
+    } catch (e) {
+      _ready = false;
+      if (kDebugMode) {
+        print('AudioService init fallback: $e');
       }
-      // Preîncărcare sunet universal "tap".
-      // TODO (Răzvan): Înlocuiește cu un efect real, ex: 'assets/audio/final/tap_soft.mp3'
-      _tapSource = await _soloud.loadAsset('assets/audio/placeholders/placeholder_sound.mp3');
-    } on SoLoudException catch (e, _) {
-      debugPrint('SoLoud failed to init: $e');
-    } catch (e, _) {
-      debugPrint('AudioService init error: $e');
     }
   }
 
-  Future<void> playTap({double volume = 0.9}) async {
-    if (_tapSource == null) return;
+  Future<AudioSource?> _load(String path) async {
     try {
-      await _soloud.play(_tapSource!, volume: volume);
+      return await _soloud.loadAsset(path);
     } catch (e) {
-      debugPrint('playTap error: $e');
+      if (kDebugMode) {
+        print('Audio load failed for $path: $e');
+      }
+      return null;
     }
   }
 
-  Future<void> playBgmAsset(String assetPath, {double volume = 0.5, bool looping = true}) async {
-    try {
-      // TODO (Răzvan): Înlocuiește cu un BGM real în /final
-      final src = await _soloud.loadAsset(assetPath);
-      _bgmHandle = await _soloud.play(src, volume: volume, looping: looping);
-    } catch (e) {
-      debugPrint('playBgmAsset error: $e');
+  Future<void> playTap() async {
+    if (!_ready) return;
+    if (_tap != null) {
+      try { await _soloud.play(_tap!); } catch (_) {}
     }
   }
 
-  void stopBgm() {
-    final h = _bgmHandle;
-    if (h == null) return;
-    _soloud.stop(h);
-    _bgmHandle = null;
+  /// Redă o notă după id (ex: 'piano_do4', 'xylo_c5', 'organ_c4', 'drum_snare', 'tick').
+  /// Va încerca `assets/audio/final/<id>.mp3`. Dacă nu există, folosește `playTap()` ca fallback.
+  Future<void> playNote(String id) async {
+    if (!_ready) return;
+    var src = _cache[id];
+    if (src == null) {
+      // TODO (Răzvan): Adaugă fișiere reale în `assets/audio/final/` cu denumirea exactă `<id>.mp3`
+      src = await _load('assets/audio/final/$id.mp3');
+      if (src != null) _cache[id] = src;
+    }
+    if (src != null) {
+      try { await _soloud.play(src); return; } catch (_) {}
+    }
+    await playTap(); // fallback silențios
+  }
+
+  /// Tick metronom (folosește 'tick.mp3' dacă există în final/)
+  Future<void> playTick() => playNote('tick');
+
+  /// Redă o bucată de fundal (one-shot). Pentru loop, reapelează periodic sau utilizează un fișier lung.
+  Future<void> playBackgroundOnce() async {
+    if (!_ready || _bg == null) return;
+    try { await _soloud.play(_bg!); } catch (_) {}
   }
 
   Future<void> dispose() async {
     try {
-      stopBgm();
-      await _soloud.disposeAllSources();
-      _soloud.deinit();
+      await _soloud.deinit();
     } catch (_) {}
   }
 }

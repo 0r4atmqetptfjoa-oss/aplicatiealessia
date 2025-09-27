@@ -1,0 +1,10 @@
+{
+  "title": "Poveste",
+  "start": "n1",
+  "nodes": {
+    "n1": {
+      "text": "Salut!",
+      "options": []
+    }
+  }
+}

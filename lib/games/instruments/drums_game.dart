@@ -1,11 +1,12 @@
 import 'dart:math';
+import 'package:alesia/core/game_feedback.dart';
 import 'package:alesia/core/service_locator.dart';
+import 'package:alesia/games/shared/rhythm_conductor.dart';
 import 'package:alesia/services/audio_service.dart';
-import 'package:alesia/services/progress_service.dart';
-import 'package:alesia/services/synth_service.dart';
-import 'package:alesia/games/common/sequence_engine.dart';
-import 'package:alesia/games/common/juicy.dart';
-import 'package:alesia/games/common/zana_controller.dart';
+import 'package:alesia/services/analytics_service.dart';
+import 'package:alesia/services/quests_service.dart';
+import 'package:alesia/services/profile_service.dart';
+import 'package:alesia/core/service_locator.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flame/events.dart';
@@ -13,109 +14,135 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
 class DrumsGame extends FlameGame with HasTappables {
-  late final SequenceEngine engine;
-  late final ZanaController zana;
-  late final TextComponent hud;
+  final GameFeedback feedback;
+  DrumsGame({required this.feedback},
+      onTick: () => getIt<AudioService>().playTick(),
+    );
 
-  final List<_DrumPad> _pads = [];
+  late RhythmConductor _conductor;
+  late TextComponent _score;
+  late TextComponent _prompt;
+  late RectComponent _beatBar;
 
   @override
   Future<void> onLoad() async {
     await super.onLoad();
     camera.viewport = FixedResolutionViewport(Vector2(1080, 1920));
-
-    hud = TextComponent(
-      text: 'Nivel 0',
-      position: Vector2(30, 30),
-      anchor: Anchor.topLeft,
-      priority: 1000,
-      textRenderer: TextPaint(style: const TextStyle(fontSize: 28, color: Colors.black87, fontWeight: FontWeight.bold)),
-    );
-    add(hud);
-
-    zana = ZanaController();
-    final zComp = await zana.load(size: Vector2(180, 180));
-    zComp.position = Vector2(1080 - 200, 120);
-    zComp.anchor = Anchor.topRight;
-    add(zComp);
+    await getIt<AudioService>().preloadNotes(AudioService.defaultDrumsMap());
 
     final positions = [
-      Vector2(360, 780), Vector2(720, 780),
-      Vector2(360, 1200), Vector2(720, 1200),
+      Vector2(360, 740), Vector2(720, 740),
+      Vector2(360, 1160), Vector2(720, 1160),
     ];
 
-    // Patru frecvențe percuție (simulate), release scurt
-    final freqs = [120.0, 180.0, 220.0, 280.0];
-
     for (int i = 0; i < positions.length; i++) {
-      final pad = _DrumPad(
-        index: i,
-        label: 'Pad ${i+1}',
+      add(_DrumPad(
+        label: 'PAD${i+1}',
+        semanticKey: 'drum:PAD${i+1}',
         // TODO (Răzvan): Înlocuiește sprite-ul placeholder cu un pad final de tobă 'toba_[culoare].png'
         spritePath: 'placeholders/placeholder_square.png',
         position: positions[i],
-        size: Vector2(300, 300),
-        onTapLogic: () {
-          getIt<SynthService>().playNoteHz(freqs[i], wave: WaveForm.fsquare, superWave: true, scale: 1.5, detune: 0.07, duration: const Duration(milliseconds: 150));
-          engine.onTapIndex(i);
-          zana.danceSlow();
+        size: Vector2(280, 280),
+        onPlayed: _onPadPlayed,
+      ));
+    }
+
+    _score = TextComponent(
+      text: 'Scor: 0  |  Combo: 0',
+      position: Vector2(30, 30),
+      anchor: Anchor.topLeft,
+      textRenderer: TextPaint(style: const TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.bold)),
+    );
+    add(_score);
+
+    _prompt = TextComponent(
+      text: 'Urmează ritmul: PAD1 PAD2 PAD1 PAD3 | PAD1 PAD4 PAD2',
+      position: Vector2(540, 120),
+      anchor: Anchor.topCenter,
+      textRenderer: TextPaint(style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w600)),
+    );
+    add(_prompt);
+
+    _beatBar = RectComponent(
+      position: Vector2(90, 170),
+      size: Vector2(900, 14),
+      paint: Paint()..color = const Color(0xFFFFFFFF).withOpacity(0.25),
+      anchor: Anchor.topLeft,
+    );
+    add(_beatBar);
+
+    _conductor = RhythmConductor(
+      bpm: 100,
+      sequence: ['PAD1','PAD2','PAD1','PAD3','PAD1','PAD4','PAD2'],
+      onStepChanged: (idx, key) {
+        _prompt.add(SequenceEffect([
+          ScaleEffect.to(Vector2.all(1.06), EffectController(duration: 0.08, curve: Curves.easeOut)),
+          ScaleEffect.to(Vector2.all(1.00), EffectController(duration: 0.12, curve: Curves.easeIn)),
+        ]));
+      },
+      onGoodHit: (key) {
+        feedback.hitGood();
+        _updateHud();
+      },
+      onMiss: (exp) {
+        feedback.miss();
+        _updateHud();
+      
+      // recompense
+      await getIt<ProfileService>().addStars(1);
+      await getIt<ProfileService>().unlockRandomSticker();
+    },
+    );
+    add(_conductor);
+    _conductor.start();
+  }
+
+  void _updateHud() {
+    _score.text = 'Scor: ${feedback.score}  |  Combo: ${feedback.combo}';
+  }
+
+  void _onPadPlayed(String semanticKey, String label) {
+    getIt<AudioService>().playKey(semanticKey);
+    _conductor.registerHit(label);
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    if (children.contains(_beatBar)) {
+      final phase = _conductor.phase;
+      final front = children.query<RectComponent>().firstWhere(
+        (c) => c.priority == 999,
+        orElse: () {
+          final r = RectComponent(
+            priority: 999,
+            position: _beatBar.position,
+            size: Vector2(0, _beatBar.size.y),
+            anchor: Anchor.topLeft,
+            paint: Paint()..color = const Color(0xFFFFFFFF),
+          );
+          add(r);
+          return r;
         },
       );
-      add(pad);
-      _pads.add(pad);
+      front.position = _beatBar.position;
+      front.size = Vector2(_beatBar.size.x * phase, _beatBar.size.y);
     }
-
-    engine = SequenceEngine(
-      itemCount: _pads.length,
-      highlight: (idx) async {
-        await _pads[idx].flash();
-        await getIt<SynthService>().playNoteHz(freqs[idx], wave: WaveForm.fsquare, superWave: true, scale: 1.6, detune: 0.06, duration: const Duration(milliseconds: 120));
-      },
-      onState: (state) {
-        hud.text = 'Nivel ${engine.level}  •  Secvență: ${engine.length}';
-        if (state == SeqState.success) {
-          Juicy.confettiRain(this, streaks: 4);
-          zana.danceFast();
-          Future.delayed(const Duration(milliseconds: 500), engine.nextLevel);
-        } else if (state == SeqState.fail) {
-          _shakeAll();
-          zana.endingPose();
-          Future.delayed(const Duration(milliseconds: 700), engine.start);
-        }
-      },
-    );
-
-    final start = _HudButton('Start', Vector2(540, 140), onPressed: () => engine.start());
-    add(start);
-  }
-
-  void _shakeAll() {
-    for (final p in _pads) {
-      p.add(SequenceEffect([
-        MoveByEffect(Vector2(16, 0), EffectController(duration: 0.05)),
-        MoveByEffect(Vector2(-32, 0), EffectController(duration: 0.08)),
-        MoveByEffect(Vector2(16, 0), EffectController(duration: 0.05)),
-      ]));
-    }
-  }
-
-  // Hook apelat de paduri pentru record
-  void onUserTapRaw(int index) {
-    recorder.addTap(index);
   }
 }
 
 class _DrumPad extends SpriteComponent with TapCallbacks, HasGameRef<DrumsGame> {
-  final int index;
   final String label;
-  final VoidCallback onTapLogic;
+  final String semanticKey;
+  final void Function(String semanticKey, String label) onPlayed;
+
   _DrumPad({
-    required this.index,
     required this.label,
-    required this.onTapLogic,
+    required this.semanticKey,
     required String spritePath,
     required Vector2 position,
     required Vector2 size,
+    required this.onPlayed,
   }) : super(position: position, size: size, anchor: Anchor.center) {
     _spritePath = spritePath;
   }
@@ -133,12 +160,6 @@ class _DrumPad extends SpriteComponent with TapCallbacks, HasGameRef<DrumsGame> 
     ));
   }
 
-  Future<void> flash() async {
-    await add(ScaleEffect.to(Vector2.all(0.9), EffectController(duration: 0.06, curve: Curves.easeOut)));
-    await add(ScaleEffect.to(Vector2.all(1.0), EffectController(duration: 0.12, curve: Curves.easeOutBack)));
-    Juicy.burst(game, center, color: const Color(0xFFEF6C00), count: 18);
-  }
-
   @override
   void onTapDown(TapDownEvent event) {
     add(ScaleEffect.to(Vector2.all(0.9), EffectController(duration: 0.06, curve: Curves.easeOut)));
@@ -148,37 +169,38 @@ class _DrumPad extends SpriteComponent with TapCallbacks, HasGameRef<DrumsGame> 
   void onTapUp(TapUpEvent event) {
     add(ScaleEffect.to(Vector2.all(1.0), EffectController(duration: 0.12, curve: Curves.easeOutBack)));
     add(RotateEffect.by(0.1, EffectController(duration: 0.08)));
-    getIt<AudioService>().playTap();
-    onTapLogic();
+    _burstEffect();
+    onPlayed(semanticKey, label);
   }
 
-  // Hook apelat de paduri pentru record
-  void onUserTapRaw(int index) {
-    recorder.addTap(index);
-  }
-}
-
-class _HudButton extends PositionComponent with TapCallbacks {
-  final String label;
-  final VoidCallback onPressed;
-  _HudButton(this.label, Vector2 pos, {required this.onPressed}) {
-    position = pos;
-    size = Vector2(200, 64);
-    anchor = Anchor.center;
-    priority = 1001;
-  }
-
-  @override
-  void render(Canvas canvas) {
-    final r = RRect.fromRectAndRadius(size.toRect(), const Radius.circular(18));
-    final paint = Paint()..color = const Color(0xFFFFF3E0);
-    canvas.drawRRect(r, paint);
-    final tp = TextPaint(
-      style: const TextStyle(fontSize: 24, color: Color(0xFFEF6C00), fontWeight: FontWeight.bold),
+  void _burstEffect() {
+    final rnd = Random();
+    final particle = ParticleSystemComponent(
+      particle: Particle.generate(
+        count: 20,
+        lifespan: 0.4,
+        generator: (i) => AcceleratedParticle(
+          acceleration: Vector2(0, 700),
+          speed: Vector2((rnd.nextDouble()-0.5)*300, -rnd.nextDouble()*300),
+          position: center.clone(),
+          child: CircleParticle(radius: 2 + rnd.nextDouble()*3, paint: Paint()..color = const Color(0xFFEF6C00)),
+        ),
+      ),
     );
-    tp.render(canvas, label, Vector2(size.x / 2 - tp.measureTextWidth(label) / 2, size.y / 2 - 14));
+    game.add(particle);
   }
-
-  @override
-  void onTapUp(TapUpEvent event) => onPressed();
 }
+
+// === Overlay API ===
+ValueListenable<RhythmState> get coachState => coach.state;
+ValueListenable<int> get beatListenable => coach.beat;
+void startCoach() { zanaAnimation.value = 'dance_slow'; coach.start(); }
+void stopCoach()  { zanaAnimation.value = 'idle'; coach.stop(); }
+void tempoUp()    { coach.setTempo(coach.bpm + 5); }
+void tempoDown()  { coach.setTempo(coach.bpm - 5); }
+void toggleMetronome() { coach.toggleMetronome(); }
+// Record controls
+void startRec() { coach.startRecording(); }
+void stopRec()  async { final seq = coach.stopRecording(); await getIt<ProfileService>().setRecording(seq); }
+void playRec()  { coach.playRecording(); }
+void clearRec() async { coach.clearRecording(); await getIt<ProfileService>().clearRecording(); }

@@ -1,3 +1,5 @@
+import 'package:alesia/core/service_locator.dart';
+import 'package:alesia/services/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
@@ -27,36 +29,32 @@ class InstrumentsMenuScreen extends StatelessWidget {
         itemBuilder: (context, index) {
           final instrument = instruments[index];
           return GestureDetector(
-            onTap: () => GoRouter.of(context).push(instrument['route']!),
+            onTap: () {
+              getIt<AudioService>().playUiTap();
+              GoRouter.of(context).push(instrument['route']!);
+            },
             child: Card(
-              elevation: 10,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+              elevation: 8,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
               clipBehavior: Clip.antiAlias,
               child: Column(
                 children: [
                   Expanded(
                     child: Container(
                       color: Colors.grey.shade300,
-                      alignment: Alignment.center,
                       // TODO (Răzvan): Înlocuiește placeholder-ul cu resursa finală:
-                      // Image.asset('assets/images/final/${instrument['asset']}', fit: BoxFit.cover),
-                      child: Image.asset(
-                        'assets/images/placeholders/placeholder_square.png',
-                        fit: BoxFit.cover,
-                      ),
+                      // child: Image.asset('assets/images/final/${instrument['asset']}', fit: BoxFit.cover),
+                      child: Image.asset('assets/images/placeholders/placeholder_square.png', fit: BoxFit.cover),
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(12.0),
-                    child: Text(
-                      instrument['name']!,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                    ),
+                    child: Text(instrument['name']!, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                   ),
                 ],
               ),
             ),
-          ).animate().fade(duration: 480.ms).scale(delay: (80 * index).ms, curve: Curves.easeOutBack);
+          ).animate().fade(duration: 500.ms).scale(delay: (100 * index).ms);
         },
       ),
     );
