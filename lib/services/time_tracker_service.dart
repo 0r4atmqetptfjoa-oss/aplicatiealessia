@@ -1,43 +1,42 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 
 class TimeTrackerService {
-  static const _kTodayMs = 'today_ms';
-  static const _kLastDate = 'last_date';
+  static const _kKeyPrefix = 'elapsed_'; // ex: elapsed_2025-09-27
+  final ValueNotifier<int> elapsedMinutes = ValueNotifier(0);
+  Timer? _timer;
   SharedPreferences? _prefs;
-  int _sessionStart = 0;
-  final ValueNotifier<Duration> today = ValueNotifier(Duration.zero);
-  final ValueNotifier<bool> shouldBreak = ValueNotifier(false);
 
   Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
-    final lastDate = _prefs!.getString(_kLastDate);
-    final todayStr = DateTime.now().toIso8601String().substring(0,10);
-    if (lastDate != todayStr) {
-      await _prefs!.setInt(_kTodayMs, 0);
-      await _prefs!.setString(_kLastDate, todayStr);
-    }
-    final ms = _prefs!.getInt(_kTodayMs) ?? 0;
-    today.value = Duration(milliseconds: ms);
+    _loadToday();
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(minutes: 1), (_) => _tickMinute());
   }
 
-  void onResume() { _sessionStart = DateTime.now().millisecondsSinceEpoch; }
-  Future<void> onPauseOrStop({int breakIntervalMinutes = 20, int dailyLimitMinutes = 0}) async {
-    if (_sessionStart == 0) return;
-    final now = DateTime.now().millisecondsSinceEpoch;
-    final delta = now - _sessionStart;
-    _sessionStart = 0;
-    final cur = (await _prefs!.getInt(_kTodayMs)) ?? 0;
-    final total = cur + delta;
-    await _prefs!.setInt(_kTodayMs, total);
-    today.value = Duration(milliseconds: total);
-    final mins = today.value.inMinutes;
-    if (breakIntervalMinutes > 0 && mins % breakIntervalMinutes == 0) {
-      shouldBreak.value = true;
-    }
-    if (dailyLimitMinutes > 0 && mins >= dailyLimitMinutes) {
-      shouldBreak.value = true;
-    }
+  void _loadToday() {
+    final k = _todayKey();
+    final m = _prefs?.getInt(k) ?? 0;
+    elapsedMinutes.value = m;
+  }
+
+  String _todayKey() {
+    final s = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    return '$_kKeyPrefix$s';
+  }
+
+  Future<void> _tickMinute() async {
+    final k = _todayKey();
+    final next = (elapsedMinutes.value + 1);
+    elapsedMinutes.value = next;
+    await _prefs?.setInt(k, next);
+  }
+
+  Future<void> resetToday() async {
+    final k = _todayKey();
+    await _prefs?.remove(k);
+    _loadToday();
   }
 }

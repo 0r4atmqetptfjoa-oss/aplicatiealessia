@@ -2,53 +2,69 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+class AnalyticEvent {
+  final String type;
+  final Map<String, dynamic> data;
+  final int ts;
+  AnalyticEvent({required this.type, required this.data, required this.ts});
+
+  Map<String, dynamic> toJson() => {'type': type, 'data': data, 'ts': ts};
+  static AnalyticEvent fromJson(Map<String, dynamic> m) =>
+      AnalyticEvent(type: m['type'], data: Map<String, dynamic>.from(m['data']), ts: m['ts']);
+}
+
 class AnalyticsService {
-  static const _kKey = 'analytics_json';
-  final Map<String, int> _counters = {};
-  final Map<String, int> _timers = {}; // name -> ms cumulati
-  final Map<String, int> _starts = {}; // name -> ms start
+  static const _kEvents = 'analytics_events';
+  final List<AnalyticEvent> _events = [];
+  SharedPreferences? _prefs;
 
   Future<void> init() async {
     try {
-      final p = await SharedPreferences.getInstance();
-      final raw = p.getString(_kKey);
+      _prefs = await SharedPreferences.getInstance();
+      final raw = _prefs!.getString(_kEvents);
       if (raw != null) {
-        final map = Map<String, dynamic>.from(json.decode(raw));
-        final c = Map<String, dynamic>.from(map['counters'] ?? {});
-        final t = Map<String, dynamic>.from(map['timers'] ?? {});
-        _counters.addAll(c.map((k, v) => MapEntry(k, (v as num).toInt())));
-        _timers.addAll(t.map((k, v) => MapEntry(k, (v as num).toInt())));
+        final list = (json.decode(raw) as List).cast<Map<String, dynamic>>();
+        _events
+          ..clear()
+          ..addAll(list.map(AnalyticEvent.fromJson));
       }
     } catch (e) {
-      if (kDebugMode) print('Analytics init err: $e');
+      if (kDebugMode) print('Analytics init: $e');
     }
   }
 
-  void incr(String key, [int by = 1]) {
-    _counters[key] = (_counters[key] ?? 0) + by;
-    _persist();
-  }
+  List<AnalyticEvent> get events => List.unmodifiable(_events);
 
-  void startTimer(String key) {
-    _starts[key] = DateTime.now().millisecondsSinceEpoch;
-  }
-
-  void stopTimer(String key) {
-    final st = _starts.remove(key);
-    if (st != null) {
-      final delta = DateTime.now().millisecondsSinceEpoch - st;
-      _timers[key] = (_timers[key] ?? 0) + delta;
-      _persist();
+  Future<void> log(String type, Map<String, dynamic> data) async {
+    final ev = AnalyticEvent(type: type, data: data, ts: DateTime.now().millisecondsSinceEpoch);
+    _events.add(ev);
+    if (_events.length > 500) {
+      _events.removeRange(0, _events.length - 500);
     }
-  }
-
-  Map<String, int> get counters => Map.unmodifiable(_counters);
-  Map<String, int> get timers => Map.unmodifiable(_timers);
-
-  Future<void> _persist() async {
     try {
-      final p = await SharedPreferences.getInstance();
-      await p.setString(_kKey, json.encode({'counters': _counters, 'timers': _timers}));
+      await _prefs?.setString(_kEvents, json.encode(_events.map((e) => e.toJson()).toList()));
     } catch (_) {}
   }
+
+  Map<String, int> successCountsByInstrument() {
+    final map = <String, int>{};
+    for (final e in _events) {
+      if (e.type == 'coach_success') {
+        final inst = e.data['instrument']?.toString() ?? 'unknown';
+        map[inst] = (map[inst] ?? 0) + 1;
+      }
+    }
+    return map;
+  }
+}
+
+Map<String, int> successCountsByInstrumentForProfile(String profileId) {
+  final map = <String, int>{};
+  for (final e in _events) {
+    if (e.type == 'coach_success' && e.data['profile'] == profileId) {
+      final inst = e.data['instrument']?.toString() ?? 'unknown';
+      map[inst] = (map[inst] ?? 0) + 1;
+    }
+  }
+  return map;
 }

@@ -1,62 +1,60 @@
-import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProgressService {
-  static const _kStickersKey = 'stickers';
-  static const _kBestStreakKeyPrefix = 'best_streak_'; // ex: best_streak_piano
-  final ValueNotifier<int> totalStickers = ValueNotifier(0);
-  Map<String, int> _stickers = {};
-  SharedPreferences? _prefs;
+  late SharedPreferences _prefs;
+  bool _ready = false;
 
   Future<void> init() async {
-    try {
-      _prefs = await SharedPreferences.getInstance();
-      final jsonStr = _prefs!.getString(_kStickersKey);
-      if (jsonStr != null) {
-        final map = Map<String, dynamic>.from(json.decode(jsonStr));
-        _stickers = map.map((k, v) => MapEntry(k, v as int));
-      }
-      _recomputeTotal();
-    } catch (e) {
-      if (kDebugMode) print('ProgressService init error: $e');
+    _prefs = await SharedPreferences.getInstance();
+    _ready = true;
+  }
+
+  bool get ready => _ready;
+
+  // Stickere deținute
+  List<String> get stickers => _prefs.getStringList('stickers') ?? <String>[];
+
+  bool hasSticker(String id) => stickers.contains(id);
+
+  Future<void> addSticker(String id) async {
+    final list = stickers;
+    if (!list.contains(id)) {
+      list.add(id);
+      await _prefs.setStringList('stickers', list);
     }
   }
 
-  Map<String, int> get stickers => Map.unmodifiable(_stickers);
+  // Rounds per instrument (pentru deblocări)
+  int _getRounds(String instrument) => _prefs.getInt('rounds_$instrument') ?? 0;
 
-  int getBestStreak(String instrument) {
-    return _prefs?.getInt('$_kBestStreakKeyPrefix$instrument') ?? 0;
+  Future<int> addRound(String instrument) async {
+    final key = 'rounds_$instrument';
+    final newVal = _getRounds(instrument) + 1;
+    await _prefs.setInt(key, newVal);
+    return newVal;
   }
 
-  Future<void> saveBestStreak(String instrument, int value) async {
-    try {
-      await _prefs?.setInt('$_kBestStreakKeyPrefix$instrument', value);
-    } catch (_) {}
-  }
+  int rounds(String instrument) => _getRounds(instrument);
 
-  Future<void> awardSticker(String id) async {
-    _stickers[id] = (_stickers[id] ?? 0) + 1;
-    await _persist();
-    _recomputeTotal();
-  }
-
-  Future<void> awardRandomStickerForInstrument(String instrument) async {
-    // set minimal generic sticker ids
-    final candidates = <String>[
-      'star', 'note', 'heart', 'shell', 'sparkle', 'flower', 'smile', 'crown'
-    ].map((e) => '$instrument-$e').toList();
-    candidates.shuffle();
-    await awardSticker(candidates.first);
-  }
-
-  Future<void> _persist() async {
-    try {
-      await _prefs?.setString(_kStickersKey, json.encode(_stickers));
-    } catch (_) {}
-  }
-
-  void _recomputeTotal() {
-    totalStickers.value = _stickers.values.fold(0, (a, b) => a + b);
+  /// Crește runda și returnează un ID de sticker dacă s-a deblocat unul nou
+  /// Praguri: 3, 6, 9 runde => star_1,2,3
+  Future<String?> addRoundAndMaybeSticker(String instrument) async {
+    final r = await addRound(instrument);
+    if (r == 3) {
+      final id = '${instrument}_star_1';
+      await addSticker(id);
+      return id;
+    }
+    if (r == 6) {
+      final id = '${instrument}_star_2';
+      await addSticker(id);
+      return id;
+    }
+    if (r == 9) {
+      final id = '${instrument}_star_3';
+      await addSticker(id);
+      return id;
+    }
+    return null;
   }
 }

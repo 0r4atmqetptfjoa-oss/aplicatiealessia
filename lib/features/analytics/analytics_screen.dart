@@ -1,5 +1,5 @@
 import 'package:alesia/core/service_locator.dart';
-import 'package:alesia/services/analytics_service.dart';
+import 'package:alesia/services/parental_service.dart';
 import 'package:flutter/material.dart';
 
 class AnalyticsScreen extends StatelessWidget {
@@ -7,23 +7,24 @@ class AnalyticsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final a = getIt<AnalyticsService>();
-    final counters = a.counters.entries.toList()..sort((a,b)=>a.key.compareTo(b.key));
-    final timers = a.timers.entries.toList()..sort((a,b)=>a.key.compareTo(b.key));
+    final analytics = getIt<AnalyticsService>();
+    final entries = analytics.counters.entries.toList()..sort((a,b)=>a.key.compareTo(b.key));
     return Scaffold(
-      appBar: AppBar(title: const Text('Analytics (on-device)')),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          const Text('Contoare', style: TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 8),
-          ...counters.map((e) => ListTile(title: Text(e.key), trailing: Text('${e.value}'))),
-          const Divider(height: 32),
-          const Text('Timp petrecut (ms cumulati)', style: TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 8),
-          ...timers.map((e) => ListTile(title: Text(e.key), trailing: Text('${e.value} ms'))),
-        ],
-      ),
+      appBar: AppBar(title: const Text('Analitice on-device')),
+      body: entries.isEmpty
+        ? const Center(child: Text('Nicio activitate înregistrată încă.'))
+        : ListView.separated(
+            padding: const EdgeInsets.all(16),
+            itemBuilder: (_, i) {
+              final e = entries[i];
+              return ListTile(
+                title: Text(e.key),
+                trailing: Text(e.value.toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
+              );
+            },
+            separatorBuilder: (_, __) => const Divider(),
+            itemCount: entries.length,
+          ),
     );
   }
 }

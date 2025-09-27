@@ -2,71 +2,94 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Quest {
-  final String id;       // ex: piano_first_success
+  final String id;
   final String title;
-  final String instrument; // piano, drums, xylophone, organ
-  final int target;      // ținta (ex: streak)
-  final int progress;    // progres curent (0/1 pentru first_success sau valoare streak maxim).
-  final bool completed;
+  final String description;
+  final int goal;
+  int progress;
+  bool claimed;
+  final String rewardSticker; // ex: 'piano-crown'
 
-  Quest({required this.id, required this.title, required this.instrument, required this.target, required this.progress, required this.completed});
+  Quest({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.goal,
+    required this.progress,
+    required this.claimed,
+    required this.rewardSticker,
+  });
 
-  Map<String, dynamic> toJson() =>
-      {'id': id, 'title': title, 'instrument': instrument, 'target': target, 'progress': progress, 'completed': completed};
+  Map<String, dynamic> toJson() => {
+    'id': id, 'title': title, 'description': description,
+    'goal': goal, 'progress': progress, 'claimed': claimed,
+    'rewardSticker': rewardSticker
+  };
 
-  Quest copyWith({int? progress, bool? completed}) =>
-      Quest(id: id, title: title, instrument: instrument, target: target, progress: progress ?? this.progress, completed: completed ?? this.completed);
-
-  static Quest fromJson(Map<String, dynamic> j) =>
-      Quest(id: j['id'], title: j['title'], instrument: j['instrument'], target: j['target'], progress: j['progress'], completed: j['completed']);
+  factory Quest.fromJson(Map<String,dynamic> j) => Quest(
+    id: j['id'], title: j['title'], description: j['description'],
+    goal: j['goal'], progress: j['progress'], claimed: j['claimed'],
+    rewardSticker: j['rewardSticker'],
+  );
 }
 
 class QuestService {
-  static const _kKey = 'quests_v1';
+  static const _kQuests = 'quests';
   late List<Quest> _quests;
   SharedPreferences? _prefs;
 
+  List<Quest> get quests => List.unmodifiable(_quests);
+
   Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
-    final raw = _prefs?.getString(_kKey);
-    if (raw != null) {
-      final list = (json.decode(raw) as List).cast<Map<String, dynamic>>();
-      _quests = list.map(Quest.fromJson).toList();
+    final saved = _prefs!.getStringList(_kQuests);
+    if (saved != null) {
+      _quests = saved.map((s)=>Quest.fromJson(Map<String,dynamic>.from(json.decode(s)))).toList();
     } else {
-      _quests = _defaultQuests();
+      _quests = [
+        Quest(id: 'first_win', title: 'Prima victorie', description: 'Reușește o secvență de ritm.', goal: 1, progress: 0, claimed: false, rewardSticker: 'star'),
+        Quest(id: 'triple_play', title: '3 victorii', description: 'Reușește 3 secvențe de ritm.', goal: 3, progress: 0, claimed: false, rewardSticker: 'crown'),
+        Quest(id: 'taps_20', title: '20 atingeri', description: 'Atinge pad-urile de 20 de ori.', goal: 20, progress: 0, claimed: false, rewardSticker: 'note'),
+        Quest(id: 'streak_5', title: 'Streak 5', description: 'Obține un streak de 5.', goal: 5, progress: 0, claimed: false, rewardSticker: 'sparkle'),
+      ];
       await _persist();
     }
   }
 
-  List<Quest> get quests => List.unmodifiable(_quests);
-
-  List<Quest> _defaultQuests() {
-    final res = <Quest>[];
-    for (final ins in ['piano','drums','xylophone','organ']) {
-      res.add(Quest(id: '${ins}_first_success', title: 'Prima reușită la ${ins}', instrument: ins, target: 1, progress: 0, completed: false));
-      res.add(Quest(id: '${ins}_streak_3', title: 'Obține streak 3 la ${ins}', instrument: ins, target: 3, progress: 0, completed: false));
-      res.add(Quest(id: '${ins}_streak_5', title: 'Obține streak 5 la ${ins}', instrument: ins, target: 5, progress: 0, completed: false));
-    }
-    return res;
-    }
-
-  Future<void> onSuccess(String instrument, int streak) async {
-    bool changed = false;
-    for (var i = 0; i < _quests.length; i++) {
-      final q = _quests[i];
-      if (q.instrument != instrument || q.completed) continue;
-      if (q.id.endsWith('first_success')) {
-        _quests[i] = q.copyWith(progress: 1, completed: true); changed = true;
-      } else if (q.id.endsWith('streak_3') && streak >= 3) {
-        _quests[i] = q.copyWith(progress: 3, completed: true); changed = true;
-      } else if (q.id.endsWith('streak_5') && streak >= 5) {
-        _quests[i] = q.copyWith(progress: 5, completed: true); changed = true;
-      }
-    }
-    if (changed) await _persist();
+  Future<void> _persist() async {
+    await _prefs?.setStringList(_kQuests, _quests.map((q)=>json.encode(q.toJson())).toList());
   }
 
-  Future<void> _persist() async {
-    await _prefs?.setString(_kKey, json.encode(_quests.map((e)=>e.toJson()).toList()));
+  Future<void> onCoachSuccess() async {
+    _advance('first_win'); _advance('triple_play');
+    await _persist();
+  }
+
+  Future<void> onTapAny() async {
+    _advance('taps_20');
+    await _persist();
+  }
+
+  Future<void> onBestStreak(int streak) async {
+    final q = _quests.firstWhere((q)=>q.id=='streak_5');
+    if (q.progress < streak) {
+      q.progress = streak.clamp(0, q.goal);
+      await _persist();
+    }
+  }
+
+  void _advance(String id) {
+    final q = _quests.firstWhere((q)=>q.id==id);
+    if (q.progress < q.goal) q.progress++;
+  }
+
+  Future<bool> claim(String id) async {
+    final q = _quests.firstWhere((q)=>q.id==id);
+    if (!q.claimed && q.progress >= q.goal) {
+      q.claimed = true;
+      await _persist();
+      return true;
+    }
+    return false;
   }
 }

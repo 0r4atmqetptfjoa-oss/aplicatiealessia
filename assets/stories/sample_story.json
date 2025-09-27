@@ -1,10 +1,82 @@
 {
-  "title": "Poveste",
-  "start": "n1",
-  "nodes": {
-    "n1": {
-      "text": "Salut!",
-      "options": []
+  "nodes": [
+    {
+      "id": "start",
+      "subtitle": "A fost odată ca niciodată...",
+      "audioId": "story_start",
+      "choices": [
+        {
+          "text": "Spre castel",
+          "nextId": "castle"
+        },
+        {
+          "text": "Spre pădure",
+          "nextId": "forest"
+        }
+      ]
+    },
+    {
+      "id": "castle",
+      "subtitle": "La castel, muzica răsuna în sala mare.",
+      "audioId": "story_castle",
+      "choices": [
+        {
+          "text": "Dansează",
+          "nextId": "dance"
+        },
+        {
+          "text": "Înapoi",
+          "nextId": "start"
+        }
+      ]
+    },
+    {
+      "id": "forest",
+      "subtitle": "În pădure, păsărelele ciripeau vesel.",
+      "audioId": "story_forest",
+      "choices": [
+        {
+          "text": "Ascultă păsările",
+          "nextId": "birds"
+        },
+        {
+          "text": "Înapoi",
+          "nextId": "start"
+        }
+      ]
+    },
+    {
+      "id": "dance",
+      "subtitle": "Toți prietenii s-au prins în horă!",
+      "audioId": "story_dance",
+      "choices": [
+        {
+          "text": "Final fericit",
+          "nextId": "end"
+        }
+      ]
+    },
+    {
+      "id": "birds",
+      "subtitle": "Cântecul lor te-a făcut să zâmbești.",
+      "audioId": "story_birds",
+      "choices": [
+        {
+          "text": "Final fericit",
+          "nextId": "end"
+        }
+      ]
+    },
+    {
+      "id": "end",
+      "subtitle": "Și-am încălecat pe-o șa... Sfârșit!",
+      "audioId": "story_end",
+      "choices": [
+        {
+          "text": "Reia povestea",
+          "nextId": "start"
+        }
+      ]
     }
-  }
+  ]
 }

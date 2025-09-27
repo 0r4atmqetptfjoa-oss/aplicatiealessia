@@ -7,8 +7,7 @@ class ParentalControlService {
   bool disableParticles = false;
   bool bgMusicEnabled = true;
   int dailyMinutes = 0; // 0 = nelimitat
-  String? pinHash; // simplificat: stocăm plaintext pentru demo
-
+  String parentPin = '';
   SharedPreferences? _prefs;
 
   Future<void> init() async {
@@ -17,10 +16,10 @@ class ParentalControlService {
       final raw = _prefs!.getString(_kKey);
       if (raw != null) {
         final m = json.decode(raw) as Map<String, dynamic>;
-        disableParticles = m['disableParticles'] ?? false;
-        bgMusicEnabled = m['bgMusicEnabled'] ?? true;
-        dailyMinutes = m['dailyMinutes'] ?? 0;
-        pinHash = m['pinHash'];
+        disableParticles = m['disableParticles'] ?? disableParticles;
+        bgMusicEnabled = m['bgMusicEnabled'] ?? bgMusicEnabled;
+        dailyMinutes = m['dailyMinutes'] ?? dailyMinutes;
+        parentPin = m['parentPin'] ?? parentPin;
       }
     } catch (e) {
       if (kDebugMode) print('ParentalControlService init: $e');
@@ -33,8 +32,16 @@ class ParentalControlService {
         'disableParticles': disableParticles,
         'bgMusicEnabled': bgMusicEnabled,
         'dailyMinutes': dailyMinutes,
-        'pinHash': pinHash,
+        'parentPin': parentPin,
       }));
     } catch (_) {}
   }
+
+  Future<void> setPin(String pin) async {
+    // TODO (Răzvan): opțional – înlocuiește cu hash PIN
+    parentPin = pin;
+    await save();
+  }
+
+  bool verifyPin(String pin) => parentPin.isNotEmpty && parentPin == pin;
 }

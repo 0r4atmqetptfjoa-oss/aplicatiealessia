@@ -14,81 +14,45 @@ class SoundsMapScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('Harta Sunetelor')),
       body: Stack(
         children: [
-          // TODO (Răzvan): Înlocuiește cu 'assets/images/final/harta_interactiva.png'
           Positioned.fill(
-            child: Image.asset('assets/images/placeholders/placeholder_landscape.png', fit: BoxFit.cover),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              // TODO (Răzvan): Înlocuiește cu resursa finală 'harta_interactiva.png'.
+              child: Image.asset('assets/images/placeholders/placeholder_landscape.png', fit: BoxFit.cover),
+            ).animate().fadeIn(duration: 400.ms),
           ),
-          Positioned.fill(
-            child: Stack(
-              children: [
-                _IconButtonAt(
-                  top: 80, left: 40,
-                  label: 'Vaca',
-                  // TODO (Răzvan): Înlocuiește cu 'assets/images/final/vaca.png'
-                  iconPath: 'assets/images/placeholders/placeholder_square.png',
-                  onTap: () => audio.playTap(),
-                ),
-                _IconButtonAt(
-                  top: 140, right: 50,
-                  label: 'Leu',
-                  // TODO (Răzvan): Înlocuiește cu 'assets/images/final/leu.png'
-                  iconPath: 'assets/images/placeholders/placeholder_square.png',
-                  onTap: () => audio.playTap(),
-                ),
-                _IconButtonAt(
-                  bottom: 90, left: 50,
-                  label: 'Mașină',
-                  // TODO (Răzvan): Înlocuiește cu 'assets/images/final/masina.png'
-                  iconPath: 'assets/images/placeholders/placeholder_square.png',
-                  onTap: () => audio.playTap(),
-                ),
-              ],
-            ),
-          ),
+          _zoneButton(context, 'Fermă', const Offset(0.25, 0.6), onTap: () => audio.playTap()),
+          _zoneButton(context, 'Junglă', const Offset(0.5, 0.35), onTap: () => audio.playTap()),
+          _zoneButton(context, 'Oraș', const Offset(0.78, 0.7), onTap: () => audio.playTap()),
         ],
       ),
     );
   }
-}
 
-class _IconButtonAt extends StatelessWidget {
-  final double? top, left, right, bottom;
-  final String label;
-  final String iconPath;
-  final VoidCallback onTap;
-
-  const _IconButtonAt({
-    this.top, this.left, this.right, this.bottom,
-    required this.label,
-    required this.iconPath,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      top: top, left: left, right: right, bottom: bottom,
-      child: Column(
-        children: [
-          GestureDetector(
+  Widget _zoneButton(BuildContext context, String label, Offset fraction, {required VoidCallback onTap}) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final dx = constraints.maxWidth * fraction.dx;
+        final dy = constraints.maxHeight * fraction.dy;
+        return Positioned(
+          left: dx - 40,
+          top: dy - 40,
+          child: GestureDetector(
             onTap: onTap,
             child: Container(
-              padding: const EdgeInsets.all(6),
+              width: 80,
+              height: 80,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.9),
+                color: Colors.white.withOpacity(0.85),
                 shape: BoxShape.circle,
-                boxShadow: const [BoxShadow(blurRadius: 8, offset: Offset(0, 4), color: Colors.black26)],
+                boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 4))],
               ),
-              child: ClipOval(
-                child: Image.asset(iconPath, width: 64, height: 64, fit: BoxFit.cover),
-              ),
-            ).animate(onPlay: (c) => c.repeat(period: 1500.ms))
-             .scale(begin: const Offset(1,1), end: const Offset(1.06,1.06), duration: 1500.ms, curve: Curves.easeInOut),
+              alignment: Alignment.center,
+              child: Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+            ).animate().scale(duration: 250.ms, curve: Curves.easeOutBack),
           ),
-          const SizedBox(height: 6),
-          Text(label, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-        ],
-      ),
+        );
+      },
     );
   }
 }

@@ -2,33 +2,55 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ABTestService {
-  static const _k = 'ab_assignments';
-  final Map<String, String> _assignments = {};
+  static const _kAssign = 'ab_assign';
+  static const _kMetrics = 'ab_metrics';
+  Map<String, String> _assign = {};              // key -> 'A' | 'B'
+  Map<String, Map<String, int>> _metrics = {};   // key -> {'A':x, 'B':y}
   SharedPreferences? _prefs;
 
   Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
-    final raw = _prefs!.getString(_k);
-    if (raw != null) {
-      final m = Map<String, dynamic>.from(json.decode(raw));
-      m.forEach((k, v) => _assignments[k] = v.toString());
+    final a = _prefs!.getString(_kAssign);
+    final m = _prefs!.getString(_kMetrics);
+    if (a != null) _assign = Map<String, String>.from(json.decode(a));
+    if (m != null) {
+      final mm = Map<String, dynamic>.from(json.decode(m));
+      _metrics = mm.map((k, v) => MapEntry(k, Map<String, int>.from((v as Map).map((kk, vv) => MapEntry(kk.toString(), (vv as num).toInt())))));
     }
   }
 
-  String assign(String experiment, List<String> variants) {
-    if (_assignments.containsKey(experiment)) return _assignments[experiment]!;
-    variants.shuffle();
-    final pick = variants.first;
-    _assignments[experiment] = pick;
-    _persist();
-    return pick;
+  String getVariant(String key) {
+    final cur = _assign[key];
+    if (cur != null) return cur;
+    final v = (DateTime.now().microsecondsSinceEpoch % 2 == 0) ? 'A' : 'B';
+    _assign[key] = v;
+    _save();
+    return v;
   }
 
-  String get(String experiment, {String fallback = 'A'}) {
-    return _assignments[experiment] ?? fallback;
+  void setVariant(String key, String v) {
+    _assign[key] = (v == 'B') ? 'B' : 'A';
+    _save();
   }
 
-  Future<void> _persist() async {
-    await _prefs?.setString(_k, json.encode(_assignments));
+  void logOutcome(String key, bool success) {
+    final v = getVariant(key);
+    final map = _metrics[key] ??= {'A': 0, 'B': 0};
+    if (success) map[v] = (map[v] ?? 0) + 1;
+    _save();
   }
+
+  Map<String, String> get assignments => Map.unmodifiable(_assign);
+  Map<String, Map<String, int>> get metrics => { for (final e in _metrics.entries) e.key : Map.unmodifiable(e.value) };
+
+  void _save() {
+    _prefs?.setString(_kAssign, json.encode(_assign));
+    _prefs?.setString(_kMetrics, json.encode(_metrics));
+  }
+}
+
+
+Future<void> reset() async {
+  _assignments.clear();
+  await _persist();
 }

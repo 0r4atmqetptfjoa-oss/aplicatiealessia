@@ -1,58 +1,63 @@
 import 'dart:async';
 
-class RecordedEvent {
+class TapEvent {
   final int index;
-  final int ms;
-  RecordedEvent(this.index, this.ms);
+  final int offsetMs;
+  TapEvent(this.index, this.offsetMs);
 }
 
-class Recorder {
-  final List<RecordedEvent> _events = [];
-  int? _start;
-  bool get isRecording => _start != null;
-  bool get hasData => _events.isNotEmpty;
+class Recording {
+  final List<TapEvent> events;
+  final int durationMs;
+  Recording(this.events, this.durationMs);
+}
+
+class SimpleRecorder {
+  bool _recording = false;
+  DateTime? _startAt;
+  final List<TapEvent> _events = [];
+  Recording? last;
+
+  bool get isRecording => _recording;
+  bool get hasRecording => last != null;
 
   void start() {
+    _recording = true;
     _events.clear();
-    _start = DateTime.now().millisecondsSinceEpoch;
+    _startAt = DateTime.now();
+    last = null;
   }
 
-  List<RecordedEvent> stop() {
-    final result = List<RecordedEvent>.from(_events);
-    _start = null;
-    return result;
+  void onTap(int index) {
+    if (!_recording || _startAt == null) return;
+    final ms = DateTime.now().difference(_startAt!).inMilliseconds;
+    _events.add(TapEvent(index, ms));
   }
 
-  void addTap(int index) {
-    if (_start == null) return;
-    final now = DateTime.now().millisecondsSinceEpoch;
-    _events.add(RecordedEvent(index, now - _start!));
+  Recording? stop() {
+    if (!_recording || _startAt == null) return null;
+    final dur = DateTime.now().difference(_startAt!).inMilliseconds;
+    final rec = Recording(List.unmodifiable(_events), dur);
+    last = rec;
+    _recording = false;
+    _startAt = null;
+    return rec;
   }
 
-  Future<void> playback(Future<void> Function(int index) playAt, void Function(int index, bool on) highlight) async {
-    if (_events.isEmpty) return;
-    final events = List<RecordedEvent>.from(_events);
+  Future<void> play(Future<void> Function(int index) playAt) async {
+    final rec = last;
+    if (rec == null) return;
     final completer = Completer<void>();
-    int i = 0;
-    Timer? timer;
-    final start = DateTime.now().millisecondsSinceEpoch;
-    void schedule() {
-      if (i >= events.length) {
-        completer.complete();
-        return;
-      }
-      final next = events[i];
-      final now = DateTime.now().millisecondsSinceEpoch;
-      final delay = (next.ms - (now - start)).clamp(0, 1 << 31);
-      timer = Timer(Duration(milliseconds: delay), () async {
-        highlight(next.index, true);
-        await playAt(next.index);
-        Timer(const Duration(milliseconds: 250), () => highlight(next.index, false));
-        i++;
-        schedule();
+    int remaining = rec.events.length;
+    for (final e in rec.events) {
+      Timer(Duration(milliseconds: e.offsetMs), () async {
+        await playAt(e.index);
+        remaining -= 1;
+        if (remaining <= 0 && !completer.isCompleted) {
+          completer.complete();
+        }
       });
     }
-    schedule();
     return completer.future;
   }
 }
