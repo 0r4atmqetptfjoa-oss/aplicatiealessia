@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flame/events.dart';
@@ -14,21 +13,26 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: GameWidget(
-        game: HomeGame(router: GoRouter.of(context)),
+      body: SafeArea(
+        child: GameWidget(
+          game: HomeGame(router: GoRouter.of(context)),
+        ),
       ),
     );
   }
 }
 
-class HomeGame extends FlameGame {
+class HomeGame extends FlameGame with HasTappables, HasHoverables {
   final GoRouter router;
   HomeGame({required this.router});
+
+  late ParallaxComponent _parallax;
 
   @override
   Future<void> onLoad() async {
     await super.onLoad();
 
+    // Parallax cu 3 straturi (placeholdere 16:9).
     // TODO (Răzvan): Înlocuiește placeholder-ele cu resursele finale din /final:
     // ParallaxImageData('final/parallax_back.png'),
     // ParallaxImageData('final/parallax_middle.png'),
@@ -38,38 +42,38 @@ class HomeGame extends FlameGame {
       ParallaxImageData('placeholders/placeholder_landscape.png'),
       ParallaxImageData('placeholders/placeholder_landscape.png'),
     ];
-    
-    final parallaxComponent = await loadParallaxComponent(
+
+    _parallax = await loadParallaxComponent(
       parallaxLayers,
-      baseVelocity: Vector2.zero(),
-      repeat: ImageRepeat.repeat,
+      baseVelocity: Vector2(2, 0),
+      velocityMultiplierDelta: Vector2(1.4, 0),
+      repeat: ImageRepeat.repeatX,
     );
-    add(parallaxComponent);
+    add(_parallax);
 
     final title = TextComponent(
       text: 'Alesia',
       textRenderer: TextPaint(
         style: const TextStyle(
-          fontSize: 80,
+          fontSize: 76,
           color: Colors.white,
-          fontWeight: FontWeight.bold,
-          shadows: [
-            Shadow(color: Colors.black54, offset: Offset(3, 3), blurRadius: 5),
-          ],
+          fontWeight: FontWeight.w900,
+          shadows: [Shadow(color: Colors.black54, offset: Offset(3, 3), blurRadius: 6)],
         ),
       ),
       anchor: Anchor.topCenter,
-      position: Vector2(size.x / 2, size.y * 0.15),
+      position: Vector2(size.x / 2, size.y * 0.08),
     );
 
+    // 'Floating' loop (suav, elastic)
     title.add(
       SequenceEffect([
-        MoveByEffect(Vector2(0, 15), EffectController(duration: 2.5, curve: Curves.easeInOut)),
-        MoveByEffect(Vector2(0, -15), EffectController(duration: 2.5, curve: Curves.easeInOut)),
+        MoveByEffect(Vector2(0, 16), EffectController(duration: 2.2, curve: Curves.easeInOut)),
+        MoveByEffect(Vector2(0, -16), EffectController(duration: 2.2, curve: Curves.easeInOut)),
       ], infinite: true),
     );
     add(title);
-    
+
     final buttonsData = [
       {'asset': 'harp.png', 'route': '/instrumente'},
       {'asset': 'music_box.png', 'route': '/canciones'},
@@ -79,25 +83,24 @@ class HomeGame extends FlameGame {
     ];
 
     const double buttonSize = 120;
-    const double buttonSpacing = 30;
-    final double totalWidth = (buttonSize * buttonsData.length) + (buttonSpacing * (buttonsData.length - 1));
+    const double spacing = 26;
+    final double totalWidth = (buttonSize * buttonsData.length) + (spacing * (buttonsData.length - 1));
     double startX = (size.x - totalWidth) / 2;
-    final y = size.y * 0.65;
-    
+
     for (var data in buttonsData) {
       final button = MenuButton(
         finalAssetName: data['asset']!,
         onPressed: () => router.push(data['route']!),
       )
-      ..size = Vector2.all(buttonSize)
-      ..position = Vector2(startX, y);
+        ..size = Vector2.all(buttonSize)
+        ..position = Vector2(startX, size.y * 0.62);
       add(button);
-      startX += buttonSize + buttonSpacing;
+      startX += buttonSize + spacing;
     }
   }
 }
 
-class MenuButton extends SpriteComponent with TapCallbacks, HasGameRef<HomeGame> {
+class MenuButton extends SpriteComponent with TapCallbacks {
   final String finalAssetName;
   final VoidCallback onPressed;
 
@@ -112,47 +115,19 @@ class MenuButton extends SpriteComponent with TapCallbacks, HasGameRef<HomeGame>
   }
 
   @override
-  void onMount() {
-    super.onMount();
-    // Spawn a subtle bobbing animation
-    add(SequenceEffect([
-      ScaleEffect.to(Vector2.all(1.06), EffectController(duration: 0.5, curve: Curves.easeOut)),
-      ScaleEffect.to(Vector2.all(1.00), EffectController(duration: 0.9, curve: Curves.easeInOut)),
-    ], infinite: true));
-  }
-  
-  @override
   void onTapDown(TapDownEvent event) {
     add(SequenceEffect([
-      ScaleEffect.to(Vector2.all(0.92), EffectController(duration: 0.08, curve: Curves.easeOutBack)),
-      RotateEffect.by(0.06, EffectController(duration: 0.08)),
+      ScaleEffect.to(Vector2.all(0.9), EffectController(duration: 0.08, curve: Curves.easeOut)),
+      RotateEffect.by(0.08, EffectController(duration: 0.08)),
     ]));
   }
 
   @override
   void onTapUp(TapUpEvent event) {
     add(SequenceEffect([
-      ScaleEffect.to(Vector2.all(1.0), EffectController(duration: 0.10, curve: Curves.easeOut)),
-      RotateEffect.to(0, EffectController(duration: 0.10)),
+      ScaleEffect.to(Vector2.all(1.0), EffectController(duration: 0.12, curve: Curves.elasticOut)),
+      RotateEffect.to(0, EffectController(duration: 0.10, curve: Curves.easeOut)),
     ]));
-    _burstEffect(center);
     onPressed();
-  }
-
-  void _burstEffect(Vector2 pos) {
-    final rnd = Random();
-    final particle = ParticleSystemComponent(
-      particle: Particle.generate(
-        count: 22,
-        lifespan: 0.5,
-        generator: (i) => AcceleratedParticle(
-          acceleration: Vector2(0, 600),
-          speed: Vector2((rnd.nextDouble()-0.5)*400, -rnd.nextDouble()*300),
-          position: pos.clone(),
-          child: CircleParticle(radius: 2 + rnd.nextDouble()*3, paint: Paint()..color = const Color(0xFFFFFFFF)),
-        ),
-      ),
-    );
-    game.add(particle);
   }
 }

@@ -1,34 +1,50 @@
+import 'package:alesia/games/instruments/drums_game.dart';
+import 'package:alesia/games/instruments/organ_game.dart';
+import 'package:alesia/games/instruments/piano_game.dart';
+import 'package:alesia/games/instruments/xylophone_game.dart';
+import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:go_router/go_router.dart';
 
 class GamesMenuScreen extends StatelessWidget {
   const GamesMenuScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final games = [
-      {'title': 'Pian', 'route': '/instrumente/pian'},
-      {'title': 'Tobe', 'route': '/instrumente/tobe'},
-      {'title': 'Xilofon', 'route': '/instrumente/xilofon'},
-      {'title': 'Orgă', 'route': '/instrumente/orga'},
+    final items = [
+      ('Pian Pop', const PianoGame()),
+      ('Tobe Pop', const DrumsGame()),
+      ('Xilofon Pop', const XylophoneGame()),
+      ('Orgă Pop', const OrganGame()),
     ];
 
     return Scaffold(
       appBar: AppBar(title: const Text('Jocuri')),
-      body: ListView.separated(
-        padding: const EdgeInsets.all(24),
-        separatorBuilder: (_, __) => const SizedBox(height: 16),
-        itemCount: games.length,
-        itemBuilder: (context, index) {
-          final g = games[index];
-          return ListTile(
-            onTap: () => GoRouter.of(context).push(g['route']!),
-            tileColor: Colors.deepPurple.shade50,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            title: Text(g['title']!, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            trailing: const Icon(Icons.chevron_right),
-          ).animate().fade(duration: 400.ms).slideX(begin: 0.1).scale(delay: (index * 80).ms);
+      body: GridView.builder(
+        padding: const EdgeInsets.all(20),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+        ),
+        itemCount: items.length,
+        itemBuilder: (context, i) {
+          final item = items[i];
+          return GestureDetector(
+            onTap: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => Scaffold(
+                  appBar: AppBar(title: Text(item.$1)),
+                  body: GameWidget(game: item.$2),
+                ),
+              ));
+            },
+            child: Card(
+              elevation: 10,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              child: Center(child: Text(item.$1, style: const TextStyle(fontWeight: FontWeight.bold))),
+            ),
+          ).animate().fadeIn(duration: 300.ms, delay: (i * 80).ms).scale(curve: Curves.easeOutBack);
         },
       ),
     );

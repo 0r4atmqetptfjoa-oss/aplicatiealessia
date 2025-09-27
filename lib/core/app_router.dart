@@ -25,6 +25,7 @@ final appRouter = GoRouter(
         GoRoute(path: 'orga', builder: (context, state) => const OrganScreen()),
       ],
     ),
+    // Intenționat 'canciones' pentru a păstra compatibilitatea cu prototipul inițial.
     GoRoute(path: '/canciones', builder: (context, state) => const SongsScreen()),
     GoRoute(path: '/povesti', builder: (context, state) => const StoryPlayerScreen()),
     GoRoute(path: '/jocuri', builder: (context, state) => const GamesMenuScreen()),

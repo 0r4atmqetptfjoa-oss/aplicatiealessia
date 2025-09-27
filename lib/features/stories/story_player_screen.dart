@@ -6,19 +6,44 @@ class StoryPlayerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final pages = List.generate(3, (i) => i);
+
     return Scaffold(
       appBar: AppBar(title: const Text('Povești')),
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // TODO (Răzvan): Înlocuiește cu o ilustrație finală pentru ecranul de povești
-            Image.asset('assets/images/placeholders/placeholder_square.png', width: 200).animate().fade().scale(),
-            const SizedBox(height: 16),
-            const Text('Playerul de povești va fi disponibil în Faza 2.',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-          ],
-        ),
+      body: Stack(
+        children: [
+          // TODO (Răzvan): Înlocuiește cu un fundal ilustrat: 'assets/images/final/story_bg.png'
+          Positioned.fill(
+            child: Image.asset('assets/images/placeholders/placeholder_landscape.png', fit: BoxFit.cover),
+          ),
+          PageView.builder(
+            itemCount: pages.length,
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: const EdgeInsets.all(24),
+                child: Card(
+                  elevation: 10,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                  child: Stack(
+                    children: [
+                      // TODO (Răzvan): Înlocuiește cu ilustrația paginii: 'assets/images/final/story_page_$index.png'
+                      Positioned.fill(
+                        child: Image.asset('assets/images/placeholders/placeholder_square.png', fit: BoxFit.cover),
+                      ),
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text('Pagina ${index + 1}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ).animate().fadeIn(duration: 300.ms).scale(curve: Curves.easeOutBack),
+              );
+            },
+          ),
+        ],
       ),
     );
   }

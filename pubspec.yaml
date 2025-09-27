@@ -20,6 +20,7 @@ dependencies:
   flame_rive: ^1.12.0
   rive: ^0.13.20
   flutter_animate: ^4.5.0
+  shared_preferences: ^2.2.2
 
   # Audio
   flutter_soloud: ^3.3.7
