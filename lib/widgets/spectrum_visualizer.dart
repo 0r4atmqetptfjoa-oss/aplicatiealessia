@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 class SpectrumVisualizer extends StatefulWidget {
   final ValueListenable<double> positionSec;

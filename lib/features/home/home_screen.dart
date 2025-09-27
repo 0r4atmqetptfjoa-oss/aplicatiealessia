@@ -22,7 +22,7 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class HomeGame extends FlameGame with HasTappables, TapCallbacks {
+class HomeGame extends FlameGame with TapCallbacks {
   final GoRouter router;
   HomeGame({required this.router});
 
@@ -34,11 +34,8 @@ class HomeGame extends FlameGame with HasTappables, TapCallbacks {
     _audio = getIt<AudioService>();
 
     final layers = <ParallaxImageData>[
-      // TODO (Răzvan): Înlocuiește cu resursa finală 'parallax_back.png'.
       ParallaxImageData('images/placeholders/placeholder_landscape.png'),
-      // TODO (Răzvan): Înlocuiește cu resursa finală 'parallax_middle.png'.
       ParallaxImageData('images/placeholders/placeholder_landscape.png'),
-      // TODO (Răzvan): Înlocuiește cu resursa finală 'parallax_front.png'.
       ParallaxImageData('images/placeholders/placeholder_landscape.png'),
     ];
 
@@ -100,8 +97,7 @@ class HomeGame extends FlameGame with HasTappables, TapCallbacks {
 
   @override
   void onTapDown(TapDownEvent event) {
-    // O mică ploaie de particule pentru "juicy feedback".
-    final origin = event.localPosition.toVector2();
+    final origin = event.localPosition;
     add(ParticleSystemComponent(
       position: origin,
       particle: Particle.generate(
@@ -131,7 +127,6 @@ class MenuButton extends SpriteComponent with TapCallbacks, HasGameRef<HomeGame>
 
   @override
   Future<void> onLoad() async {
-    // TODO (Răzvan): Înlocuiește cu resursa finală: 'images/final/$finalAssetName'.
     sprite = await Sprite.load('images/placeholders/placeholder_square.png');
 
     _caption = TextComponent(

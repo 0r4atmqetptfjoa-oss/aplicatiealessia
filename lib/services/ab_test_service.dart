@@ -47,10 +47,6 @@ class ABTestService {
     _prefs?.setString(_kAssign, json.encode(_assign));
     _prefs?.setString(_kMetrics, json.encode(_metrics));
   }
-}
-
-
-Future<void> reset() async {
-  _assignments.clear();
-  await _persist();
+  
+  assign(String s, List<String> list) {}
 }

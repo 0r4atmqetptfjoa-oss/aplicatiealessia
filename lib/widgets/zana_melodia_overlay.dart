@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rive/rive.dart';
+import 'package:flutter/foundation.dart';
 
 class ZanaMelodiaOverlay extends StatefulWidget {
   final ValueListenable<String> animationListenable;
@@ -32,7 +33,9 @@ class _ZanaMelodiaOverlayState extends State<ZanaMelodiaOverlay> {
   void _onAnimChange() {
     if (_artboard == null) return;
     final name = widget.animationListenable.value;
-    _artboard!.removeController(_controller);
+    if(_controller != null) {
+      _artboard!.removeController(_controller!);
+    }
     _controller = SimpleAnimation(name);
     _artboard!.addController(_controller!);
     setState(() {});
@@ -40,10 +43,8 @@ class _ZanaMelodiaOverlayState extends State<ZanaMelodiaOverlay> {
 
   Future<void> _loadRive() async {
     try {
-      // TODO (Răzvan): Înlocuiește cu fișierul Rive final valid 'zana_melodia.riv' (cu animațiile: idle, dance_slow, dance_fast, ending_pose)
       final data = await rootBundle.load('assets/rive/zana_melodia.riv');
-      final bytes = Uint8List.view(data.buffer);
-      final file = RiveFile.import(bytes);
+      final file = RiveFile.import(data);
       final art = file.mainArtboard;
       _controller = SimpleAnimation(widget.animationListenable.value);
       art.addController(_controller!);
@@ -74,7 +75,6 @@ class _ZanaMelodiaOverlayState extends State<ZanaMelodiaOverlay> {
                 child: _riveOk && _artboard != null
                     ? Rive(artboard: _artboard!, fit: BoxFit.contain)
                     : Image.asset(
-                        // TODO (Răzvan): Înlocuiește cu un thumbnail final pentru Zâna, dacă dorești
                         'assets/images/placeholders/placeholder_square.png',
                         fit: BoxFit.cover,
                       ),
