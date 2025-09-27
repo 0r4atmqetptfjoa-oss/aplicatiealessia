@@ -1,88 +1,72 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_soloud/flutter_soloud.dart';
 
+/// Serviciu audio bazat pe SoLoud (flutter_soloud).
+/// Conceput să fie *rezistent* la lipsa resurselor (fallback silențios).
 class AudioService {
   final SoLoud _soloud = SoLoud.instance;
-  final Map<String, AudioSource> _cache = {};
-  AudioSource? _tap;
-  bool _ready = false;
-  int? _bgmCurrent;
-  int? _bgmNext;
+  AudioSource? _tapSource;
+  SoundHandle? _bgmHandle;
 
   Future<void> init() async {
     try {
-      await _soloud.init();
-      // TODO (Răzvan): Înlocuiește cu sunetul final, ex: 'assets/audio/final/tap.mp3'
-      _tap = await _soloud.loadAsset('assets/audio/placeholders/placeholder_sound.mp3');
-      _ready = true;
-    } catch (e) {
-      _ready = false;
-      if (kDebugMode) {
-        // În modul placeholder (fără fișier audio real), ignorăm erorile.
-        print('AudioService init fallback: $e');
+      if (!_soloud.isInitialized) {
+        await _soloud.init(automaticCleanup: true);
       }
+      // Preîncărcare sunet universal "tap".
+      // TODO (Răzvan): Înlocuiește cu un efect real, ex: 'assets/audio/final/tap_soft.mp3'
+      _tapSource = await _soloud.loadAsset('assets/audio/placeholders/placeholder_sound.mp3');
+    } on SoLoudException catch (e, _) {
+      debugPrint('SoLoud failed to init: $e');
+    } catch (e, _) {
+      debugPrint('AudioService init error: $e');
     }
   }
 
-  /// Redă o notă după instrument și midi number (ex: 60 = C4).
-  /// Calea implicită a resursei finale: assets/audio/final/<instrument>/<midi>.mp3
-  Future<void> playNote({required String instrument, required int midi}) async {
-    if (!_ready) return;
-    final key = 'assets/audio/final/$instrument/$midi.mp3';
+  Future<void> playTap({double volume = 0.9}) async {
+    if (_tapSource == null) return;
     try {
-      final src = _cache[key] ??= await _soloud.loadAsset(key);
-      await _soloud.play(src);
+      await _soloud.play(_tapSource!, volume: volume);
     } catch (e) {
-      // Fallback la click generic (placeholder).
-      if (_tap != null) {
-        try { await _soloud.play(_tap!); } catch (_) {}
-      }
-      if (kDebugMode) {
-        print('playNote fallback for $key: $e');
-      }
+      debugPrint('playTap error: $e');
     }
   }
 
-  Future<void> playTap() async {
-    if (_ready && _tap != null) {
-      try {
-        await _soloud.play(_tap!);
-      } catch (_) {
-        // no-op
-      }
+  Future<void> playBgmAsset(String assetPath, {double volume = 0.5, bool looping = true}) async {
+    try {
+      // TODO (Răzvan): Înlocuiește cu un BGM real în /final
+      final src = await _soloud.loadAsset(assetPath);
+      _bgmHandle = await _soloud.play(src, volume: volume, looping: looping);
+    } catch (e) {
+      debugPrint('playBgmAsset error: $e');
     }
+  }
+
+  void stopBgm() {
+    final h = _bgmHandle;
+    if (h == null) return;
+    _soloud.stop(h);
+    _bgmHandle = null;
   }
 
   Future<void> dispose() async {
     try {
-      await _soloud.deinit();
+      stopBgm();
+      await _soloud.disposeAllSources();
+      _soloud.deinit();
     } catch (_) {}
   }
 }
 
-  Future<void> playMusic(String id, {int fadeMs = 800}) async {
-    if (!_ready) return;
-    final src = await _load('assets/audio/final/' + id + '.mp3');
-    if (src == null) return;
-    try {
-      _bgmNext = await _soloud.play(src, volume: 0);
-      final steps = 8;
-      for (int i = 1; i <= steps; i++) {
-        final vNext = i / steps;
-        final vCur = 1 - vNext;
-        if (_bgmNext != null) await _soloud.setVolume(_bgmNext!, vNext);
-        if (_bgmCurrent != null) await _soloud.setVolume(_bgmCurrent!, vCur);
-        await Future.delayed(Duration(milliseconds: (fadeMs / steps).round()));
-      }
-      if (_bgmCurrent != null) await _soloud.stop(_bgmCurrent!);
-      _bgmCurrent = _bgmNext;
-      _bgmNext = null;
-    } catch (_) {}
-  }
+Future<void> seekToFraction(double f) async {
+  if (_currentTrack == null) return;
+  final dur = _trackDurations[_currentTrack] ?? const Duration(seconds: 120);
+  final target = Duration(milliseconds: (dur.inMilliseconds * f.clamp(0,1)).round());
+  // TODO (Răzvan): când engine-ul suportă seeking, înlocuiește această simulare cu un seek real
+  _progressOverride = target;
+  _startedAt = DateTime.now();
+  musicProgress.value = f.clamp(0,1);
+}
 
-  Future<void> stopMusic() async {
-    if (_bgmCurrent != null) {
-      try { await _soloud.stop(_bgmCurrent!); } catch (_) {}
-      _bgmCurrent = null;
-    }
-  }
+Duration currentDuration(String id) => _trackDurations[id] ?? const Duration(seconds: 120);

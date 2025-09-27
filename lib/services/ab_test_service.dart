@@ -17,7 +17,8 @@ class ABTestService {
 
   String assign(String experiment, List<String> variants) {
     if (_assignments.containsKey(experiment)) return _assignments[experiment]!;
-    final pick = variants.first; // determinist pentru consistență; poți randomiza
+    variants.shuffle();
+    final pick = variants.first;
     _assignments[experiment] = pick;
     _persist();
     return pick;
@@ -25,13 +26,6 @@ class ABTestService {
 
   String get(String experiment, {String fallback = 'A'}) {
     return _assignments[experiment] ?? fallback;
-  }
-
-  Map<String, String> getAll() => Map.unmodifiable(_assignments);
-
-  Future<void> set(String experiment, String variant) async {
-    _assignments[experiment] = variant;
-    await _persist();
   }
 
   Future<void> _persist() async {

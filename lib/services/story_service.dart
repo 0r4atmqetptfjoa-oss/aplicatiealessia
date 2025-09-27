@@ -50,6 +50,21 @@ class StoryService {
   Map<String, StoryNode> get graph => _graph;
   String get graphJson => json.encode(_graph.map((k, v) => MapEntry(k, v.toJson())));
 
+  List<String> validateGraph(Map<String, StoryNode> g) {
+    final errors = <String>[];
+    if (!g.containsKey('start')) {
+      errors.add("Lipsește nodul 'start'.");
+    }
+    for (final e in g.entries) {
+      for (final ch in e.value.choices) {
+        if (!g.containsKey(ch.nextId)) {
+          errors.add("Nodul '${e.key}' are o alegere către id necunoscut: '${ch.nextId}'.");
+        }
+      }
+    }
+    return errors;
+  }
+
   Future<void> setGraphFromJson(String raw) async {
     final m = Map<String, dynamic>.from(json.decode(raw));
     final g = <String, StoryNode>{};

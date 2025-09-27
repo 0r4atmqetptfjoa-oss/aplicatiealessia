@@ -6,10 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
 class FftWaterfall extends StatefulWidget {
-  final int history; // număr linii istorice
-  final int bins; // număr de benzi FFT folosite
+  final int rows; // număr de linii istorice
+  final int cols; // număr de benzi (FFT downsampled)
   final double height;
-  const FftWaterfall({super.key, this.history = 64, this.bins = 64, this.height = 160});
+  const FftWaterfall({super.key, this.rows = 120, this.cols = 48, this.height = 160});
 
   @override
   State<FftWaterfall> createState() => _FftWaterfallState();
@@ -17,13 +17,12 @@ class FftWaterfall extends StatefulWidget {
 
 class _FftWaterfallState extends State<FftWaterfall> with SingleTickerProviderStateMixin {
   late final Ticker _ticker;
-  List<Float32List> _buffer = [];
-  final _rnd = Random();
+  late List<List<double>> _buf; // rows x cols, valori [0..1]
 
   @override
   void initState() {
     super.initState();
-    _buffer = List.generate(widget.history, (_) => Float32List(widget.bins));
+    _buf = List.generate(widget.rows, (_) => List.filled(widget.cols, 0.0));
     _ticker = createTicker((_) => _tick())..start();
   }
 
@@ -39,60 +38,71 @@ class _FftWaterfallState extends State<FftWaterfall> with SingleTickerProviderSt
       ad.updateSamples();
       final samples = ad.getAudioData(alwaysReturnData: false);
       if (samples.isEmpty) return;
-      final slice = samples.sublist(0, max(widget.bins, 1));
-      // normalizează ușor
-      final f = Float32List(widget.bins);
-      for (int i=0; i<widget.bins && i<slice.length; i++) {
-        f[i] = slice[i].clamp(0, 1);
+      final fft = samples.sublist(0, 256);
+      final cols = widget.cols;
+      final step = (fft.length / cols).floor().clamp(1, fft.length);
+      final row = <double>[];
+      double acc = 0; int cnt = 0;
+      for (int i=0;i<fft.length;i++){
+        acc += fft[i];
+        cnt++;
+        if (cnt == step) {
+          row.add((acc/step).clamp(0, 1));
+          acc = 0; cnt = 0;
+        }
       }
-      // circular buffer: elimină primul, adaugă la final
-      _buffer.removeAt(0);
-      _buffer.add(f);
+      while (row.length < cols) { row.add(0); }
+      // shift buffer
+      _buf.removeAt(0);
+      _buf.add(row);
       setState((){});
-    } catch (_) {
-      // fallback: puțin zgomot ca să nu înghețe
-      final f = Float32List(widget.bins);
-      for (int i=0; i<widget.bins; i++) { f[i] = _rnd.nextDouble()*0.02; }
-      _buffer.removeAt(0); _buffer.add(f); setState((){});
-    }
+    } catch (_) {}
   }
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(height: widget.height, child: CustomPaint(painter: _WaterfallPainter(_buffer)));
+    return SizedBox(
+      height: widget.height,
+      child: CustomPaint(
+        painter: _WaterfallPainter(_buf),
+      ),
+    );
   }
 }
 
 class _WaterfallPainter extends CustomPainter {
-  final List<Float32List> data; // [rows][bins]
-  _WaterfallPainter(this.data);
-
-  Color _col(double v) {
-    // map 0..1 -> gradient "cool to warm"
-    v = v.clamp(0, 1);
-    final r = (255 * v).round();
-    final g = (255 * (1.0 - (v - 0.3).abs())).clamp(0, 255).round();
-    final b = (255 * (1.0 - v)).round();
-    return Color.fromARGB(255, r, g, b);
-  }
+  final List<List<double>> buf;
+  _WaterfallPainter(this.buf);
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (data.isEmpty) return;
-    final rows = data.length;
-    final cols = data.first.length;
+    final rows = buf.length;
+    final cols = buf.isEmpty ? 0 : buf[0].length;
+    if (rows == 0 || cols == 0) return;
+
     final cw = size.width / cols;
     final ch = size.height / rows;
-    final paint = Paint();
-    for (int y=0; y<rows; y++) {
-      final row = data[y];
-      for (int x=0; x<cols; x++) {
-        paint.color = _col(row[x].toDouble());
-        canvas.drawRect(Rect.fromLTWH(x*cw, y*ch, cw, ch), paint);
+
+    for (int r=0;r<rows;r++){
+      for (int c=0;c<cols;c++){
+        final v = buf[r][c];
+        final color = _palette(v);
+        final rect = Rect.fromLTWH(c*cw, r*ch, cw+0.5, ch+0.5);
+        final paint = Paint()..color = color;
+        canvas.drawRect(rect, paint);
       }
     }
   }
 
+  Color _palette(double t) {
+    // colormap „plasmă” simplificată
+    t = t.clamp(0.0, 1.0);
+    final r = (0.5 + 1.5*t).clamp(0.0, 1.0);
+    final g = (1.2*t*(1.0 - (t-0.5)*(t-0.5)*4)).clamp(0.0, 1.0);
+    final b = (1.0 - t).clamp(0.0, 1.0);
+    return Color.fromRGBO((r*255).toInt(), (g*255).toInt(), (b*255).toInt(), 1);
+  }
+
   @override
-  bool shouldRepaint(covariant _WaterfallPainter old) => true;
+  bool shouldRepaint(covariant _WaterfallPainter oldDelegate) => true;
 }

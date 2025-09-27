@@ -3,16 +3,10 @@ import 'dart:io';
 import 'package:archive/archive_io.dart';
 import 'package:alesia/core/service_locator.dart';
 import 'package:alesia/services/story_service.dart';
-import 'package:alesia/services/story_package_models.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
 
 class StoryPackageService {
-  Future<Map<String, dynamic>> buildSnapshot() async {
-    // rezervat pentru extinderi viitoare
-    return {'ok': true};
-  }
-
   Future<File> exportPackage() async {
     final dir = await getApplicationDocumentsDirectory();
     final out = File('${dir.path}/story_${DateTime.now().millisecondsSinceEpoch}.alesia_story');
@@ -42,58 +36,48 @@ class StoryPackageService {
     if (storyJson != null) {
       await getIt<StoryService>().setGraphFromJson(storyJson);
     }
+
     final dir = await getApplicationDocumentsDirectory();
     final target = Directory('${dir.path}/stories/custom_${DateTime.now().millisecondsSinceEpoch}');
     target.createSync(recursive: true);
     extractArchiveToDisk(archive, target.path);
   }
 
-  Future<StoryPackagePreview?> pickForPreview() async {
+  File _tempFile(String name, String content) {
+    final f = File('${Directory.systemTemp.path}/$name');
+    f.writeAsStringSync(content);
+    return f;
+  }
+}
+
+class StoryPreview {
+  final int nodeCount;
+  final List<String> sampleSubtitles;
+  final List<String> errors;
+  StoryPreview({required this.nodeCount, required this.sampleSubtitles, required this.errors});
+}
+
+extension StoryPackagePreview on StoryPackageService {
+  Future<StoryPreview?> readPreviewFromPackage() async {
     final sel = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['alesia_story']);
     if (sel == null || sel.files.isEmpty) return null;
     final file = File(sel.files.single.path!);
     final bytes = await file.readAsBytes();
     final archive = ZipDecoder().decodeBytes(bytes);
-
     String? storyJson;
-    List<String> images = [];
-    List<String> audio = [];
-    List<String> expImages = [];
-    List<String> expAudio = [];
-
     for (final f in archive) {
-      if (!f.isFile) continue;
-      if (f.name.endsWith('.png')) images.add(f.name);
-      if (f.name.endsWith('.mp3')) audio.add(f.name);
-      if (f.name.endsWith('story.json')) {
+      if (f.isFile && f.name.endsWith('story.json')) {
         storyJson = utf8.decode(f.content as List<int>);
-      }
-      if (f.name.endsWith('manifest.json')) {
-        final manifest = utf8.decode(f.content as List<int>);
-        final m = json.decode(manifest) as Map<String, dynamic>;
-        expImages = (m['images'] as List?)?.map((e) => e.toString()).toList() ?? [];
-        expAudio  = (m['audio']  as List?)?.map((e) => e.toString()).toList() ?? [];
+        break;
       }
     }
-
-    final dir = await getApplicationDocumentsDirectory();
-    final target = Directory('${dir.path}/stories/preview_${DateTime.now().millisecondsSinceEpoch}');
-    target.createSync(recursive: true);
-    extractArchiveToDisk(archive, target.path);
-
-    return StoryPackagePreview(
-      tempDirPath: target.path,
-      storyJson: storyJson,
-      imagesFound: images,
-      audioFound: audio,
-      imagesExpected: expImages,
-      audioExpected: expAudio,
-    );
-  }
-
-  File _tempFile(String name, String content) {
-    final f = File('${Directory.systemTemp.path}/$name');
-    f.writeAsStringSync(content);
-    return f;
+    if (storyJson == null) return null;
+    final svc = getIt<StoryService>();
+    final m = Map<String, dynamic>.from(json.decode(storyJson));
+    final g = <String, StoryNode>{};
+    m.forEach((k, v) => g[k] = StoryNode.fromJson(Map<String, dynamic>.from(v)));
+    final errs = svc.validateGraph(g);
+    final subs = g.values.map((n) => n.subtitle).take(5).toList();
+    return StoryPreview(nodeCount: g.length, sampleSubtitles: subs, errors: errs);
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:alesia/core/service_locator.dart';
+import 'package:alesia/features/parent/story_link_minigame.dart';
 import 'package:alesia/services/story_package_models.dart';
 import 'package:alesia/services/story_service.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +32,7 @@ class StoryPackagePreviewScreen extends StatelessWidget {
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: preview.imagesFound.map((p) {
-                final f = File('${preview.tempDirPath}/$p');
+                final f = File('${preview.tempDirPath}/' + p);
                 return Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: Image.file(f, height: 120, errorBuilder: (_, __, ___) => const SizedBox(width: 120)),
@@ -47,10 +48,10 @@ class StoryPackagePreviewScreen extends StatelessWidget {
             const Text('Validare după manifest', style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             if (preview.imagesExpected.isNotEmpty) Text('Imagini așteptate: ${preview.imagesExpected.join(', ')}'),
-            if (missingI.isNotEmpty) Text('Imagini lipsă: ${missingI.join(', ')}', style: const TextStyle(color: Colors.red)),
+            if (missingI.isNotEmpty) Text('Imagini lipsă: ${missingI.join(', ')}', style: TextStyle(color: Colors.red)),
             const SizedBox(height: 8),
             if (preview.audioExpected.isNotEmpty) Text('Audio așteptat: ${preview.audioExpected.join(', ')}'),
-            if (missingA.isNotEmpty) Text('Audio lipsă: ${missingA.join(', ')}', style: const TextStyle(color: Colors.red)),
+            if (missingA.isNotEmpty) Text('Audio lipsă: ${missingA.join(', ')}', style: TextStyle(color: Colors.red)),
           ],
           const SizedBox(height: 16),
           ElevatedButton.icon(
@@ -64,6 +65,9 @@ class StoryPackagePreviewScreen extends StatelessWidget {
             icon: const Icon(Icons.check),
             label: const Text('Aplică această poveste'),
           ),
+          const SizedBox(height: 12),
+          // Mini-joc de validare link-uri (quiz)
+          StoryLinkMiniGame(graph: getIt<StoryService>().graph),
         ],
       ),
     );

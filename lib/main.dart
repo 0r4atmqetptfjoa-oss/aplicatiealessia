@@ -1,5 +1,13 @@
 import 'package:alesia/core/app_router.dart';
 import 'package:alesia/core/service_locator.dart';
+import 'package:alesia/services/audio_service.dart';
+import 'package:alesia/services/progress_service.dart';
+import 'package:alesia/services/seasonal_theme_service.dart';
+import 'package:alesia/services/profile_service.dart';
+import 'package:alesia/services/parental_service.dart';
+import 'package:alesia/services/analytics_service.dart';
+import 'package:alesia/services/quests_service.dart';
+import 'package:alesia/services/synth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -7,6 +15,9 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   await setupLocator();
+  // Inițializează motorul audio (SoLoud).
+  await getIt<AudioService>().init();
+  await getIt<SynthService>().init();
   runApp(const MyApp());
 }
 
@@ -15,10 +26,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: getIt<ThemeService>().theme,
-      builder: (context, theme, _) {
-        return _AlesiaGuardian(child: MaterialApp.router(
+    return MaterialApp.router(
       title: 'Alesia',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
@@ -27,57 +35,6 @@ class MyApp extends StatelessWidget {
       ),
       routerConfig: appRouter,
       debugShowCheckedModeBanner: false,
-      theme: theme,
-    );
-          ),
-        );
-      },
-    );
-  }
-}
-
-
-class _AlesiaGuardian extends StatefulWidget {
-  final Widget child;
-  const _AlesiaGuardian({required this.child});
-
-  @override
-  State<_AlesiaGuardian> createState() => _AlesiaGuardianState();
-}
-
-class _AlesiaGuardianState extends State<_AlesiaGuardian> with WidgetsBindingObserver {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    getIt<TimeTrackerService>().onResume();
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    final pcs = getIt<ParentalControlService>();
-    final tts = getIt<TimeTrackerService>();
-    if (state == AppLifecycleState.resumed) {
-      tts.onResume();
-    } else if (state == AppLifecycleState.paused) {
-      tts.onPauseOrStop(breakIntervalMinutes: 20, dailyLimitMinutes: pcs.dailyMinutes);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final tts = getIt<TimeTrackerService>();
-    return Stack(
-      children: [
-        widget.child,
-        BreakOverlay(flag: tts.shouldBreak, onDismiss: () => tts.shouldBreak.value = false),
-      ],
     );
   }
 }

@@ -22,7 +22,6 @@ class InstrumentsMenuScreen extends StatelessWidget {
           crossAxisCount: 2,
           crossAxisSpacing: 20,
           mainAxisSpacing: 20,
-          childAspectRatio: 0.9,
         ),
         itemCount: instruments.length,
         itemBuilder: (context, index) {
@@ -30,27 +29,34 @@ class InstrumentsMenuScreen extends StatelessWidget {
           return GestureDetector(
             onTap: () => GoRouter.of(context).push(instrument['route']!),
             child: Card(
-              elevation: 8,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              elevation: 10,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
               clipBehavior: Clip.antiAlias,
               child: Column(
                 children: [
                   Expanded(
                     child: Container(
                       color: Colors.grey.shade300,
-                      // TODO (Răzvan): Înlocuiește cu resursa finală:
+                      alignment: Alignment.center,
+                      // TODO (Răzvan): Înlocuiește placeholder-ul cu resursa finală:
                       // Image.asset('assets/images/final/${instrument['asset']}', fit: BoxFit.cover),
-                      child: Image.asset('assets/images/placeholders/placeholder_square.png', fit: BoxFit.cover),
+                      child: Image.asset(
+                        'assets/images/placeholders/placeholder_square.png',
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(12.0),
-                    child: Text(instrument['name']!, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                    child: Text(
+                      instrument['name']!,
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                    ),
                   ),
                 ],
               ),
             ),
-          ).animate().fade(duration: 300.ms).scale(delay: (80 * index).ms, curve: Curves.easeOutBack);
+          ).animate().fade(duration: 480.ms).scale(delay: (80 * index).ms, curve: Curves.easeOutBack);
         },
       ),
     );

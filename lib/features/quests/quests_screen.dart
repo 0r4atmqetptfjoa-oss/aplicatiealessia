@@ -1,5 +1,5 @@
 import 'package:alesia/core/service_locator.dart';
-import 'package:alesia/services/quest_service.dart';
+import 'package:alesia/services/quests_service.dart';
 import 'package:flutter/material.dart';
 
 class QuestsScreen extends StatelessWidget {
@@ -7,23 +7,20 @@ class QuestsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final svc = getIt<QuestService>();
-    final quests = svc.quests;
+    final q = getIt<QuestsService>().quests;
     return Scaffold(
       appBar: AppBar(title: const Text('Questuri')),
-      body: ListView.separated(
-        padding: const EdgeInsets.all(16),
-        itemCount: quests.length,
+      body: ListView.builder(
+        itemCount: q.length,
         itemBuilder: (context, i) {
-          final q = quests[i];
+          final it = q[i];
+          final progress = (it.progress / it.target).clamp(0, 1.0);
           return ListTile(
-            leading: Icon(q.completed ? Icons.emoji_events : Icons.flag, color: q.completed ? Colors.amber : null),
-            title: Text(q.title),
-            subtitle: Text('Instrument: ${q.instrument} — Țintă: ${q.target}, Progres: ${q.progress}'),
-            trailing: q.completed ? const Text('Complet') : null,
+            title: Text(it.title),
+            subtitle: LinearProgressIndicator(value: progress),
+            trailing: it.completed ? const Icon(Icons.check_circle, color: Colors.green) : Text('${it.progress}/${it.target}'),
           );
         },
-        separatorBuilder: (_, __) => const Divider(height: 1),
       ),
     );
   }
