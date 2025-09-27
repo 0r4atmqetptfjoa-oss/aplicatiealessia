@@ -4,6 +4,10 @@ import 'package:go_router/go_router.dart';
 
 import 'core/di/service_locator.dart';
 import 'features/home/presentation/home_screen.dart';
+import 'features/instruments/presentation/piano_screen.dart';
+import 'features/instruments/presentation/drums_screen.dart';
+import 'features/instruments/presentation/xylophone_screen.dart';
+import 'features/instruments/presentation/organ_screen.dart';
 
 /// Entry point for the Alesia application.
 ///
@@ -32,6 +36,24 @@ final GoRouter _router = GoRouter(
         GoRoute(
           path: 'instrumente',
           builder: (context, state) => const PlaceholderScreen(title: 'Instrumente'),
+          routes: [
+            GoRoute(
+              path: 'pian',
+              builder: (context, state) => const PianoScreen(),
+            ),
+            GoRoute(
+              path: 'tobe',
+              builder: (context, state) => const DrumsScreen(),
+            ),
+            GoRoute(
+              path: 'xilofon',
+              builder: (context, state) => const XylophoneScreen(),
+            ),
+            GoRoute(
+              path: 'orga',
+              builder: (context, state) => const OrganScreen(),
+            ),
+          ],
         ),
         GoRoute(
           path: 'canciones',

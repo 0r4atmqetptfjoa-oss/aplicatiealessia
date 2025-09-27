@@ -90,7 +90,8 @@ class HomeGame extends FlameGame {
     final buttons = <_MenuButton>[ 
       _MenuButton(
         sprite: harpSprite,
-        onPressed: () => router.go('/instrumente'),
+        // Navigate directly to the first instrument (piano) when the harp button is tapped.
+        onPressed: () => router.go('/instrumente/pian'),
       ),
       _MenuButton(
         sprite: musicSprite,

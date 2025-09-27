@@ -43,3 +43,8 @@ flutter:
     - assets/images/story_book.png
     - assets/images/play_cube.png
     - assets/images/seashell.png
+    # Instrument sprites generated for phase 2
+    - assets/images/piano.png
+    - assets/images/drums.png
+    - assets/images/xylophone.png
+    - assets/images/organ.png
