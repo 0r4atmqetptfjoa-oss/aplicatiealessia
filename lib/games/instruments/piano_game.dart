@@ -29,10 +29,30 @@ class PianoGame extends FlameGame {
     final keyWidth = image.width / _numKeys;
     final keyHeight = image.height.toDouble();
 
-    // Compute the size of each key on screen. We use 80% of the game height
-    // to leave some margin at top and bottom.
-    final double keyHeightDisplay = size.y * 0.8;
-    final double keyWidthDisplay = size.x / _numKeys;
+    // Determine the display size for each key while preserving aspect ratio of
+    // the original sprite. We allocate 80% of the vertical space for the
+    // keys. Based on that height and the key ratio, we compute the ideal
+    // width. If the total ideal width exceeds the available horizontal space,
+    // we scale down to fit horizontally, adjusting the height accordingly.
+    final double availableHeight = size.y * 0.8;
+    final double keyRatio = keyWidth / keyHeight;
+    // Ideal width per key based on height.
+    final double idealKeyWidth = availableHeight * keyRatio;
+    final double totalIdealWidth = idealKeyWidth * _numKeys;
+    late double keyWidthDisplay;
+    late double keyHeightDisplay;
+    if (totalIdealWidth > size.x) {
+      // Not enough horizontal space; fit keys by width and adjust height to
+      // preserve aspect ratio.
+      keyWidthDisplay = size.x / _numKeys;
+      keyHeightDisplay = keyWidthDisplay / keyRatio;
+    } else {
+      // Use the full vertical space and derive width from it.
+      keyWidthDisplay = idealKeyWidth;
+      keyHeightDisplay = availableHeight;
+    }
+    // Horizontal offset to center the keys when there is extra space.
+    final double startX = (size.x - keyWidthDisplay * _numKeys) / 2;
     final double yPos = (size.y - keyHeightDisplay) / 2;
 
     for (int i = 0; i < _numKeys; i++) {
@@ -51,7 +71,7 @@ class PianoGame extends FlameGame {
       );
       key
         ..size = Vector2(keyWidthDisplay, keyHeightDisplay)
-        ..position = Vector2(i * keyWidthDisplay, yPos)
+        ..position = Vector2(startX + i * keyWidthDisplay, yPos)
         ..anchor = Anchor.topLeft;
       add(key);
     }

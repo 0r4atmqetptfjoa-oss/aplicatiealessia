@@ -22,9 +22,24 @@ class XylophoneGame extends FlameGame {
     final image = await images.load('xylophone.png');
     final barWidth = image.width / _numBars;
     final barHeight = image.height.toDouble();
-
-    final double barHeightDisplay = size.y * 0.75;
-    final double barWidthDisplay = size.x / _numBars;
+    // Compute display sizes while maintaining aspect ratio. We allocate 75% of
+    // vertical space for the bars and derive the ideal width based on the
+    // sprite ratio. If the total width exceeds the available horizontal
+    // space, scale down accordingly.
+    final double availableHeight = size.y * 0.75;
+    final double ratio = barWidth / barHeight;
+    final double idealWidth = availableHeight * ratio;
+    final double totalIdealWidth = idealWidth * _numBars;
+    late double barWidthDisplay;
+    late double barHeightDisplay;
+    if (totalIdealWidth > size.x) {
+      barWidthDisplay = size.x / _numBars;
+      barHeightDisplay = barWidthDisplay / ratio;
+    } else {
+      barWidthDisplay = idealWidth;
+      barHeightDisplay = availableHeight;
+    }
+    final double startX = (size.x - barWidthDisplay * _numBars) / 2;
     final double yPos = (size.y - barHeightDisplay) / 2;
 
     for (int i = 0; i < _numBars; i++) {
@@ -43,7 +58,7 @@ class XylophoneGame extends FlameGame {
       );
       bar
         ..size = Vector2(barWidthDisplay, barHeightDisplay)
-        ..position = Vector2(i * barWidthDisplay, yPos)
+        ..position = Vector2(startX + i * barWidthDisplay, yPos)
         ..anchor = Anchor.topLeft;
       add(bar);
     }

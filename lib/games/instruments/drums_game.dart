@@ -21,9 +21,26 @@ class DrumsGame extends FlameGame {
     final image = await images.load('drums.png');
     final segmentWidth = image.width / _numDrums;
     final segmentHeight = image.height.toDouble();
-
-    final double drumSize = min(size.x / _numDrums * 0.8, size.y * 0.6);
-    final double yPos = (size.y - drumSize) / 2;
+    // Determine display size for each drum while maintaining aspect ratio.
+    // Allocate 60% of the vertical space and compute the ideal drum width
+    // based on the sprite's aspect ratio. If the total width exceeds the
+    // available horizontal space, scale down accordingly.
+    final double availableHeight = size.y * 0.6;
+    final double ratio = segmentWidth / segmentHeight;
+    final double idealWidth = availableHeight * ratio;
+    final double totalIdealWidth = idealWidth * _numDrums;
+    late double drumWidthDisplay;
+    late double drumHeightDisplay;
+    if (totalIdealWidth > size.x) {
+      // Fit by width and adjust height to preserve aspect ratio.
+      drumWidthDisplay = size.x / _numDrums;
+      drumHeightDisplay = drumWidthDisplay / ratio;
+    } else {
+      drumWidthDisplay = idealWidth;
+      drumHeightDisplay = availableHeight;
+    }
+    final double startX = (size.x - drumWidthDisplay * _numDrums) / 2;
+    final double yPos = (size.y - drumHeightDisplay) / 2;
 
     for (int i = 0; i < _numDrums; i++) {
       final sprite = Sprite(
@@ -40,8 +57,8 @@ class DrumsGame extends FlameGame {
         },
       );
       drum
-        ..size = Vector2.all(drumSize)
-        ..position = Vector2((i + 0.5) * (size.x / _numDrums) - drumSize / 2, yPos)
+        ..size = Vector2(drumWidthDisplay, drumHeightDisplay)
+        ..position = Vector2(startX + i * drumWidthDisplay, yPos)
         ..anchor = Anchor.topLeft;
       add(drum);
     }

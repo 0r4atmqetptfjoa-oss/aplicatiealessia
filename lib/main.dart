@@ -8,6 +8,7 @@ import 'features/instruments/presentation/piano_screen.dart';
 import 'features/instruments/presentation/drums_screen.dart';
 import 'features/instruments/presentation/xylophone_screen.dart';
 import 'features/instruments/presentation/organ_screen.dart';
+import 'features/instruments/presentation/instruments_menu_screen.dart';
 
 /// Entry point for the Alesia application.
 ///
@@ -35,7 +36,8 @@ final GoRouter _router = GoRouter(
       routes: [
         GoRoute(
           path: 'instrumente',
-          builder: (context, state) => const PlaceholderScreen(title: 'Instrumente'),
+              // Show the instruments menu when navigating to /instrumente.
+              builder: (context, state) => const InstrumentsMenuScreen(),
           routes: [
             GoRoute(
               path: 'pian',

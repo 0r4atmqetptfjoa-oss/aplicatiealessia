@@ -21,9 +21,24 @@ class OrganGame extends FlameGame {
     final image = await images.load('organ.png');
     final keyWidth = image.width / _numKeys;
     final keyHeight = image.height.toDouble();
-
-    final double keyHeightDisplay = size.y * 0.7;
-    final double keyWidthDisplay = size.x / _numKeys;
+    // Compute display size for each key while preserving aspect ratio. Use
+    // 70% of the vertical space and derive the ideal width from the sprite
+    // ratio. If the total width exceeds the available horizontal space,
+    // scale down to fit.
+    final double availableHeight = size.y * 0.7;
+    final double ratio = keyWidth / keyHeight;
+    final double idealWidth = availableHeight * ratio;
+    final double totalIdealWidth = idealWidth * _numKeys;
+    late double keyWidthDisplay;
+    late double keyHeightDisplay;
+    if (totalIdealWidth > size.x) {
+      keyWidthDisplay = size.x / _numKeys;
+      keyHeightDisplay = keyWidthDisplay / ratio;
+    } else {
+      keyWidthDisplay = idealWidth;
+      keyHeightDisplay = availableHeight;
+    }
+    final double startX = (size.x - keyWidthDisplay * _numKeys) / 2;
     final double yPos = (size.y - keyHeightDisplay) / 2;
 
     for (int i = 0; i < _numKeys; i++) {
@@ -42,7 +57,7 @@ class OrganGame extends FlameGame {
       );
       key
         ..size = Vector2(keyWidthDisplay, keyHeightDisplay)
-        ..position = Vector2(i * keyWidthDisplay, yPos)
+        ..position = Vector2(startX + i * keyWidthDisplay, yPos)
         ..anchor = Anchor.topLeft;
       add(key);
     }
