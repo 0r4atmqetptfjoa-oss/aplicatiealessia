@@ -1,34 +1,40 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_soloud/flutter_soloud.dart';
 
 class AudioService {
-  final SoLoud _soLoud = SoLoud.instance;
+  final SoLoud _soloud = SoLoud.instance;
+  AudioSource? _tap;
+
   bool _ready = false;
 
   Future<void> init() async {
-    if (_ready) return;
-    await _soLoud.init();
-    _ready = true;
-  }
-
-  Future<int?> playAsset(String assetPath, {bool loop = false}) async {
-    if (!_ready) await init();
     try {
-      final src = await _soLoud.loadAsset(assetPath);
-      final handle = await _soLoud.play(src, loop: loop);
-      return handle;
-    } catch (_) {
-      return null;
+      await _soloud.init();
+      // TODO (Răzvan): Înlocuiește cu sunetul final, ex: 'assets/audio/final/tap.mp3'
+      _tap = await _soloud.loadAsset('assets/audio/placeholders/placeholder_sound.mp3');
+      _ready = true;
+    } catch (e) {
+      _ready = false;
+      if (kDebugMode) {
+        // In modul placeholder (fără fișier audio real), ignorăm erorile.
+        print('AudioService init fallback: $e');
+      }
     }
   }
 
-  Future<void> stop(int handle) async {
-    if (!_ready) return;
-    await _soLoud.stop(handle);
+  Future<void> playTap() async {
+    if (_ready && _tap != null) {
+      try {
+        await _soloud.play(_tap!);
+      } catch (_) {
+        // fallback no-op
+      }
+    }
   }
 
   Future<void> dispose() async {
-    if (!_ready) return;
-    await _soLoud.deinit();
-    _ready = false;
+    try {
+      await _soloud.deinit();
+    } catch (_) {}
   }
 }

@@ -1,16 +1,26 @@
-# alesia
+# Alesia - Aplicație Educațională pentru Copii
 
-A new Flutter project.
+Bun venit la proiectul "Alesia"! Acesta este scheletul complet funcțional al aplicației, construit pe o arhitectură modernă cu Flutter și Flame, gata pentru a fi populat cu resurse artistice.
 
-## Getting Started
+## Viziune
 
-This project is a starting point for a Flutter application.
+Alesia este o aplicație premium, cu un design inspirat de stilul artistic Pixar, menită să ofere copiilor o experiență de învățare și joacă magică, sigură și interactivă.
 
-A few resources to get you started if this is your first Flutter project:
+## Cum se rulează local
+1. Instalează [Flutter](https://flutter.dev) (3.24+).
+2. În terminal:
+   ```bash
+   flutter pub get
+   flutter run
+   ```
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Cum se adaugă Resursele Vizuale
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Acest proiect folosește imagini, sunete și animații **placeholder**. Pentru a adăuga resursele finale, urmează acești pași:
+
+1.  **Generează Resursele:** Folosește uneltele AI preferate pentru a genera toate resursele, conform descrierilor detaliate din fișierul `PROMPTS.md`.
+2.  **Plasează Fișierele:**
+    * Imaginile (`.png`) se adaugă în folderul `assets/images/final/`.
+    * Animațiile Rive (`.riv`) se adaugă în `assets/rive/`.
+    * Fișierele audio (`.mp3`, `.wav`) se adaugă într-un folder nou `assets/audio/final/` (sau pot înlocui placeholder-ul).
+3.  **Actualizează Codul:** Caută în proiect comentariile `// TODO (Răzvan):`. Fiecare comentariu îți va indica exact ce cale de fișier trebuie să actualizezi.
