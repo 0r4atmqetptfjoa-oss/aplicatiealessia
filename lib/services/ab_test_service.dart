@@ -1,36 +1,40 @@
-import 'dart:math';
-import 'package:flutter/foundation.dart';
+import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ABTestService {
-  static const _kKey = 'ab_variants';
-  final Map<String, String> _variants = {}; // experiment -> variant(A/B)
+  static const _k = 'ab_assignments';
+  final Map<String, String> _assignments = {};
   SharedPreferences? _prefs;
 
   Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
-    final map = _prefs!.getStringList(_kKey) ?? [];
-    for (final pair in map) {
-      final sp = pair.split('=');
-      if (sp.length == 2) _variants[sp[0]] = sp[1];
+    final raw = _prefs!.getString(_k);
+    if (raw != null) {
+      final m = Map<String, dynamic>.from(json.decode(raw));
+      m.forEach((k, v) => _assignments[k] = v.toString());
     }
   }
 
-  Future<void> setVariant(String experiment, String variant) async {
-    _variants[experiment] = variant;
-    await _prefs?.setStringList(_kKey, _variants.entries.map((e) => '${e.key}=${e.value}').toList());
+  String assign(String experiment, List<String> variants) {
+    if (_assignments.containsKey(experiment)) return _assignments[experiment]!;
+    final pick = variants.first; // determinist pentru consistență; poți randomiza
+    _assignments[experiment] = pick;
+    _persist();
+    return pick;
   }
 
-  /// Determinist, pe baza unui id (ex: profil activ)
-  String assignDeterministic(String experiment, String subjectId) {
-    final h = subjectId.codeUnits.fold<int>(0, (a, b) => (a * 31 + b) & 0x7fffffff);
-    final v = (h % 2 == 0) ? 'A' : 'B';
-    _variants.putIfAbsent(experiment, () => v);
-    return v;
+  String get(String experiment, {String fallback = 'A'}) {
+    return _assignments[experiment] ?? fallback;
   }
 
-  String variantOf(String experiment, {String fallback = 'A'}) => _variants[experiment] ?? fallback;
+  Map<String, String> getAll() => Map.unmodifiable(_assignments);
 
-  // Parametri folosiți în jocuri: cât de mult "apasă" pad-ul
-  double get pressScale => variantOf('press_scale') == 'B' ? 0.86 : 0.92;
+  Future<void> set(String experiment, String variant) async {
+    _assignments[experiment] = variant;
+    await _persist();
+  }
+
+  Future<void> _persist() async {
+    await _prefs?.setString(_k, json.encode(_assignments));
+  }
 }

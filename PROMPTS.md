@@ -26,13 +26,6 @@
 3.  **Xilofon (8 fișiere):** `bara_1.png`, etc. - "O singură bară de xilofon 3D, stil lemn lăcuit în culori pastelate, cu o strălucire caldă."
 4.  **Orgă (5 fișiere):** `scoica_1.png`, etc. - "O singură clapă 3D în formă de scoică sidefată, în culori pastelate acvatice."
 
-### Sunete (calitate 48kHz, 24-bit, mono)
-- **Pian:** `C4.mp3` ... `B4.mp3` – "Note de pian jucăuș, atac moale, sustain scurt, caracter cald, fără zgomot de mecanică."
-- **Xilofon:** `1.mp3` ... `8.mp3` – "Bări de xilofon din lemn lăcuit, atac clar, decay natural, fără reverberații exagerate."
-- **Tobe:** `kick.mp3`, `snare.mp3`, `hihat_closed.mp3`, `hihat_open.mp3` – "Sunete curate, prietenoase pentru copii, fără agresivitate, mix balansat."
-- **Orgă:** `S1.mp3` ... `S5.mp3` – "Tonuri calde, ușoare, cu un vibrato discret, stil orgă jucărie."
-> Export: normalizați la -3 LUFS, fade-in/out de 5ms pentru a evita click-uri.
-
 ## Modulul Cântece
 - **`fundal_scena.png`**: "O scenă de teatru de păpuși magică, cu podea de lemn și cortină de catifea roșie, stil Pixar."
 - **`zana_melodia.riv`**: "Personaj 2D, 'Zâna Melodia', stil Pixar, pentru Rive. Mașină de stări cu animații: `idle` (plutire lentă), `dance_slow`, `dance_fast`, `ending_pose` (reverență)."
@@ -42,29 +35,36 @@
 - **Iconițe (6 PNG-uri transparente):** `vaca.png`, `leu.png`, `masina.png`, `pisica.png`, `maimuta.png`, `ambulanta.png` - "Iconiță 3D, stil jucărie Pixar, a animalului/obiectului specificat."
 
 
-## Stickere (colecție)
-- `sticker_01.png` ... `sticker_12.png`: "Pictograme adorabile, 3D, stil jucărie Pixar (muzică, note, inimioare, stele, animale muzicale), fundal transparent, margine ușor luminoasă."
+## Avatare Copii
+- `avatar_fetita_1.png`, `avatar_baiat_1.png`, `avatar_fetita_2.png`, `avatar_baiat_2.png`
+  *Stil:* jucărie 3D Pixar, prietenoasă, expresie veselă, fundal transparent, 1024x1024.
 
-## Audio suplimentar
-- `tick.mp3`: metronom click moale, 0.05–0.1s, fără reverb.
-- `bg_music.mp3`: buclă muzicală lină, 60–90 BPM, instrumente calde, volum redus, fără părți bruște.
+## Stickere Recompensă
+- Nume format: `<instrument>-<icon>.png`, de ex: `piano-star.png`, `drums-note.png`, `xylophone-crown.png`, `organ-heart.png`.
+  *Stil:* autocolant lucios, contur alb, umbră discretă, fundal transparent, 512x512.
+
+## Teme sezoniere (fundaluri opționale)
+- `bg_spring.png`, `bg_summer.png`, `bg_autumn.png`, `bg_winter.png` (16:9)
+  *Stil:* parallax 2.5D Pixar. Pot fi folosite pe Home în locul placeholder-ului.
+
+## Songs (segmente/stems) pentru Player Avansat
+Pentru fiecare piesă, livrează **stems** scurte care se pot bucla fluid:
+- Exemplu „Tema Alesia”:
+  - `bg_intro.mp3` (~10s), `bg_main.mp3` (~40s loop-safe), `bg_outro.mp3` (~8s).
+- Exemplu „Valsul Stelelor”:
+  - `song1_intro.mp3` (~8s), `song1_A.mp3` (~32s loop-safe), `song1_B.mp3` (~32s loop-safe), `song1_outro.mp3` (~8s).
+
+## Stories JSON
+Format de bază:
+```json
+{
+  "nodes": [
+    {"id":"start","subtitle":"Text...","image":"final/story_start.png","audioId":"story_start","choices":[{"text":"Spre...","nextId":"castle"}]}
+  ]
+}
+```
 
 
-## Profile Copii (Avataruri)
-- `avatar_boy.png`, `avatar_girl.png`, `avatar_baby.png`, `avatar_robot.png`: "Avatar 3D stil jucărie Pixar, fundal transparent, expresie veselă."
-
-## Iconografie Panou Părinți
-- `icon_parents.png`: "Pictogramă stil UI, părinți stilizați, linie curată, prietenoasă."
-
-## Stickere suplimentare (recompense)
-- `sticker_star.png`, `sticker_note.png`, `sticker_heart.png`, `sticker_shell.png`, `sticker_sparkle.png`, `sticker_flower.png`, `sticker_smile.png`, `sticker_crown.png`
-
-## Elemente Sezoniere (teme)
-- `home_winter_overlay.png`, `home_halloween_overlay.png`, `home_holidays_overlay.png`: "Layer ușor, motive sezoniere (fulgi, dovleci, luminițe) pe fundal transparent."
-
-
-## Story Package
-- La export se creează `story.json` (+ `manifest.json`). Pentru pachetele create în afara aplicației, includeți în ZIP:
-  - `story.json` (schema în `StoryService`)
-  - Imagini `story_*.png` 16:9 (min 1920x1080, stil Pixar)
-  - Audio `story_*.mp3` (narator + FX opționale)
+## Story Pack
+- structura pachet `.alesia_story` (ZIP): `story.json` + (opțional) `images/*.png`, `audio/*.mp3`.
+- Backlog: suport pentru import/export media (în afara bundle-ului).

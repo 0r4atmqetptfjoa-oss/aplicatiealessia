@@ -7,28 +7,34 @@ class GamesMenuScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final items = [
-      {'title': 'Instrumente', 'subtitle': 'Pian, Tobe, Xilofon, Orgă', 'route': '/instrumente'},
-      {'title': 'Cântece', 'subtitle': 'Zâna Melodia', 'route': '/canciones'},
-      {'title': 'Harta Sunetelor', 'subtitle': 'Ferma, Junglă, Oraș', 'route': '/sunete'},
+    final entries = [
+      {'title': 'Instrumente', 'route': '/instrumente', 'asset': 'menu_instrumente.png'},
     ];
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Jocuri & Activități')),
-      body: ListView.separated(
+      appBar: AppBar(title: const Text('Jocuri')),
+      body: ListView.builder(
         padding: const EdgeInsets.all(24),
-        itemCount: items.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
-        itemBuilder: (context, i) {
-          final it = items[i];
-          return ListTile(
-            onTap: () => GoRouter.of(context).push(it['route']!),
-            title: Text(it['title']!, style: const TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Text(it['subtitle']!),
-            trailing: const Icon(Icons.chevron_right),
+        itemCount: entries.length,
+        itemBuilder: (context, index) {
+          final e = entries[index];
+          return Card(
+            elevation: 8,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            tileColor: Colors.deepPurple.withOpacity(0.05),
-          ).animate().fadeIn(duration: 400.ms, delay: (i * 100).ms).moveX(begin: 20, end: 0, duration: 400.ms);
+            child: ListTile(
+              onTap: () => GoRouter.of(context).push(e['route']!),
+              leading: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: SizedBox.square(
+                  dimension: 56,
+                  // TODO (Răzvan): Înlocuiește cu previzualizarea finală:
+                  child: Image.asset('assets/images/placeholders/placeholder_square.png', fit: BoxFit.cover),
+                ),
+              ),
+              title: Text(e['title']!),
+              trailing: const Icon(Icons.chevron_right),
+            ),
+          ).animate().fadeIn().slideX(begin: 0.1, curve: Curves.easeOut);
         },
       ),
     );

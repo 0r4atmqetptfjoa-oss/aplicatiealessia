@@ -15,3 +15,34 @@ class AnalyticsDashboardScreen extends StatelessWidget {
     ]);
   }
 }
+
+
+/// Bară simplă fără dependențe
+class _Bar extends StatelessWidget {
+  final String label;
+  final int value;
+  final int max;
+  const _Bar({required this.label, required this.value, required this.max});
+
+  @override
+  Widget build(BuildContext context) {
+    final ratio = max == 0 ? 0.0 : (value / max);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('$label: $value'),
+        const SizedBox(height: 4),
+        Container(
+          height: 10,
+          decoration: BoxDecoration(color: Colors.black12, borderRadius: BorderRadius.circular(6)),
+          child: FractionallySizedBox(
+            alignment: Alignment.centerLeft,
+            widthFactor: ratio.clamp(0.0, 1.0),
+            child: Container(decoration: BoxDecoration(color: Colors.deepPurple, borderRadius: BorderRadius.circular(6))),
+          ),
+        ),
+        const SizedBox(height: 12),
+      ],
+    );
+  }
+}

@@ -1,60 +1,48 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+class AnalyticEvent {
+  final String type;
+  final Map<String, dynamic> data;
+  final int ts;
+  AnalyticEvent(this.type, this.data) : ts = DateTime.now().millisecondsSinceEpoch;
+
+  Map<String, dynamic> toJson() => {'type': type, 'data': data, 'ts': ts};
+  static AnalyticEvent fromJson(Map<String, dynamic> j) => AnalyticEvent(j['type'], Map<String, dynamic>.from(j['data']));
+}
+
 class AnalyticsService {
-  static const _kKey = 'analytics_v1';
-  int _sessionStart = 0;
-  int totalMillis = 0;
-  final Map<String, int> instrumentCounts = {}; // ex: {'piano': 12, 'drums': 5}
-  final ValueNotifier<int> totalSessions = ValueNotifier(0);
+  static const _kKey = 'analytics_events';
+  final List<AnalyticEvent> _buffer = [];
+  SharedPreferences? _prefs;
 
   Future<void> init() async {
-    final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString(_kKey);
+    _prefs = await SharedPreferences.getInstance();
+    final raw = _prefs?.getString(_kKey);
     if (raw != null) {
-      final map = json.decode(raw) as Map<String, dynamic>;
-      totalMillis = (map['totalMillis'] ?? 0) as int;
-      final ic = Map<String, dynamic>.from(map['instrumentCounts'] ?? {});
-      instrumentCounts.clear();
-      ic.forEach((k, v) => instrumentCounts[k] = (v as num).toInt());
-      totalSessions.value = (map['totalSessions'] ?? 0) as int;
+      final list = (json.decode(raw) as List).cast<Map<String, dynamic>>();
+      _buffer
+        ..clear()
+        ..addAll(list.map(AnalyticEvent.fromJson));
     }
   }
 
-  void startSession() {
-    _sessionStart = DateTime.now().millisecondsSinceEpoch;
-    totalSessions.value += 1;
-    _save();
+  List<AnalyticEvent> get events => List.unmodifiable(_buffer.reversed);
+
+  Future<void> log(String type, Map<String, dynamic> data) async {
+    _buffer.add(AnalyticEvent(type, data));
+    if (_buffer.length > 300) {
+      _buffer.removeAt(0);
+    }
+    await _persist();
   }
 
-  Future<void> endSession() async {
-    if (_sessionStart == 0) return;
-    final now = DateTime.now().millisecondsSinceEpoch;
-    totalMillis += (now - _sessionStart);
-    _sessionStart = 0;
-    await _save();
+  Future<void> clear() async {
+    _buffer.clear();
+    await _persist();
   }
 
-  Future<void> logInstrumentTap(String instrument) async {
-    instrumentCounts[instrument] = (instrumentCounts[instrument] ?? 0) + 1;
-    await _save();
-  }
-
-  Future<void> resetAll() async {
-    _sessionStart = 0;
-    totalMillis = 0;
-    instrumentCounts.clear();
-    totalSessions.value = 0;
-    await _save();
-  }
-
-  Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_kKey, json.encode({
-      'totalMillis': totalMillis,
-      'instrumentCounts': instrumentCounts,
-      'totalSessions': totalSessions.value,
-    }));
+  Future<void> _persist() async {
+    await _prefs?.setString(_kKey, json.encode(_buffer.map((e)=>e.toJson()).toList()));
   }
 }

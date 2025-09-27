@@ -1,5 +1,3 @@
-import 'package:alesia/core/service_locator.dart';
-import 'package:alesia/services/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
@@ -24,15 +22,13 @@ class InstrumentsMenuScreen extends StatelessWidget {
           crossAxisCount: 2,
           crossAxisSpacing: 20,
           mainAxisSpacing: 20,
+          childAspectRatio: 0.9,
         ),
         itemCount: instruments.length,
         itemBuilder: (context, index) {
           final instrument = instruments[index];
           return GestureDetector(
-            onTap: () {
-              getIt<AudioService>().playUiTap();
-              GoRouter.of(context).push(instrument['route']!);
-            },
+            onTap: () => GoRouter.of(context).push(instrument['route']!),
             child: Card(
               elevation: 8,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -42,8 +38,8 @@ class InstrumentsMenuScreen extends StatelessWidget {
                   Expanded(
                     child: Container(
                       color: Colors.grey.shade300,
-                      // TODO (Răzvan): Înlocuiește placeholder-ul cu resursa finală:
-                      // child: Image.asset('assets/images/final/${instrument['asset']}', fit: BoxFit.cover),
+                      // TODO (Răzvan): Înlocuiește cu resursa finală:
+                      // Image.asset('assets/images/final/${instrument['asset']}', fit: BoxFit.cover),
                       child: Image.asset('assets/images/placeholders/placeholder_square.png', fit: BoxFit.cover),
                     ),
                   ),
@@ -54,7 +50,7 @@ class InstrumentsMenuScreen extends StatelessWidget {
                 ],
               ),
             ),
-          ).animate().fade(duration: 500.ms).scale(delay: (100 * index).ms);
+          ).animate().fade(duration: 300.ms).scale(delay: (80 * index).ms, curve: Curves.easeOutBack);
         },
       ),
     );

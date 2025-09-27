@@ -1,91 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum Season { auto, spring, summer, autumn, winter, halloween, holidays }
+enum Season { standard, spring, summer, autumn, winter }
 
 class ThemeService {
-  final ValueNotifier<ThemeData> theme = ValueNotifier(_themeForSeason(_detectSeason()));
+  static const _kSeasonKey = 'theme_season';
+  final ValueNotifier<ThemeData> theme = ValueNotifier(_buildTheme(Season.standard));
+  Season _season = Season.standard;
+  SharedPreferences? _prefs;
 
-  Season _override = Season.auto;
+  Season get season => _season;
 
   Future<void> init() async {
-    final prefs = await SharedPreferences.getInstance();
-    final s = prefs.getString('season_override') ?? 'auto';
-    _override = Season.values.firstWhere((e) => e.name == s, orElse: () => Season.auto);
-    refresh();
+    _prefs = await SharedPreferences.getInstance();
+    final idx = _prefs?.getInt(_kSeasonKey) ?? 0;
+    _season = Season.values[idx.clamp(0, Season.values.length-1)];
+    theme.value = _buildTheme(_season);
   }
 
-  Future<void> setSeasonOverride(Season s) async {
-    _override = s;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('season_override', s.name);
-    refresh();
+  Future<void> setSeason(Season s) async {
+    _season = s;
+    theme.value = _buildTheme(s);
+    await _prefs?.setInt(_kSeasonKey, s.index);
   }
 
-  Season get season => _override;
-
-  void refresh() {
-    final used = _override == Season.auto ? _detectSeason() : _override;
-    theme.value = _themeForSeason(used);
-  }
-
-  static Season _detectSeason() {
-    final now = DateTime.now();
-    final m = now.month;
-    final d = now.day;
-    if (m == 10 && d >= 20) return Season.halloween;
-    if ((m == 12) || (m == 1 && d <= 7)) return Season.holidays;
-    if (m >= 3 && m <= 5) return Season.spring;
-    if (m >= 6 && m <= 8) return Season.summer;
-    if (m >= 9 && m <= 11) return Season.autumn;
-    return Season.winter;
-  }
-
-  static ThemeData _themeForSeason(Season s) {
+  static ThemeData _buildTheme(Season s) {
+    Color seed;
     switch (s) {
-      case Season.spring:
-        return ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
-          brightness: Brightness.light,
-          useMaterial3: true,
-        );
-      case Season.summer:
-        return ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.orangeAccent),
-          brightness: Brightness.light,
-          useMaterial3: true,
-        );
-      case Season.autumn:
-        return ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
-          brightness: Brightness.light,
-          useMaterial3: true,
-        );
-      case Season.winter:
-        return ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlueAccent),
-          brightness: Brightness.light,
-          useMaterial3: true,
-        );
-      case Season.halloween:
-        return ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          brightness: Brightness.dark,
-          useMaterial3: true,
-        );
-      case Season.holidays:
-        return ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.redAccent),
-          brightness: Brightness.light,
-          useMaterial3: true,
-        );
-      case Season.auto:
-      default:
-        return ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          brightness: Brightness.light,
-          useMaterial3: true,
-        );
+      case Season.spring: seed = const Color(0xFF66BB6A); break;   // green
+      case Season.summer: seed = const Color(0xFFFFB300); break;   // amber
+      case Season.autumn: seed = const Color(0xFF8D6E63); break;   // brown
+      case Season.winter: seed = const Color(0xFF42A5F5); break;   // blue
+      case Season.standard:
+      default: seed = const Color(0xFF7E57C2); break;              // deepPurple-ish
     }
+    final scheme = ColorScheme.fromSeed(seedColor: seed, brightness: Brightness.light);
+    return ThemeData(
+      colorScheme: scheme,
+      useMaterial3: true,
+      appBarTheme: AppBarTheme(
+        backgroundColor: scheme.surface,
+        foregroundColor: scheme.onSurface,
+        elevation: 0,
+      ),
+      scaffoldBackgroundColor: scheme.surface,
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: scheme.primary,
+        foregroundColor: scheme.onPrimary,
+      ),
+    );
   }
 }

@@ -6,45 +6,35 @@ Bun venit la proiectul "Alesia"! Acesta este scheletul complet funcțional al ap
 
 Alesia este o aplicație premium, cu un design inspirat de stilul artistic Pixar, menită să ofere copiilor o experiență de învățare și joacă magică, sigură și interactivă.
 
-## Cum se rulează local
-1. Instalează [Flutter](https://flutter.dev) (3.24+).
-2. În terminal:
-   ```bash
-   flutter pub get
-   flutter run
-   ```
-
-## Cum se adaugă Resursele Vizuale și Audio
+## Cum se adaugă Resursele Vizuale
 
 Acest proiect folosește imagini, sunete și animații **placeholder**. Pentru a adăuga resursele finale, urmează acești pași:
 
-1. **Generează Resursele:** Folosește uneltele AI preferate pentru a genera toate resursele, conform descrierilor detaliate din fișierul `PROMPTS.md`.
-2. **Plasează Fișierele:**
-   - Imaginile (`.png`) în `assets/images/final/`.
-   - Animațiile Rive (`.riv`) în `assets/rive/`.
-   - **Sunetele instrumentelor** în:
-     - Pian: `assets/audio/final/piano/C4.mp3` ... `B4.mp3`
-     - Xilofon: `assets/audio/final/xylophone/1.mp3` ... `8.mp3`
-     - Tobe: `assets/audio/final/drums/kick.mp3`, `snare.mp3`, `hihat_closed.mp3`, `hihat_open.mp3`
-     - Orgă: `assets/audio/final/organ/S1.mp3` ... `S5.mp3`
-3. **Actualizează Codul:** Caută comentariile `// TODO (Răzvan):` pentru locurile unde trebuie înlocuite căile asset-elor.
-
-> Notă: Dacă fișierele audio lipsesc, jocurile rulează în continuare, redând un sunet placeholder (sau tăcere), astfel încât integrarea artistică să poată fi făcută incremental.
+1.  **Generează Resursele:** Folosește uneltele AI preferate pentru a genera toate resursele, conform descrierilor detaliate din fișierul `PROMPTS.md`.
+2.  **Plasează Fișierele:**
+    * Imaginile (`.png`) se adaugă în folderul `assets/images/final/`.
+    * Animațiile Rive (`.riv`) se adaugă în `assets/rive/`.
+    * Fișierele audio (`.mp3`, `.wav`) se adaugă într-un folder nou `assets/audio/final/`.
+3.  **Actualizează Codul:** Caută în proiect comentariile `// TODO (Răzvan):`. Fiecare comentariu îți va indica exact ce cale de fișier trebuie să actualizezi.
 
 
 ## Ce include FAZA 4
-- **Profile copii** (selectare/gestionare).
-- **Control parental** cu PIN și **Panou Părinți** (analitice on-device, setări, teme sezoniere).
-- **Questuri pe nivele** cu progres persistent.
-- **UI cu teme sezoniere** (auto sau override din panou).
+- **Profile** multiple pentru copii (nume, culoare, avatar).
+- **Control Parental** cu PIN (implicit 1234), setări accesibile din Home (buton lacăt).
+- **Analytics on-device** (evenimente locale, vizualizare și ștergere).
+- **Mini-questuri** pe instrumente (prima reușită, streak 3, streak 5) – cu recompense.
+- **Teme sezoniere** care schimbă paleta UI (primăvară/vară/toamnă/iarnă).
 
-### Cum accesezi
-- Din **Home**: butoanele **Profil**, **Părinți**, **Questuri**, **Recompense**.
-- **Părinți** cere PIN (default `1234`, modificabil din panou).
+## Ce include FAZA 6
+- **Player „Songs” avansat** cu segmente (Intro/Main/Outro), crossfade, timeline cu marcaje și vizualizator pseudo‑FFT.
+- **Stories – Editor JSON**: import/export `.json`, previzualizare imediată.
+- **Telemetrie**: grafice simple în Analiză.
+- **A/B Test on‑device**: varianta de bounce în Home (A/B) setabilă din Zona Părinți.
 
 
 ## Ce include FAZA 7
-- **Analyzer audio real (FFT)** folosind `flutter_soloud` → `AudioData` (linear: FFT+wave), smoothing și vizualizări: **benzi** + **particule** sincron.
-- **Story Packages**: export/import `.alesia_story` (JSON + manifest) din Zona Părinți.
-- **Profil Dashboard**: grafic comparativ săptămână curentă vs. anterioară.
-- **Experimente UI (A/B)**: „Coach Hints” (sticky vs dismissable) + player Songs (classic vs compact).
+- **Analyzer audio (FFT-like, placeholder)** + **vizualizator în timp real** cu benzi colorate.  
+  _TODO_: conectează un PCM tap din `flutter_soloud` pentru FFT real.
+- **Story Pack (.alesia_story)**: export/import JSON de poveste; pregătit pentru extensie cu media.
+- **Dashboard pe profil**: grafic bară săptămâna curentă vs. precedentă pentru fiecare instrument.
+- **Sticky Coach Hints (A/B)**: infrastructură în `RhythmOverlay` cu experiment `CoachHints`.

@@ -15,17 +15,69 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeSvc = getIt<ThemeService>();
     return ValueListenableBuilder(
-      valueListenable: themeSvc.theme,
+      valueListenable: getIt<ThemeService>().theme,
       builder: (context, theme, _) {
-        return MaterialApp.router(
-          title: 'Alesia',
-          theme: theme,
-          routerConfig: appRouter,
-          debugShowCheckedModeBanner: false,
+        return _AlesiaGuardian(child: MaterialApp.router(
+      title: 'Alesia',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+        brightness: Brightness.light,
+      ),
+      routerConfig: appRouter,
+      debugShowCheckedModeBanner: false,
+      theme: theme,
+    );
+          ),
         );
       },
+    );
+  }
+}
+
+
+class _AlesiaGuardian extends StatefulWidget {
+  final Widget child;
+  const _AlesiaGuardian({required this.child});
+
+  @override
+  State<_AlesiaGuardian> createState() => _AlesiaGuardianState();
+}
+
+class _AlesiaGuardianState extends State<_AlesiaGuardian> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    getIt<TimeTrackerService>().onResume();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final pcs = getIt<ParentalControlService>();
+    final tts = getIt<TimeTrackerService>();
+    if (state == AppLifecycleState.resumed) {
+      tts.onResume();
+    } else if (state == AppLifecycleState.paused) {
+      tts.onPauseOrStop(breakIntervalMinutes: 20, dailyLimitMinutes: pcs.dailyMinutes);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tts = getIt<TimeTrackerService>();
+    return Stack(
+      children: [
+        widget.child,
+        BreakOverlay(flag: tts.shouldBreak, onDismiss: () => tts.shouldBreak.value = false),
+      ],
     );
   }
 }

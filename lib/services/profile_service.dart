@@ -1,67 +1,81 @@
-import 'dart:math';
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ProfileService {
-  static const _kStars = 'stars';
-  static const _kStickers = 'stickers'; // list<bool> serializat ca string "0,1,0,1,..."
-  static const _kRecording = 'last_recording'; // secvență indexuri "0,3,2,1"
+class ChildProfile {
+  final String id;
+  final String name;
+  final int color; // ARGB int
+  final String avatarAsset; // path in assets/images/final/...
+  ChildProfile({required this.id, required this.name, required this.color, required this.avatarAsset});
 
-  late SharedPreferences _prefs;
-  final _rnd = Random();
+  Map<String, dynamic> toJson() => {'id': id, 'name': name, 'color': color, 'avatar': avatarAsset};
+  static ChildProfile fromJson(Map<String, dynamic> j) => ChildProfile(
+    id: j['id'], name: j['name'], color: j['color'], avatarAsset: j['avatar'] ?? 'assets/images/placeholders/placeholder_square.png');
+}
+
+class ProfileService {
+  static const _kProfilesKey = 'profiles';
+  static const _kActiveIdKey = 'active_profile_id';
+  final ValueNotifier<ChildProfile?> active = ValueNotifier(null);
+  final List<ChildProfile> _profiles = [];
+  SharedPreferences? _prefs;
+
+  List<ChildProfile> get profiles => List.unmodifiable(_profiles);
 
   Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
-    _prefs.setInt(_kStars, _prefs.getInt(_kStars) ?? 0);
-    _prefs.setString(_kStickers, _ensureStickers(_prefs.getString(_kStickers)));
-    _prefs.setString(_kRecording, _prefs.getString(_kRecording) ?? '');
-  }
-
-  String _ensureStickers(String? s) {
-    if (s == null || s.isEmpty) {
-      return List.filled(12, '0').join(',');
+    final raw = _prefs!.getString(_kProfilesKey);
+    if (raw != null) {
+      final list = (json.decode(raw) as List).cast<Map<String, dynamic>>();
+      _profiles
+        ..clear()
+        ..addAll(list.map(ChildProfile.fromJson));
     }
-    final parts = s.split(',');
-    if (parts.length < 12) {
-      return (parts + List.filled(12 - parts.length, '0')).join(',');
+    if (_profiles.isEmpty) {
+      // Create a default profile
+      _profiles.add(ChildProfile(
+        id: 'p1',
+        name: 'Alesia',
+        color: Colors.deepPurple.value,
+        // TODO (Răzvan): Înlocuiește cu avatarul final al copilului
+        avatarAsset: 'assets/images/placeholders/placeholder_square.png',
+      ));
+      await _persist();
     }
-    return s;
+    final activeId = _prefs!.getString(_kActiveIdKey) ?? _profiles.first.id;
+    active.value = _profiles.firstWhere((p) => p.id == activeId, orElse: () => _profiles.first);
   }
 
-  int get stars => _prefs.getInt(_kStars) ?? 0;
-  List<bool> get stickers {
-    final s = _prefs.getString(_kStickers) ?? List.filled(12, '0').join(',');
-    return s.split(',').map((e) => e == '1').toList();
+  Future<void> setActive(String id) async {
+    final p = _profiles.firstWhere((e) => e.id == id);
+    active.value = p;
+    await _prefs?.setString(_kActiveIdKey, id);
   }
 
-  Future<void> addStars(int n) async {
-    final val = stars + n;
-    await _prefs.setInt(_kStars, val);
+  Future<void> addProfile(ChildProfile p) async {
+    _profiles.add(p);
+    await _persist();
   }
 
-  /// Deschide la întâmplare un sticker blocat. Returnează indexul sau -1 dacă nu există.
-  Future<int> unlockRandomSticker() async {
-    final list = stickers;
-    final locked = <int>[];
-    for (var i = 0; i < list.length; i++) {
-      if (!list[i]) locked.add(i);
+  Future<void> deleteProfile(String id) async {
+    _profiles.removeWhere((e) => e.id == id);
+    if (active.value?.id == id && _profiles.isNotEmpty) {
+      await setActive(_profiles.first.id);
     }
-    if (locked.isEmpty) return -1;
-    final idx = locked[_rnd.nextInt(locked.length)];
-    final newList = List<bool>.from(list);
-    newList[idx] = true;
-    await _prefs.setString(_kStickers, newList.map((b) => b ? '1' : '0').join(','));
-    return idx;
+    await _persist();
   }
 
-  Future<void> setRecording(List<int> seq) async {
-    await _prefs.setString(_kRecording, seq.join(','));
+  Future<void> updateProfile(ChildProfile updated) async {
+    final idx = _profiles.indexWhere((e) => e.id == updated.id);
+    if (idx >= 0) _profiles[idx] = updated;
+    await _persist();
   }
 
-  List<int> get recording {
-    final s = _prefs.getString(_kRecording) ?? '';
-    if (s.isEmpty) return [];
-    return s.split(',').map((e) => int.tryParse(e) ?? 0).toList();
+  Future<void> _persist() async {
+    try {
+      await _prefs?.setString(_kProfilesKey, json.encode(_profiles.map((e) => e.toJson()).toList()));
+    } catch (_) {}
   }
-
-  Future<void> clearRecording() async => _prefs.setString(_kRecording, '');
 }

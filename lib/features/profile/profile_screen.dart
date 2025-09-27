@@ -14,46 +14,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final svc = getIt<ProfileService>();
+    final profiles = svc.profiles;
     return Scaffold(
-      appBar: AppBar(title: const Text('Profiluri Copii')),
+      appBar: AppBar(title: const Text('Profile copii')),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final nameCtrl = TextEditingController();
+          final id = 'p${DateTime.now().millisecondsSinceEpoch}';
           final rnd = Random();
           final color = Colors.primaries[rnd.nextInt(Colors.primaries.length)].value;
-          final ok = await showDialog<bool>(
-            context: context,
-            builder: (ctx) => AlertDialog(
-              title: const Text('Profil nou'),
-              content: TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: 'Nume')),
-              actions: [
-                TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Anulează')),
-                TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Creează')),
-              ],
-            ),
-          );
-          if (ok == true && nameCtrl.text.trim().isNotEmpty) {
-            await svc.addProfile(nameCtrl.text.trim(), color);
-            setState(() {});
-          }
+          await svc.addProfile(ChildProfile(
+            id: id,
+            name: 'Copil',
+            color: color,
+            // TODO (Răzvan): Înlocuiește cu avatarul final
+            avatarAsset: 'assets/images/placeholders/placeholder_square.png',
+          ));
+          setState(() {});
         },
         child: const Icon(Icons.add),
       ),
-      body: ListView(
+      body: ListView.separated(
         padding: const EdgeInsets.all(16),
-        children: [
-          const Text('Alege profilul activ:', style: TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 8),
-          ...svc.profiles.map((p) => ListTile(
-                leading: CircleAvatar(backgroundColor: Color(p.color)),
-                title: Text(p.name),
-                trailing: svc.active.value?.id == p.id ? const Icon(Icons.check_circle, color: Colors.green) : null,
-                onTap: () async {
-                  await svc.setActive(p.id);
-                  setState(() {});
-                },
-              )),
-        ],
+        itemBuilder: (context, i) {
+          final p = profiles[i];
+          final isActive = svc.active.value?.id == p.id;
+          return ListTile(
+            onTap: () async { await svc.setActive(p.id); setState(()=>{}); },
+            leading: CircleAvatar(
+              radius: 24,
+              // TODO (Răzvan): Avatar final pentru profil
+              backgroundImage: AssetImage(p.avatarAsset),
+            ),
+            title: Text(p.name),
+            subtitle: Text('Culoare: #${p.color.toRadixString(16).padLeft(8,'0')}'),
+            trailing: isActive ? const Icon(Icons.check, color: Colors.green) : null,
+          );
+        },
+        separatorBuilder: (_, __) => const SizedBox(height: 8),
+        itemCount: profiles.length,
       ),
     );
   }

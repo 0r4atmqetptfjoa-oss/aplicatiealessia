@@ -1,5 +1,3 @@
-import 'package:alesia/features/analytics/profile_dashboard_screen.dart';
-import 'package:alesia/features/parent/story_packages_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:alesia/features/profiles/profiles_screen.dart';
 import 'package:alesia/features/parent/parental_controls_screen.dart';
@@ -7,8 +5,7 @@ import 'package:alesia/features/analytics/analytics_dashboard_screen.dart';
 import 'package:alesia/features/quests/quests_screen.dart';
 import 'package:alesia/features/theme/theme_settings_screen.dart';
 import 'package:alesia/features/backup/backup_screen.dart';
-import 'package:alesia/features/abtest/ab_test_screen.dart';
-import 'package:alesia/features/stories/story_editor_screen.dart';
+import 'package:alesia/features/parent/abtest_screen.dart';
 
 class ParentHubScreen extends StatelessWidget {
   const ParentHubScreen({super.key});
@@ -26,8 +23,7 @@ class ParentHubScreen extends StatelessWidget {
             Tab(text: 'Quest-uri'),
             Tab(text: 'Teme'),
             Tab(text: 'Backup'),
-            Tab(text: 'Testare'),
-            Tab(text: 'Stories JSON'),
+            Tab(text: 'A/B Test'),
           ]),
         ),
         body: const TabBarView(children: [
@@ -37,9 +33,7 @@ class ParentHubScreen extends StatelessWidget {
           QuestsScreen(),
           ThemeSettingsScreen(),
           BackupScreen(),
-          ABTestScreen(),
-          StoryEditorScreen(),
-            StoryPackagesScreen(),
+            ABTestScreen(),
         ]),
       ),
     );
