@@ -4,9 +4,9 @@ import 'package:alesia/services/song_playlist_service.dart';
 import 'package:alesia/services/ab_test_service.dart';
 import 'package:alesia/widgets/spectrum_visualizer.dart';
 import 'package:alesia/services/audio_analyzer_service.dart';
-import 'package:alesia/widgets/realtime_spectrum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter/foundation.dart';
 
 class SongsScreen extends StatefulWidget {
   const SongsScreen({super.key});
@@ -43,12 +43,15 @@ class _SongsScreenState extends State<SongsScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           final track = playlist.tracks[current];
-          audio.setMusicDuration(track.durationSec);
           return Column(
             children: [
               const SizedBox(height: 12),
               // Vizualizator "reactiv" (bazat pe BPM & poziție)
-              SpectrumVisualizer(positionSec: audio.musicPosSec, bars: 18, bpm: track.bpm, variant: variant).animate().fadeIn(),
+              ValueListenableBuilder<double>(
+                  valueListenable: audio.musicPosSec,
+                  builder: (context, pos, _) {
+                    return SpectrumVisualizer(positionSec: audio.musicPosSec, bars: 18, bpm: track.bpm, variant: variant).animate().fadeIn();
+                  }),
               const SizedBox(height: 8),
               Text(track.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
@@ -62,7 +65,7 @@ class _SongsScreenState extends State<SongsScreen> {
                       Slider(
                         value: pos.clamp(0, dur > 0 ? dur : 1),
                         min: 0, max: dur > 0 ? dur : 1,
-                        onChanged: (v) => audio.seekMusic(v), // TODO (Răzvan): înlocuiește cu seek real când disponibil
+                        onChanged: (v) => audio.seek(v),
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -89,7 +92,7 @@ class _SongsScreenState extends State<SongsScreen> {
                     label: Text(m.label),
                     selected: selected,
                     onSelected: (_) {
-                      getIt<AudioService>().seekMusic(m.timeSec);
+                      getIt<AudioService>().seek(m.timeSec);
                       setState(() {
                         if (loopStartIndex == null) {
                           loopStartIndex = i;
@@ -176,7 +179,7 @@ class _SongsScreenState extends State<SongsScreen> {
     setState(() {});
     final track = playlist.tracks[current];
     getIt<AudioService>().setMusicDuration(track.durationSec);
-    await getIt<AudioService>().playMusic(track.id);
+    await getIt<AudioService>().playNote(track.id);
     playing = true;
     setState(() {});
   }
@@ -186,7 +189,7 @@ class _SongsScreenState extends State<SongsScreen> {
     if (!playing) {
       await playIndex(current);
     } else {
-      await audio.pauseMusic();
+      await audio.stopAmbient();
       playing = false;
       setState(() {});
     }

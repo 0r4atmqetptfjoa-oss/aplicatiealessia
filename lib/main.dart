@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
         return MaterialApp.router(
           title: 'Alesia',
           theme: t,
-          routerConfig: buildRouter(),
+          routerConfig: appRouter,
           debugShowCheckedModeBanner: false,
         );
       },
