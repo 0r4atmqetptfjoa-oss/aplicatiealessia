@@ -57,4 +57,8 @@ class ProgressService {
     }
     return null;
   }
+
+  getBestStreak(String s) {}
+
+  awardSticker(String rewardSticker) {}
 }

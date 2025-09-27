@@ -8,6 +8,9 @@ import 'package:alesia/features/stories/story_pack_screen.dart';
 import 'package:alesia/features/quests/quests_screen.dart';
 import 'package:alesia/features/theme/theme_settings_screen.dart';
 import 'package:alesia/features/parent/backup_screen.dart';
+import 'package:alesia/features/abtest/abtest_screen.dart';
+import 'package:alesia/features/stories/story_editor_screen.dart';
+import 'package:alesia/features/stories/story_graph_editor_screen.dart';
 import 'package:flutter/material.dart';
 
 class ParentHubScreen extends StatelessWidget {
@@ -30,11 +33,8 @@ class ParentHubScreen extends StatelessWidget {
               Tab(text: 'Quest-uri'),
               Tab(text: 'Teme'),
               Tab(text: 'Backup'),
-              Tab(text: 'Povești (Editor)'),
-            Tab(text: 'Povești (Editor Vizual)'),
+              Tab(text: 'Povești (Editor Vizual)'),
               Tab(text: 'Pachete Povești'),
-              Tab(text: 'Stories JSON'),
-              Tab(text: 'Testare'),
             ],
           ),
         ),
@@ -47,9 +47,8 @@ class ParentHubScreen extends StatelessWidget {
             QuestsScreen(),
             ThemeSettingsScreen(),
             BackupScreen(),
-          StoryEditorScreen(),
             StoryGraphEditorScreen(),
-          ABTestScreen(),
+            StoryPacksScreen(),
           ],
         ),
       ),

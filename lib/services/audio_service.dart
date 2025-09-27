@@ -17,9 +17,12 @@ class AudioService {
   Timer? _posTimer;
   SoundHandle? _bgmCurrent;
 
+  get audioData => null;
+
   Future<void> init() async {
     try {
       await _soloud.init();
+      // TODO (Răzvan): Înlocuiește cu sunetul final, ex: 'assets/audio/final/tap.mp3'
       _tap = await _load('assets/audio/placeholders/placeholder_sound.mp3');
       _ready = true;
     } catch (e) {
@@ -50,11 +53,14 @@ class AudioService {
     }
   }
 
+  /// Redă o notă după id (ex: 'piano_do4', 'xylo_c5', 'organ_c4', 'drum_snare').
+  /// Va încerca `assets/audio/final/<id>.mp3`. Dacă nu există, folosește `playTap()` ca fallback.
   Future<void> playNote(String id) async {
     if (!_ready) return;
     final key = id;
     var src = _cache[key];
     if (src == null) {
+      // TODO (Răzvan): Adaugă fișiere reale în `assets/audio/final/` cu denumirea exactă `<id>.mp3`
       src = await _load('assets/audio/final/$id.mp3');
       if (src != null) _cache[key] = src;
     }
@@ -64,17 +70,22 @@ class AudioService {
         return;
       } catch (_) {}
     }
-    await playTap();
+    await playTap(); // fallback
   }
 
+  /// Tick metronom (către `assets/audio/final/metronome_tick.mp3`), fallback pe tap.
   Future<void> playTick() async {
     await playNote('metronome_tick');
   }
 
+  /// Ambianță / muzică de fundal: simulat periodic (fără loop nativ).
+  /// ID-ul caută `assets/audio/final/<id>.mp3`.
   Future<void> startAmbient(String id) async {
     _ambientId = id;
     _ambientTimer?.cancel();
+    // Redă imediat o dată
     await playNote(id);
+    // Repetă aproximativ la 6 secunde
     _ambientTimer = Timer.periodic(const Duration(seconds: 6), (_) {
       if (_ambientId != null) {
         playNote(_ambientId!);
@@ -86,12 +97,6 @@ class AudioService {
     _ambientTimer?.cancel();
     _ambientTimer = null;
     _ambientId = null;
-  }
-
-  Future<void> dispose() async {
-    try {
-      await _soloud.deinit();
-    } catch (_) {}
   }
 
   void _startPosTicker() {
@@ -142,6 +147,7 @@ class AudioService {
   }
 
   Future<void> seek(double seconds) async {
+    // TODO (Răzvan): Dacă pluginul oferă seek, înlocuiește cu apelul real către SoLoud.
     musicPosSec.value = seconds.clamp(0, musicDurSec.value);
   }
 
@@ -156,10 +162,15 @@ class AudioService {
         return;
       }
     } catch (_) {}
+    // fallback pe asset
     await playNote(id);
   }
 
-  get audioData => null;
+  Future<void> dispose() async {
+    try {
+      await _soloud.deinit();
+    } catch (_) {}
+  }
 
   stopMusic() {}
 }

@@ -3,9 +3,11 @@ import 'package:alesia/services/story_service.dart';
 import 'package:alesia/services/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'dart:io';
 
 class StoryPlayerScreen extends StatefulWidget {
-  const StoryPlayerScreen({super.key});
+  final String jsonScenario;
+  const StoryPlayerScreen({super.key, required this.jsonScenario});
 
   @override
   State<StoryPlayerScreen> createState() => _StoryPlayerScreenState();

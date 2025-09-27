@@ -28,13 +28,19 @@ class _ParentalControlsScreenState extends State<ParentalControlsScreen> {
         const Divider(),
         SwitchListTile(
           value: s.bgMusicEnabled,
-          onChanged: (v) => setState(() { s.bgMusicEnabled = v; s.save(); }),
+          onChanged: (v) => setState(() {
+            s.bgMusicEnabled = v;
+            s.save();
+          }),
           title: const Text('Muzică de fundal'),
           subtitle: const Text('Pornește/oprește muzica de fundal (dacă este disponibilă)'),
         ).animate().fadeIn(),
         SwitchListTile(
           value: s.disableParticles,
-          onChanged: (v) => setState(() { s.disableParticles = v; s.save(); }),
+          onChanged: (v) => setState(() {
+            s.disableParticles = v;
+            s.save();
+          }),
           title: const Text('Dezactivează particulele'),
           subtitle: const Text('Efectele vizuale „confetti” sunt dezactivate când este ON'),
         ).animate().fadeIn(delay: 100.ms),
@@ -49,7 +55,10 @@ class _ParentalControlsScreenState extends State<ParentalControlsScreen> {
               keyboardType: TextInputType.number,
               onFieldSubmitted: (v) {
                 final val = int.tryParse(v) ?? 0;
-                setState(() { s.dailyMinutes = val; s.save(); });
+                setState(() {
+                  s.dailyMinutes = val;
+                  s.save();
+                });
               },
             ),
           ),
@@ -59,7 +68,7 @@ class _ParentalControlsScreenState extends State<ParentalControlsScreen> {
   }
 
   Widget _pinTile(BuildContext context) {
-    final hasPin = s.pinHash != null && s.pinHash!.isNotEmpty;
+    final hasPin = s.parentPin.isNotEmpty;
     return ListTile(
       title: Text(hasPin ? 'Schimbă PIN' : 'Setează PIN (4 cifre)'),
       subtitle: Text(hasPin ? 'PIN existent. Apasă pentru a-l schimba/șterge.' : 'Protejează accesul la Zona Părinți.'),
@@ -71,7 +80,10 @@ class _ParentalControlsScreenState extends State<ParentalControlsScreen> {
         );
         if (result == null) return;
         if (result == _PinAction.remove) {
-          setState(() { s.pinHash = null; s.save(); });
+          setState(() {
+            s.parentPin = '';
+            s.save();
+          });
         } else if (result == _PinAction.set) {
           final pin = await showDialog<String?>(
             context: context,
@@ -79,7 +91,7 @@ class _ParentalControlsScreenState extends State<ParentalControlsScreen> {
           );
           if (pin != null && pin.length == 4) {
             setState(() {
-              s.pinHash = pin; // DEMO: în producție folosește hashing
+              s.parentPin = pin; // DEMO: în producție folosește hashing
               s.save();
             });
           }
@@ -101,8 +113,7 @@ class _PinDialog extends StatelessWidget {
       title: const Text('PIN părinte'),
       content: Text(hasPin ? 'Vrei să schimbi sau să ștergi PIN-ul?' : 'Setează un PIN nou.'),
       actions: [
-        if (hasPin)
-          TextButton(onPressed: () => Navigator.pop(context, _PinAction.remove), child: const Text('Șterge PIN')),
+        if (hasPin) TextButton(onPressed: () => Navigator.pop(context, _PinAction.remove), child: const Text('Șterge PIN')),
         ElevatedButton(onPressed: () => Navigator.pop(context, _PinAction.set), child: Text(hasPin ? 'Schimbă PIN' : 'Setează PIN')),
       ],
     );
@@ -115,6 +126,7 @@ class _EnterPinDialog extends StatefulWidget {
   @override
   State<_EnterPinDialog> createState() => _EnterPinDialogState();
 }
+
 class _EnterPinDialogState extends State<_EnterPinDialog> {
   final c = TextEditingController();
   @override
