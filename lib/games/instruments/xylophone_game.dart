@@ -14,42 +14,61 @@ import 'package:flutter/material.dart';
 /// sparkling dust when played. Each bar is divided from a single sprite and
 /// animated on tap. Hook into [onPlayBar] for audio playback.
 class XylophoneGame extends FlameGame {
-  static const int _numBars = 8;
+  /// File names for the individual xylophone bar sprites. The order of this
+  /// list corresponds to the arrangement of bars from left to right. Each
+  /// file name refers to a pastel‑coloured wooden bar.
+  static const List<String> _barFiles = [
+    'xylophone/bara_1.png',
+    'xylophone/bara_2.png',
+    'xylophone/bara_3.png',
+    'xylophone/bara_4.png',
+    'xylophone/bara_5.png',
+    'xylophone/bara_6.png',
+    'xylophone/bara_7.png',
+    'xylophone/bara_8.png',
+  ];
 
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    final image = await images.load('xylophone.png');
-    final barWidth = image.width / _numBars;
-    final barHeight = image.height.toDouble();
-    // Compute display sizes while maintaining aspect ratio. We allocate 75% of
-    // vertical space for the bars and derive the ideal width based on the
-    // sprite ratio. If the total width exceeds the available horizontal
-    // space, scale down accordingly.
-    final double availableHeight = size.y * 0.75;
-    final double ratio = barWidth / barHeight;
-    final double idealWidth = availableHeight * ratio;
-    final double totalIdealWidth = idealWidth * _numBars;
-    late double barWidthDisplay;
-    late double barHeightDisplay;
-    if (totalIdealWidth > size.x) {
-      barWidthDisplay = size.x / _numBars;
-      barHeightDisplay = barWidthDisplay / ratio;
-    } else {
-      barWidthDisplay = idealWidth;
-      barHeightDisplay = availableHeight;
+
+    // 1. Add a full‑screen background for the xylophone scene. We reuse the
+    // warm studio background which works well for wooden instruments.
+    final bgSprite = await loadSprite('backgrounds/background_piano.png');
+    add(
+      SpriteComponent(sprite: bgSprite)
+        ..size = size
+        ..position = Vector2.zero(),
+    );
+
+    // 2. Load individual bar sprites. Their intrinsic aspect ratios are
+    // assumed identical, so we use the first bar for ratio calculations.
+    final barSprites = <Sprite>[];
+    for (final file in _barFiles) {
+      barSprites.add(await loadSprite(file));
     }
-    final double startX = (size.x - barWidthDisplay * _numBars) / 2;
+
+    // Determine display sizes while maintaining aspect ratio. Use 75% of the
+    // vertical space for the bars. Introduce a small spacing between bars.
+    const double spacing = 12.0;
+    final double availableHeight = size.y * 0.75;
+    final double intrinsicRatio =
+        barSprites.first.srcSize.x / barSprites.first.srcSize.y;
+    double barHeightDisplay = availableHeight;
+    double barWidthDisplay = barHeightDisplay * intrinsicRatio;
+    final int numBars = barSprites.length;
+    double totalWidth = barWidthDisplay * numBars + (numBars - 1) * spacing;
+    if (totalWidth > size.x) {
+      barWidthDisplay = (size.x - (numBars - 1) * spacing) / numBars;
+      barHeightDisplay = barWidthDisplay / intrinsicRatio;
+      totalWidth = barWidthDisplay * numBars + (numBars - 1) * spacing;
+    }
+    final double startX = (size.x - totalWidth) / 2;
     final double yPos = (size.y - barHeightDisplay) / 2;
 
-    for (int i = 0; i < _numBars; i++) {
-      final sprite = Sprite(
-        image,
-        srcPosition: Vector2(barWidth * i, 0),
-        srcSize: Vector2(barWidth, barHeight),
-      );
+    for (int i = 0; i < numBars; i++) {
       final bar = _XyloBar(
-        sprite: sprite,
+        sprite: barSprites[i],
         index: i,
         color: _pastelColors[i % _pastelColors.length],
         onPlayBar: (index) {
@@ -58,7 +77,7 @@ class XylophoneGame extends FlameGame {
       );
       bar
         ..size = Vector2(barWidthDisplay, barHeightDisplay)
-        ..position = Vector2(startX + i * barWidthDisplay, yPos)
+        ..position = Vector2(startX + i * (barWidthDisplay + spacing), yPos)
         ..anchor = Anchor.topLeft;
       add(bar);
     }
@@ -96,23 +115,26 @@ class _XyloBar extends SpriteComponent with TapCallbacks {
   }
 
   void _spawnDust() {
-    const int count = 15;
+    // Emit a cloud of shimmering fairy dust. We increase the particle
+    // count and reduce the radius for a fine sparkle effect. A gentle
+    // acceleration makes the particles drift downward slowly, while
+    // starting velocities shoot them slightly upward and sideways.
+    const int count = 20;
     for (int i = 0; i < count; i++) {
-      final velocity = Vector2((_random.nextDouble() - 0.5) * 40, -_random.nextDouble() * 100 - 30);
-      // Create the particle using ParticleSystemComponent for Flame 1.23+.
-      // AcceleratedParticle adds velocity and acceleration physics and
-      // CircleParticle draws the glowing dust. We randomize the spawn
-      // position along the top of the bar for a dispersed effect.
+      final velocity = Vector2(
+        (_random.nextDouble() - 0.5) * 50,
+        -_random.nextDouble() * 120 - 40,
+      );
       final particle = ParticleSystemComponent(
         particle: AcceleratedParticle(
-          acceleration: Vector2(0, 70),
+          acceleration: Vector2(0, 60),
           speed: velocity,
           position: Vector2(_random.nextDouble() * size.x, 0),
           child: CircleParticle(
-            radius: 2 + _random.nextDouble() * 2,
-            paint: Paint()..color = color.withOpacity(0.8),
+            radius: 1 + _random.nextDouble() * 3,
+            paint: Paint()..color = color.withOpacity(0.9),
           ),
-          lifespan: 1.2,
+          lifespan: 1.4,
         ),
       )
         ..priority = 10;

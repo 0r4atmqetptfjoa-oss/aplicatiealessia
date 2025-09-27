@@ -13,63 +13,84 @@ import 'package:flutter/material.dart';
 /// cropped from a sprite and emit bubbles when pressed. Integrate audio via
 /// [onPlayKey].
 class OrganGame extends FlameGame {
-  static const int _numKeys = 5;
+  /// File names for the individual organ key sprites. Each entry corresponds
+  /// to an iridescent shell key in pastel aquatic colours. The order in
+  /// this list determines the visual arrangement from left to right.
+  static const List<String> _keyFiles = [
+    'organ/scoica_1.png',
+    'organ/scoica_2.png',
+    'organ/scoica_3.png',
+    'organ/scoica_4.png',
+    'organ/scoica_5.png',
+  ];
 
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    final image = await images.load('organ.png');
-    final keyWidth = image.width / _numKeys;
-    final keyHeight = image.height.toDouble();
-    // Compute display size for each key while preserving aspect ratio. Use
-    // 70% of the vertical space and derive the ideal width from the sprite
-    // ratio. If the total width exceeds the available horizontal space,
-    // scale down to fit.
-    final double availableHeight = size.y * 0.7;
-    final double ratio = keyWidth / keyHeight;
-    final double idealWidth = availableHeight * ratio;
-    final double totalIdealWidth = idealWidth * _numKeys;
-    late double keyWidthDisplay;
-    late double keyHeightDisplay;
-    if (totalIdealWidth > size.x) {
-      keyWidthDisplay = size.x / _numKeys;
-      keyHeightDisplay = keyWidthDisplay / ratio;
-    } else {
-      keyWidthDisplay = idealWidth;
-      keyHeightDisplay = availableHeight;
+
+    // 1. Add a full‑screen background for the organ scene.
+    final bgSprite = await loadSprite('backgrounds/background_organ.png');
+    add(
+      SpriteComponent(sprite: bgSprite)
+        ..size = size
+        ..position = Vector2.zero(),
+    );
+
+    // 2. Load each individual organ key sprite. Use the first key to
+    // determine the intrinsic aspect ratio shared by all keys.
+    final keySprites = <Sprite>[];
+    for (final file in _keyFiles) {
+      keySprites.add(await loadSprite(file));
     }
-    final double startX = (size.x - keyWidthDisplay * _numKeys) / 2;
+
+    // Compute display size for each key while preserving aspect ratio. Use
+    // 70% of the vertical space and derive the width from the sprite ratio.
+    // Introduce spacing between keys and scale down if they exceed the
+    // horizontal space available.
+    const double spacing = 14.0;
+    final double availableHeight = size.y * 0.7;
+    final double intrinsicRatio =
+        keySprites.first.srcSize.x / keySprites.first.srcSize.y;
+    double keyHeightDisplay = availableHeight;
+    double keyWidthDisplay = keyHeightDisplay * intrinsicRatio;
+    final int numKeys = keySprites.length;
+    double totalWidth = keyWidthDisplay * numKeys + (numKeys - 1) * spacing;
+    if (totalWidth > size.x) {
+      keyWidthDisplay = (size.x - (numKeys - 1) * spacing) / numKeys;
+      keyHeightDisplay = keyWidthDisplay / intrinsicRatio;
+      totalWidth = keyWidthDisplay * numKeys + (numKeys - 1) * spacing;
+    }
+    final double startX = (size.x - totalWidth) / 2;
     final double yPos = (size.y - keyHeightDisplay) / 2;
 
-    for (int i = 0; i < _numKeys; i++) {
-      final sprite = Sprite(
-        image,
-        srcPosition: Vector2(keyWidth * i, 0),
-        srcSize: Vector2(keyWidth, keyHeight),
-      );
+    // Water palette used to tint the bubble particles for each key.
+    const List<Color> palette = [
+      Color(0xFFB2EBF2), // light cyan
+      Color(0xFFB3E5FC), // light blue
+      Color(0xFFC5CAE9), // light periwinkle
+      Color(0xFFD1C4E9), // light lavender
+      Color(0xFFE1BEE7), // light purple
+    ];
+
+    for (int i = 0; i < numKeys; i++) {
       final key = _OrganKey(
-        sprite: sprite,
+        sprite: keySprites[i],
         index: i,
-        color: _waterColors[i % _waterColors.length],
+        color: palette[i % palette.length],
         onPlayKey: (index) {
           // TODO: Hook into audio service to play organ notes.
         },
       );
       key
         ..size = Vector2(keyWidthDisplay, keyHeightDisplay)
-        ..position = Vector2(startX + i * keyWidthDisplay, yPos)
+        ..position = Vector2(startX + i * (keyWidthDisplay + spacing), yPos)
         ..anchor = Anchor.topLeft;
       add(key);
     }
   }
 
-  static final List<Color> _waterColors = [
-    const Color(0xFFB2EBF2), // light cyan
-    const Color(0xFFB3E5FC), // light blue
-    const Color(0xFFC5CAE9), // light periwinkle
-    const Color(0xFFD1C4E9), // light lavender
-    const Color(0xFFE1BEE7), // light purple
-  ];
+  // The palette of watery pastel colours used for bubble particles is
+  // defined in-line above. No need for a static field here.
 }
 
 class _OrganKey extends SpriteComponent with TapCallbacks {
@@ -92,24 +113,34 @@ class _OrganKey extends SpriteComponent with TapCallbacks {
   }
 
   void _spawnBubbles() {
-    const int count = 8;
+    // Release a stream of iridescent bubbles. We vary the size and
+    // colours across a watery palette and let them rise slowly before
+    // drifting down, like bubbles underwater. A gentle acceleration
+    // simulates buoyancy and water resistance.
+    const List<Color> palette = [
+      Color(0xFFB2EBF2), // light cyan
+      Color(0xFFB3E5FC), // light blue
+      Color(0xFFC5CAE9), // light periwinkle
+      Color(0xFFD1C4E9), // light lavender
+      Color(0xFFE1BEE7), // light purple
+    ];
+    const int count = 10;
     for (int i = 0; i < count; i++) {
-      final velocity = Vector2((_random.nextDouble() - 0.5) * 20, -_random.nextDouble() * 60 - 20);
-      // Use ParticleSystemComponent to wrap our particle effect.
-      // Each bubble uses an AcceleratedParticle with a downward
-      // acceleration simulating water resistance. CircleParticle
-      // draws the bubble itself. We randomize the horizontal position
-      // for variation.
+      final velocity = Vector2(
+        (_random.nextDouble() - 0.5) * 30,
+        -_random.nextDouble() * 80 - 30,
+      );
       final particle = ParticleSystemComponent(
         particle: AcceleratedParticle(
-          acceleration: Vector2(0, 30),
+          acceleration: Vector2(0, 40),
           speed: velocity,
           position: Vector2(_random.nextDouble() * size.x, 0),
           child: CircleParticle(
-            radius: 5 + _random.nextDouble() * 3,
-            paint: Paint()..color = color.withOpacity(0.6),
+            radius: 4 + _random.nextDouble() * 4,
+            paint: Paint()
+              ..color = palette[_random.nextInt(palette.length)].withOpacity(0.7),
           ),
-          lifespan: 1.5,
+          lifespan: 1.6,
         ),
       )
         ..priority = 10;

@@ -68,15 +68,33 @@ class HomeGame extends FlameGame {
     );
     title.anchor = Anchor.topCenter;
     title.position = Vector2(_viewport.x / 2, _viewport.y * 0.1);
-    // Create a gentle floating effect using a sine-like up‑down motion.
-    title.add(MoveByEffect(
-      Vector2(0, 10),
-      EffectController(
-        duration: 2,
-        infinite: true,
-        reverseDuration: 2,
+    // Create a whimsical floating effect by combining a vertical bobbing motion
+    // with a subtle pulsing scale change. A SequenceEffect moves the title
+    // up and down, while a ScaleEffect softly enlarges and shrinks it. Both
+    // effects loop indefinitely for a magical feel.
+    title.add(
+      SequenceEffect([
+        MoveByEffect(
+          Vector2(0, 10),
+          EffectController(duration: 2, curve: Curves.easeInOut),
+        ),
+        MoveByEffect(
+          Vector2(0, -10),
+          EffectController(duration: 2, curve: Curves.easeInOut),
+        ),
+      ], infinite: true),
+    );
+    title.add(
+      ScaleEffect.by(
+        Vector2.all(1.05),
+        EffectController(
+          duration: 2.5,
+          reverseDuration: 2.5,
+          infinite: true,
+          curve: Curves.easeInOut,
+        ),
       ),
-    ));
+    );
     add(title);
 
     // Load button sprites.
@@ -139,17 +157,24 @@ class _MenuButton extends SpriteComponent with TapCallbacks {
   @override
   void onTapDown(TapDownEvent event) {
     super.onTapDown(event);
-    // Apply a squash and stretch effect when the button is pressed.
-    add(ScaleEffect.to(
-      Vector2(0.9, 1.1),
-      EffectController(duration: 0.1),
-      onComplete: () {
-        add(ScaleEffect.to(
-          Vector2.all(1.0),
-          EffectController(duration: 0.1),
-        ));
-      },
-    ));
+    // When the user presses the button, briefly tint it and shrink it for a
+    // satisfying tactile response. The color effect lightens the sprite
+    // momentarily, and the scale effect compresses it uniformly. Both
+    // effects automatically reverse to return the button to its original
+    // appearance.
+    add(
+      ColorEffect(
+        const Color(0xBBFFFFFF),
+        EffectController(duration: 0.1, reverseDuration: 0.1),
+        opacityTo: 0.7,
+      ),
+    );
+    add(
+      ScaleEffect.to(
+        Vector2(0.9, 0.9),
+        EffectController(duration: 0.1, reverseDuration: 0.1),
+      ),
+    );
   }
 
   @override

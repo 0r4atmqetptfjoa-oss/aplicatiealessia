@@ -17,53 +17,58 @@ import 'package:flutter/material.dart';
 /// spawns a burst of star‑like particles. Audio playback and gamification
 /// integration can be added via the [onPlayNote] callback.
 class PianoGame extends FlameGame {
-  /// Number of keys to divide the piano sprite into. Using seven keys to
-  /// approximate the colors of the rainbow.
-  static const int _numKeys = 7;
+  /// The file names of the individual piano key sprites.
+  static const List<String> _keyFiles = [
+    'piano/clapa_rosie.png',
+    'piano/clapa_portocalie.png',
+    'piano/clapa_galbena.png',
+    'piano/clapa_verde.png',
+    'piano/clapa_albastra.png',
+    'piano/clapa_indigo.png',
+    'piano/clapa_violeta.png',
+  ];
 
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    // Load the piano sprite sheet.
-    final image = await images.load('piano.png');
-    final keyWidth = image.width / _numKeys;
-    final keyHeight = image.height.toDouble();
+    // 1. Add a full‑screen background for the piano scene.
+    final bgSprite = await loadSprite('backgrounds/background_piano.png');
+    add(
+      SpriteComponent(sprite: bgSprite)
+        ..size = size
+        ..position = Vector2.zero(),
+    );
 
-    // Determine the display size for each key while preserving aspect ratio of
-    // the original sprite. We allocate 80% of the vertical space for the
-    // keys. Based on that height and the key ratio, we compute the ideal
-    // width. If the total ideal width exceeds the available horizontal space,
-    // we scale down to fit horizontally, adjusting the height accordingly.
-    final double availableHeight = size.y * 0.8;
-    final double keyRatio = keyWidth / keyHeight;
-    // Ideal width per key based on height.
-    final double idealKeyWidth = availableHeight * keyRatio;
-    final double totalIdealWidth = idealKeyWidth * _numKeys;
-    late double keyWidthDisplay;
-    late double keyHeightDisplay;
-    if (totalIdealWidth > size.x) {
-      // Not enough horizontal space; fit keys by width and adjust height to
-      // preserve aspect ratio.
-      keyWidthDisplay = size.x / _numKeys;
-      keyHeightDisplay = keyWidthDisplay / keyRatio;
-    } else {
-      // Use the full vertical space and derive width from it.
-      keyWidthDisplay = idealKeyWidth;
-      keyHeightDisplay = availableHeight;
+    // 2. Load each individual piano key sprite.
+    final keySprites = <Sprite>[];
+    for (final file in _keyFiles) {
+      keySprites.add(await loadSprite(file));
     }
-    // Horizontal offset to center the keys when there is extra space.
-    final double startX = (size.x - keyWidthDisplay * _numKeys) / 2;
+
+    // Determine display size for each key while preserving aspect ratio. Use
+    // 80% of the vertical space for keys.
+    final double availableHeight = size.y * 0.8;
+    // All keys share the same intrinsic aspect ratio, use the first key as
+    // reference.
+    final double intrinsicRatio =
+        keySprites.first.srcSize.x / keySprites.first.srcSize.y;
+    double keyHeightDisplay = availableHeight;
+    double keyWidthDisplay = keyHeightDisplay * intrinsicRatio;
+    final int numKeys = keySprites.length;
+    const double spacing = 10.0;
+    // If the total width exceeds the available horizontal space, scale down.
+    double totalWidth = keyWidthDisplay * numKeys + (numKeys - 1) * spacing;
+    if (totalWidth > size.x) {
+      keyWidthDisplay = (size.x - (numKeys - 1) * spacing) / numKeys;
+      keyHeightDisplay = keyWidthDisplay / intrinsicRatio;
+      totalWidth = keyWidthDisplay * numKeys + (numKeys - 1) * spacing;
+    }
+    final double startX = (size.x - totalWidth) / 2;
     final double yPos = (size.y - keyHeightDisplay) / 2;
 
-    for (int i = 0; i < _numKeys; i++) {
-      final srcPosition = Vector2(keyWidth * i, 0);
-      final sprite = Sprite(
-        image,
-        srcPosition: srcPosition,
-        srcSize: Vector2(keyWidth, keyHeight),
-      );
+    for (int i = 0; i < numKeys; i++) {
       final key = _PianoKey(
-        sprite: sprite,
+        sprite: keySprites[i],
         noteIndex: i,
         onPlayNote: (index) {
           // TODO: Connect to AudioEngineService to play the corresponding note.
@@ -71,7 +76,7 @@ class PianoGame extends FlameGame {
       );
       key
         ..size = Vector2(keyWidthDisplay, keyHeightDisplay)
-        ..position = Vector2(startX + i * keyWidthDisplay, yPos)
+        ..position = Vector2(startX + i * (keyWidthDisplay + spacing), yPos)
         ..anchor = Anchor.topLeft;
       add(key);
     }
@@ -103,25 +108,27 @@ class _PianoKey extends SpriteComponent with TapCallbacks {
 
   /// Spawns a small burst of star‑like particles above the key.
   void _spawnParticles() {
-    const int count = 10;
+    // Generate a burst of shimmering notes/stars. We choose a golden color
+    // reminiscent of sparkling music and vary the velocities so that
+    // particles shoot upward and then fall under gravity. Using a
+    // ParticleSystemComponent ensures each particle cleans itself up when
+    // expired.
+    const int count = 12;
     for (int i = 0; i < count; i++) {
-      final velocity = Vector2((_random.nextDouble() - 0.5) * 50, -_random.nextDouble() * 80 - 20);
-      // Use ParticleSystemComponent instead of the deprecated ParticleComponent.
-      // ParticleSystemComponent wraps a Particle and handles its lifecycle
-      // automatically. AcceleratedParticle provides simple physics with
-      // acceleration and speed; CircleParticle renders a simple circle. A
-      // random horizontal spawn position makes the burst appear across the
-      // width of the key.
+      final velocity = Vector2(
+        (_random.nextDouble() - 0.5) * 60,
+        -_random.nextDouble() * 90 - 30,
+      );
       final particle = ParticleSystemComponent(
         particle: AcceleratedParticle(
-          acceleration: Vector2(0, 50),
+          acceleration: Vector2(0, 60),
           speed: velocity,
           position: Vector2(_random.nextDouble() * size.x, 0),
           child: CircleParticle(
-            radius: 3 + _random.nextDouble() * 2,
-            paint: Paint()..color = Colors.white.withOpacity(0.8),
+            radius: 3 + _random.nextDouble() * 3,
+            paint: Paint()..color = const Color(0xFFFFD700).withOpacity(0.85),
           ),
-          lifespan: 1.0,
+          lifespan: 1.2,
         ),
       )
         ..priority = 10;

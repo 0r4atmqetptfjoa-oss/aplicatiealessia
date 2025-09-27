@@ -29,22 +29,22 @@ class InstrumentsMenuScreen extends StatelessWidget {
           padding: const EdgeInsets.all(32),
           children: [
             _InstrumentItem(
-              imagePath: 'assets/images/piano.png',
+              imagePath: 'assets/images/previews/preview_piano.png',
               label: 'Pian',
               onTap: () => router.go('/instrumente/pian'),
             ),
             _InstrumentItem(
-              imagePath: 'assets/images/drums.png',
+              imagePath: 'assets/images/previews/preview_drums.png',
               label: 'Tobe',
               onTap: () => router.go('/instrumente/tobe'),
             ),
             _InstrumentItem(
-              imagePath: 'assets/images/xylophone.png',
+              imagePath: 'assets/images/previews/preview_xylophone.png',
               label: 'Xilofon',
               onTap: () => router.go('/instrumente/xilofon'),
             ),
             _InstrumentItem(
-              imagePath: 'assets/images/organ.png',
+              imagePath: 'assets/images/previews/preview_organ.png',
               label: 'Orgă',
               onTap: () => router.go('/instrumente/orga'),
             ),
@@ -74,30 +74,39 @@ class _InstrumentItem extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Expanded(
-            child: AspectRatio(
-              aspectRatio: 1,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Image.asset(
-                  imagePath,
-                  fit: BoxFit.contain,
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Image.asset(
+                      imagePath,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
                 ),
               ),
-            ),
+              const SizedBox(height: 8),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
