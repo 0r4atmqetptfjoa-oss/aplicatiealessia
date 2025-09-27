@@ -1,56 +1,39 @@
-name: alesia_faza_1_meniu
-description: "Alesia - O lume magică de joacă"
-publish_to: 'none'
+name: alesia
+description: >-
+  Alesia is a premium educational and entertainment app for kids. This
+  project lays the foundation for the application by setting up the core
+  architecture, dependencies and assets needed for the main menu.
 
-version: 1.0.0+1
-
+# The following section defines the versions of the Dart SDK that the
+# package is compatible with. It needs to be updated when the minimum
+# supported Flutter version changes.
 environment:
-  # ACTUALIZARE CRITICĂ: Permite funcționalități noi și rezolvă erorile de limbaj
-  sdk: '>=3.8.0 <4.0.0'
+  sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.2
-  go_router: ^13.0.1
+  # Routing and dependency injection
+  go_router: ^7.0.1
+  get_it: ^7.6.0
   flutter_bloc: ^8.1.3
-  get_it: ^7.6.4
-  # Modern versions of Flame and related packages.  These versions
-  # require Dart 3.8 or later and are compatible with each other.
-  flame: ^1.32.0
-  flame_rive: ^1.10.19
-  flutter_soloud: ^3.3.7
-  # Rive remains on the latest stable release for compatibility with
-  # flame_rive.  The dev release (0.14.0-dev.8) is intentionally
-  # avoided here.
-  rive: ^0.13.20
-  google_fonts: ^4.0.0
-  flutter_tts: ^3.6.3
+  # Game engine and audio/animation packages
+  flame: ^1.8.0
+  flutter_soloud: ^0.0.6
+  rive: ^0.12.3
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.0
 
 flutter:
   uses-material-design: true
   assets:
-    - assets/images/
-    - assets/images/instruments/
-    - assets/images/instruments/drums/
-    - assets/images/instruments/organ/
-    - assets/images/instruments/piano/
-    - assets/images/instruments/xylophone/
-    - assets/images/games/
-    - assets/images/games/alphabet/
-    - assets/images/games/memory/
-    - assets/images/games/puzzle/
-    - assets/images/sounds/
-    - assets/images/stories/
-    - assets/audio/
-    - assets/audio/drums/
-    - assets/audio/notes/
-    - assets/audio/songs/
-    - assets/audio/ui/
-    - assets/rive/
-    - assets/content/
+    - assets/images/parallax_back.png
+    - assets/images/parallax_middle.png
+    - assets/images/parallax_front.png
+    - assets/images/harp.png
+    - assets/images/music_box.png
+    - assets/images/story_book.png
+    - assets/images/play_cube.png
+    - assets/images/seashell.png

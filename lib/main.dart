@@ -1,34 +1,60 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'core/navigation/app_router.dart';
-import 'core/service_locator.dart';
-import 'services/audio_engine_service.dart';
-import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 
-/// Entry point of the Alesia application.
+import 'core/di/service_locator.dart';
+import 'features/home/presentation/home_screen.dart';
+
+/// Entry point for the Alesia application.
 ///
-/// This function ensures that Flutter bindings are initialised and locks the
-/// device orientation to portrait before bootstrapping the app.  The app
-/// delegates its navigation to a central [GoRouter] configured in
-/// [AppRouter].
-void main() async {
+/// This file configures global settings such as device orientation,
+/// initializes the dependency injection container and wires up the
+/// application router. The root widget uses [MaterialApp.router] to
+/// integrate with `go_router` for declarative navigation.
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Set up dependency injection before anything else.  This registers
-  // singletons for the audio engine and gamification BLoC.
-  setupServiceLocator();
-  // Initialise the audio engine so it is ready to play sounds.  Errors
-  // during initialisation are ignored for now; sounds will simply not
-  // play if the engine isn't available.
-  await GetIt.instance.get<AudioEngineService>().init();
-  // Restrict the application to portrait orientation only.  This prevents
-  // accidental rotation on phones and is required by the spec for phase 1.
+  // Ensure the app runs only in portrait mode.
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);
+  // Configure dependency injection before the app starts.
+  await setupLocator();
   runApp(const MyApp());
 }
 
-/// Root widget of the application.
+/// Defines the top‑level routes for the application.
+final GoRouter _router = GoRouter(
+  routes: [
+    GoRoute(
+      path: '/',
+      builder: (context, state) => const HomeScreen(),
+      routes: [
+        GoRoute(
+          path: 'instrumente',
+          builder: (context, state) => const PlaceholderScreen(title: 'Instrumente'),
+        ),
+        GoRoute(
+          path: 'canciones',
+          builder: (context, state) => const PlaceholderScreen(title: 'Cântece'),
+        ),
+        GoRoute(
+          path: 'povesti',
+          builder: (context, state) => const PlaceholderScreen(title: 'Povești'),
+        ),
+        GoRoute(
+          path: 'jocuri',
+          builder: (context, state) => const PlaceholderScreen(title: 'Jocuri'),
+        ),
+        GoRoute(
+          path: 'sunete',
+          builder: (context, state) => const PlaceholderScreen(title: 'Sunete'),
+        ),
+      ],
+    ),
+  ],
+);
+
+/// Root widget for the application.
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -37,11 +63,30 @@ class MyApp extends StatelessWidget {
     return MaterialApp.router(
       title: 'Alesia',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+        primarySwatch: Colors.deepPurple,
+        brightness: Brightness.light,
       ),
-      routerConfig: AppRouter.router,
+      routerConfig: _router,
       debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+/// Simple placeholder page used for routes that haven't been implemented yet.
+class PlaceholderScreen extends StatelessWidget {
+  final String title;
+  const PlaceholderScreen({super.key, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(title)),
+      body: Center(
+        child: Text(
+          '$title - În curând!',
+          style: const TextStyle(fontSize: 24),
+        ),
+      ),
     );
   }
 }
