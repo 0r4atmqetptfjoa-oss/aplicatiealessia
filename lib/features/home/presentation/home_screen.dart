@@ -1,7 +1,8 @@
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flame/game.dart';
-import 'package:flame/input.dart';
+import 'package:flame/parallax.dart';
+import 'package:flame/events.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -26,7 +27,7 @@ class HomeScreen extends StatelessWidget {
 /// This scene uses a parallax background and several tappable sprite buttons
 /// to navigate to other sections of the application. A floating title adds
 /// a whimsical touch to the main menu.
-class HomeGame extends FlameGame with HasTappables {
+class HomeGame extends FlameGame {
   HomeGame({required this.router});
 
   final GoRouter router;
@@ -37,7 +38,7 @@ class HomeGame extends FlameGame with HasTappables {
   Future<void> onLoad() async {
     await super.onLoad();
     // Load parallax layers. The layers scroll at the same speed for a static
-    // background, but you can adjust the velocity multipliers to create depth.
+    // background. Adjust the velocity multipliers to create depth if desired.
     final parallax = await loadParallaxComponent(
       [
         ParallaxImageData('parallax_back.png'),
@@ -67,7 +68,7 @@ class HomeGame extends FlameGame with HasTappables {
     );
     title.anchor = Anchor.topCenter;
     title.position = Vector2(_viewport.x / 2, _viewport.y * 0.1);
-    // Create a gentle floating effect using a sine wave along the y-axis.
+    // Create a gentle floating effect using a sine-like up‑down motion.
     title.add(MoveByEffect(
       Vector2(0, 10),
       EffectController(
@@ -128,13 +129,15 @@ class HomeGame extends FlameGame with HasTappables {
 
 /// A tappable sprite that performs a bounce animation when pressed and triggers
 /// a callback on release.
-class _MenuButton extends SpriteComponent with Tappable {
+/// A tappable button that reacts to tap events and triggers a callback.
+class _MenuButton extends SpriteComponent with TapCallbacks {
   _MenuButton({required Sprite sprite, required this.onPressed}) : super(sprite: sprite);
 
   final VoidCallback onPressed;
 
   @override
-  bool onTapDown(TapDownInfo info) {
+  void onTapDown(TapDownEvent event) {
+    super.onTapDown(event);
     // Apply a squash and stretch effect when the button is pressed.
     add(ScaleEffect.to(
       Vector2(0.9, 1.1),
@@ -146,13 +149,12 @@ class _MenuButton extends SpriteComponent with Tappable {
         ));
       },
     ));
-    return true;
   }
 
   @override
-  bool onTapUp(TapUpInfo info) {
+  void onTapUp(TapUpEvent event) {
+    super.onTapUp(event);
     // Trigger the callback on release.
     onPressed();
-    return true;
   }
 }

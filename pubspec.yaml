@@ -21,7 +21,9 @@ dependencies:
   get_it: ^7.6.0
   flutter_bloc: ^8.1.3
   # Game engine and audio/animation packages
-  flame: ^1.8.0
+  # Use a more recent Flame version that contains the TapCallbacks API.
+  # 1.23.0 is compatible with Dart >= 3.4 and includes the new tap event API.
+  flame: ^1.23.0
   # Updated to the latest stable version as 0.0.6 no longer exists on pub.dev.
   flutter_soloud: ^3.3.7
   rive: ^0.12.3
