@@ -1,0 +1,3 @@
+
+// Fix: ensure non-null target when constructing StoryChoice
+await getIt<StoryService>().addChoice(fromId, StoryChoice(text, target ?? ""));
