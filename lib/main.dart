@@ -1,5 +1,6 @@
 import 'package:alesia/core/app_router.dart';
 import 'package:alesia/core/service_locator.dart';
+import 'package:alesia/services/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rive/rive.dart' as rive;
@@ -9,6 +10,8 @@ Future<void> main() async {
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   await setupLocator();
   try { await rive.RiveNative.init(); } catch (_) {}
+  // Sound preloader
+  await getIt<AudioService>().preload();
   runApp(const MyApp());
 }
 

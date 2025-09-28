@@ -13,7 +13,7 @@ class StoryHistoryService {
   Future<File> _file() async {
     final dir = await getApplicationDocumentsDirectory();
     return File('${dir.path}/$_fileName');
-    }
+  }
 
   Future<void> load() async {
     try {

@@ -19,7 +19,14 @@ class _State extends State<OrganScreen> {
     body: GameWidget(
       game: game,
       overlayBuilderMap: {
-        'Zana': (ctx, gameRef) => ZanaMelodiaOverlay(animationListenable: (gameRef as OrganGame).zana),
+        'Zana': (ctx, gameRef) {
+          final g = gameRef as OrganGame;
+          return ZanaMelodiaOverlay(
+            animationListenable: g.zana,
+            metronomeOnListenable: g.metronome.isOn,
+            onToggleMetronome: g.metronome.toggle,
+          );
+        },
         'Rhythm': (ctx, gameRef) {
           final g = gameRef as OrganGame;
           return RhythmOverlay(

@@ -19,7 +19,14 @@ class _State extends State<DrumsScreen> {
     body: GameWidget(
       game: game,
       overlayBuilderMap: {
-        'Zana': (ctx, gameRef) => ZanaMelodiaOverlay(animationListenable: (gameRef as DrumsGame).zana),
+        'Zana': (ctx, gameRef) {
+          final g = gameRef as DrumsGame;
+          return ZanaMelodiaOverlay(
+            animationListenable: g.zana,
+            metronomeOnListenable: g.metronome.isOn,
+            onToggleMetronome: g.metronome.toggle,
+          );
+        },
         'Rhythm': (ctx, gameRef) {
           final g = gameRef as DrumsGame;
           return RhythmOverlay(

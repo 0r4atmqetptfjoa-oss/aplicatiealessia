@@ -13,13 +13,26 @@ class AudioService {
     try { await _soloud.init(); _inited = true; } catch (e) { if (kDebugMode) print('Audio init failed: $e'); }
   }
 
+  Future<void> preload() async {
+    if (!_inited) await init();
+    await _ensureClick();
+    await _ensureTick();
+  }
+
   Future<void> _ensureClick() async {
     if (_click != null) return;
-    try { _click = await _soloud.loadAsset('assets/audio/final/click.mp3'); } catch (_) {}
+    try {
+      // TODO (Răzvan): Înlocuiește cu fișierul final 'click.mp3'
+      _click = await _soloud.loadAsset('assets/audio/final/click.mp3');
+    } catch (_) {}
   }
+
   Future<void> _ensureTick() async {
     if (_tick != null) return;
-    try { _tick = await _soloud.loadAsset('assets/audio/final/metronome_tick.mp3'); } catch (_) {}
+    try {
+      // TODO (Răzvan): Înlocuiește cu fișierul final 'metronome_tick.mp3'
+      _tick = await _soloud.loadAsset('assets/audio/final/metronome_tick.mp3');
+    } catch (_) {}
   }
 
   Future<void> playClick() async {
@@ -34,7 +47,6 @@ class AudioService {
     if (_tick != null) {
       await _soloud.play(_tick!);
     } else {
-      // fallback la click dacă tick-ul nu există
       await _ensureClick();
       if (_click != null) await _soloud.play(_click!);
     }

@@ -24,12 +24,7 @@ abstract class BaseInstrumentGame extends FlameGame{
 
   @override Future<void> onLoad() async {
     overlays.add('Zana'); overlays.add('Rhythm'); overlays.add('Hints');
-    // metronome audio on every beat
-    _beatListener = () {
-      if (metronome.isOn.value) {
-        getIt<AudioService>().playMetronomeTick();
-      }
-    };
+    _beatListener = () { if (metronome.isOn.value) { getIt<AudioService>().playMetronomeTick(); } };
     conductor.beat.addListener(_beatListener);
   }
 

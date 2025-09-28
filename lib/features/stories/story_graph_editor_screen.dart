@@ -28,7 +28,6 @@ class _StoryGraphEditorScreenState extends State<StoryGraphEditorScreen> {
   bool _draggingNodes = false;
   Rect? _selectionRect;
 
-  // Undo/redo (persisted too)
   final List<String> _undo = [];
   final List<String> _redo = [];
 
@@ -43,38 +42,28 @@ class _StoryGraphEditorScreenState extends State<StoryGraphEditorScreen> {
       _cacheRects();
       await history.load();
       if (history.undo.isNotEmpty) {
-        _undo
-          ..clear()
-          ..addAll(history.undo);
-        _redo
-          ..clear()
-          ..addAll(history.redo);
+        _undo..clear()..addAll(history.undo);
+        _redo..clear()..addAll(history.redo);
         await _restoreFrom(_undo.last);
       } else {
-        _pushSnapshot(); // initial
+        _pushSnapshot();
       }
       setState(() {});
     });
   }
 
   void _cacheRects() {
-    _nodeRects
-      ..clear();
+    _nodeRects..clear();
     for (final id in story.graph.keys) {
       final p = layout.get(id) ?? const Offset(80, 80);
       _nodeRects[id] = p & nodeSize;
     }
   }
 
-  void _persistStacks() async {
-    await history.saveStacks(_undo, _redo);
-  }
+  void _persistStacks() async { await history.saveStacks(_undo, _redo); }
 
   void _pushSnapshot() {
-    final snap = json.encode({
-      'graph': story.graphJson,
-      'layout': json.decode(layout.exportJson()),
-    });
+    final snap = json.encode({'graph': story.graphJson, 'layout': json.decode(layout.exportJson())});
     _undo.add(snap);
     _redo.clear();
     _persistStacks();
@@ -115,9 +104,7 @@ class _StoryGraphEditorScreenState extends State<StoryGraphEditorScreen> {
 
   Map<String, List<String>> _edges() {
     final m = <String, List<String>>{};
-    story.graph.forEach((id, node) {
-      m[id] = node.choices.map((c) => c.nextId).toList();
-    });
+    story.graph.forEach((id, node) { m[id] = node.choices.map((c) => c.nextId).toList(); });
     return m;
   }
 
@@ -133,9 +120,7 @@ class _StoryGraphEditorScreenState extends State<StoryGraphEditorScreen> {
     final path = '${dir.path}/story_layout_${DateTime.now().millisecondsSinceEpoch}.json';
     final raw = layout.exportJson();
     await File(path).writeAsString(raw);
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Layout salvat în: $path')));
-    }
+    if (mounted) { ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Layout salvat în: $path'))); }
   }
 
   Future<void> _exportSnapshot() async {
@@ -143,9 +128,7 @@ class _StoryGraphEditorScreenState extends State<StoryGraphEditorScreen> {
     final path = '${dir.path}/story_snapshot_${DateTime.now().millisecondsSinceEpoch}.json';
     final snap = _undo.isNotEmpty ? _undo.last : json.encode({'graph': story.graphJson, 'layout': json.decode(layout.exportJson())});
     await File(path).writeAsString(snap);
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Snapshot salvat în: $path')));
-    }
+    if (mounted) { ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Snapshot salvat în: $path'))); }
   }
 
   Future<void> _importLayoutJson() async {
@@ -229,9 +212,7 @@ class _StoryGraphEditorScreenState extends State<StoryGraphEditorScreen> {
             orElse: () => const MapEntry('', Rect.zero),
           ).key;
           if (hit.isNotEmpty) {
-            if (!_selected.contains(hit)) {
-              _selected..clear()..add(hit);
-            }
+            if (!_selected.contains(hit)) { _selected..clear()..add(hit); }
             _draggingNodes = true;
             _dragStart = local;
             _lastDrag = local;
@@ -256,9 +237,7 @@ class _StoryGraphEditorScreenState extends State<StoryGraphEditorScreen> {
             final origin = _selectionRect!.topLeft;
             _selectionRect = Rect.fromPoints(origin, local);
             _selected..clear();
-            _nodeRects.forEach((id, r) {
-              if (_selectionRect!.overlaps(r)) _selected.add(id);
-            });
+            _nodeRects.forEach((id, r) { if (_selectionRect!.overlaps(r)) _selected.add(id); });
           }
           setState(() {});
         },

@@ -19,7 +19,14 @@ class _State extends State<PianoScreen> {
     body: GameWidget(
       game: game,
       overlayBuilderMap: {
-        'Zana': (ctx, gameRef) => ZanaMelodiaOverlay(animationListenable: (gameRef as PianoGame).zana),
+        'Zana': (ctx, gameRef) {
+          final g = gameRef as PianoGame;
+          return ZanaMelodiaOverlay(
+            animationListenable: g.zana,
+            metronomeOnListenable: g.metronome.isOn,
+            onToggleMetronome: g.metronome.toggle,
+          );
+        },
         'Rhythm': (ctx, gameRef) {
           final g = gameRef as PianoGame;
           return RhythmOverlay(
