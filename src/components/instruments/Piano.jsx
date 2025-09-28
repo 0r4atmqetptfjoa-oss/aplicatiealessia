@@ -15,7 +15,8 @@ const NOTES = [
 // Helper to play a short tone at the given frequency.  Each call creates a
 // new AudioContext to avoid stateful issues across multiple notes.  The
 // oscillator stops after a brief duration.
-function playTone(freq) {
+function playTone(freq, mute = false) {
+  if (mute) return;
   const context = new (window.AudioContext || window.webkitAudioContext)();
   const oscillator = context.createOscillator();
   const gain = context.createGain();
@@ -36,8 +37,11 @@ function playTone(freq) {
  * with the piano, a one-minute timer starts; when the timer expires the
  * provided onComplete callback is invoked to mark the activity as finished.
  */
+import { useAppStore } from '../../store/appStore.js';
+
 export default function Piano({ onComplete }) {
   const [started, setStarted] = useState(false);
+  const globalMute = useAppStore((state) => state.globalMute);
 
   useEffect(() => {
     if (!started) return;
@@ -48,7 +52,7 @@ export default function Piano({ onComplete }) {
   }, [started, onComplete]);
 
   const handleKeyPress = (freq) => {
-    playTone(freq);
+    playTone(freq, globalMute);
     if (!started) setStarted(true);
   };
 

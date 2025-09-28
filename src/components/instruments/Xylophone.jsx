@@ -13,7 +13,8 @@ const BARS = [
   { label: 'C', freq: 1046.5 },
 ];
 
-function playBar(freq) {
+function playBar(freq, mute = false) {
+  if (mute) return;
   const context = new (window.AudioContext || window.webkitAudioContext)();
   const oscillator = context.createOscillator();
   const gain = context.createGain();
@@ -34,8 +35,11 @@ function playBar(freq) {
  * a bar plays a tone.  A one-minute timer starts on first interaction
  * and triggers onComplete when finished.
  */
+import { useAppStore } from '../../store/appStore.js';
+
 export default function Xylophone({ onComplete }) {
   const [started, setStarted] = useState(false);
+  const globalMute = useAppStore((state) => state.globalMute);
 
   useEffect(() => {
     if (!started) return;
@@ -46,7 +50,7 @@ export default function Xylophone({ onComplete }) {
   }, [started, onComplete]);
 
   const handleBar = (freq) => {
-    playBar(freq);
+    playBar(freq, globalMute);
     if (!started) setStarted(true);
   };
 

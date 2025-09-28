@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAppStore } from '../store/appStore.js';
 import MagicButton from '../components/ui/MagicButton.jsx';
 import soundsData from '../data/soundsData.js';
+import { t } from '../i18n/index.js';
 
 // Map internal category keys to friendly display names.  Only the first
 // six categories are used in the UI per mission requirements.
@@ -17,7 +18,8 @@ const CATEGORY_NAMES = {
 // Play a short synthetic click sound when a sound item is selected.  This
 // function uses the Web Audio API to provide immediate feedback without
 // requiring external audio files.  Each call creates a new context.
-function playClick() {
+function playClick(mute = false) {
+  if (mute) return;
   const ctx = new (window.AudioContext || window.webkitAudioContext)();
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
@@ -43,13 +45,14 @@ function playClick() {
 export default function SoundsPage() {
   const addCompletedActivity = useAppStore((state) => state.addCompletedActivity);
   const setCurrentPage = useAppStore((state) => state.setCurrentPage);
+  const globalMute = useAppStore((state) => state.globalMute);
   // selected category key or null
   const [selectedCategory, setSelectedCategory] = useState(null);
   // track which items have been listened per category
   const [listened, setListened] = useState({});
 
   const handleItemClick = (category, label) => {
-    playClick();
+    playClick(globalMute);
     setListened((prev) => {
       const set = new Set(prev[category] || []);
       set.add(label);

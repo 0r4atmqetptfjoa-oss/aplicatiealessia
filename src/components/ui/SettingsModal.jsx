@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAppStore } from '../../store/appStore.js';
 import MagicButton from './MagicButton.jsx';
+import { t } from '../../i18n/index.js';
 
 /**
  * SettingsModal implements the parental gate (“Poarta Părinților”).  When
@@ -21,6 +22,13 @@ export default function SettingsModal({ onClose }) {
   const [input, setInput] = useState('');
   const resetProgress = useAppStore((state) => state.resetProgress);
   const completedActivities = useAppStore((state) => state.completedActivities);
+  const pageCounts = useAppStore((state) => state.pageCounts);
+  const globalMute = useAppStore((state) => state.globalMute);
+  const setGlobalMute = useAppStore((state) => state.setGlobalMute);
+  const timeLimit = useAppStore((state) => state.timeLimit);
+  const setTimeLimit = useAppStore((state) => state.setTimeLimit);
+  // Local form state for time limit input
+  const [limitInput, setLimitInput] = useState(timeLimit || '');
 
   const verify = () => {
     if (parseInt(input, 10) === correctAnswer) {
@@ -73,17 +81,66 @@ export default function SettingsModal({ onClose }) {
         )}
         {stage === 'settings' && (
           <div>
-            <p>Ai acces la setările aplicaţiei.</p>
-            <p>Număr de activităţi completate: {completedActivities.length}</p>
-            <MagicButton onClick={() => {
-              if (window.confirm('Sigur doreşti să ştergi progresul?')) {
-                resetProgress();
-              }
-            }}>
-              Resetează progresul
-            </MagicButton>
-            <div style={{ marginTop: '1rem' }}>
-              <MagicButton onClick={onClose}>Închide</MagicButton>
+            <p>{t('totalCompleted')}: {completedActivities.length}</p>
+            {/* Analytics: show page visit counts */}
+            <div style={{ textAlign: 'left', marginBottom: '1rem' }}>
+              <h4>Statistici pagini</h4>
+              <ul>
+                {Object.entries(pageCounts).map(([page, count]) => (
+                  <li key={page}>{page}: {count}</li>
+                ))}
+              </ul>
+            </div>
+            {/* Time limit control */}
+            <div style={{ marginBottom: '1rem' }}>
+              <label>
+                {t('timeLimit')}:
+                <input
+                  type="number"
+                  min="0"
+                  value={limitInput}
+                  onChange={(e) => setLimitInput(e.target.value)}
+                  style={{ marginLeft: '0.5rem', padding: '0.25rem', width: '60px' }}
+                />
+                <MagicButton
+                  onClick={() => {
+                    const minutes = parseInt(limitInput, 10);
+                    if (!isNaN(minutes) && minutes > 0) {
+                      setTimeLimit(minutes);
+                      alert(`Limita de timp setată la ${minutes} minute.`);
+                    } else {
+                      setTimeLimit(null);
+                      alert('Limită dezactivată.');
+                    }
+                  }}
+                >Aplică</MagicButton>
+              </label>
+            </div>
+            {/* Global mute toggle */}
+            <div style={{ marginBottom: '1rem' }}>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={globalMute}
+                  onChange={(e) => setGlobalMute(e.target.checked)}
+                />{' '}
+                {t('muteAudio')}
+              </label>
+            </div>
+            {/* Reset progress button */}
+            <div style={{ marginBottom: '1rem' }}>
+              <MagicButton
+                onClick={() => {
+                  if (window.confirm('Sigur doreşti să ştergi progresul?')) {
+                    resetProgress();
+                  }
+                }}
+              >
+                {t('resetProgress')}
+              </MagicButton>
+            </div>
+            <div>
+              <MagicButton onClick={onClose}>{t('close')}</MagicButton>
             </div>
           </div>
         )}

@@ -9,7 +9,8 @@ const DRUMS = [
   { label: 'Hi-Hat', freq: 400 },
 ];
 
-function playDrum(freq) {
+function playDrum(freq, mute = false) {
+  if (mute) return;
   const context = new (window.AudioContext || window.webkitAudioContext)();
   const oscillator = context.createOscillator();
   const gain = context.createGain();
@@ -31,8 +32,11 @@ function playDrum(freq) {
  * triggers a percussive tone.  A one-minute timer starts on first
  * interaction and fires the onComplete callback when finished.
  */
+import { useAppStore } from '../../store/appStore.js';
+
 export default function Drums({ onComplete }) {
   const [started, setStarted] = useState(false);
+  const globalMute = useAppStore((state) => state.globalMute);
 
   useEffect(() => {
     if (!started) return;
@@ -43,7 +47,7 @@ export default function Drums({ onComplete }) {
   }, [started, onComplete]);
 
   const handlePad = (freq) => {
-    playDrum(freq);
+    playDrum(freq, globalMute);
     if (!started) setStarted(true);
   };
 

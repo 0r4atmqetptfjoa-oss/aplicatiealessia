@@ -3,6 +3,8 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { useAppStore } from '../store/appStore.js';
 import MagicButton from '../components/ui/MagicButton.jsx';
 import SettingsModal from '../components/ui/SettingsModal.jsx';
+import { t } from '../i18n/index.js';
+import PerfGuard from '../components/util/PerfGuard.jsx';
 // Import crown and gem assets.  These PNGs were generated in the content phase
 // and live in the assets folder.  Each gem represents a completed activity.
 import crownEmpty from '../assets/crown-empty.png';
@@ -11,6 +13,7 @@ import gemGreen from '../assets/gem-green.png';
 import gemBlue from '../assets/gem-blue.png';
 import gemPurple from '../assets/gem-purple.png';
 import gemYellow from '../assets/gem-yellow.png';
+import starImg from '../assets/Asset_Pack/progress/star.png';
 
 // Placeholder princess component.  In a real implementation this would
 // import and animate a glTF model of Princess Alessia.  For now it renders
@@ -70,18 +73,17 @@ function RainParticles() {
 
 export default function MainMenu() {
   const completedActivities = useAppStore((state) => state.completedActivities);
+  const dailyQuest = useAppStore((state) => state.dailyQuest);
+  const setDailyQuest = useAppStore((state) => state.setDailyQuest);
+  const completeDailyQuest = useAppStore((state) => state.completeDailyQuest);
   const setCurrentPage = useAppStore((state) => state.setCurrentPage);
-
-  // Track the current time of day; update every minute to allow the
-  // background colour and lighting to reflect the real world clock.
+  // Time-of-day state to update sky and lighting.  Update every minute.
   const [now, setNow] = useState(new Date());
   useEffect(() => {
     const interval = setInterval(() => setNow(new Date()), 60 * 1000);
     return () => clearInterval(interval);
   }, []);
-
-  // Optionally start a rain effect occasionally.  We toggle a boolean
-  // periodically; when true, a simple particle rain is rendered.
+  // Occasional rain toggle.
   const [isRaining, setIsRaining] = useState(false);
   useEffect(() => {
     const interval = setInterval(() => {
@@ -92,10 +94,9 @@ export default function MainMenu() {
     }, 30000);
     return () => clearInterval(interval);
   }, []);
-
-  // Derive sky and light properties from the current hour.
+  // Determine sky color and light intensity from current hour.
   const hour = now.getHours();
-  let skyColor = '#87cefa'; // Daytime sky
+  let skyColor = '#87cefa';
   let lightIntensity = 1;
   if (hour >= 6 && hour < 18) {
     skyColor = '#87cefa';
@@ -107,35 +108,57 @@ export default function MainMenu() {
     skyColor = '#0d1b2a';
     lightIntensity = 0.2;
   }
-
-  // List of gem images in the order they should appear in the crown.
+  // List of gem images in the order they should appear.
   const gemImages = [gemRed, gemGreen, gemBlue, gemPurple, gemYellow];
-
-  // State controlling visibility of the parental gate settings modal
+  // Parental gate modal visibility.
   const [settingsOpen, setSettingsOpen] = useState(false);
+
+  // When the component mounts, ensure there is a daily quest set for today.
+  useEffect(() => {
+    // Save the quest date in localStorage to prevent reassigning on refresh.
+    const today = new Date().toDateString();
+    const savedDate = localStorage.getItem('questDate');
+    if (savedDate !== today || !dailyQuest.id) {
+      // Simple quest: encourage child to play any activity (we use ID 'general').
+      const newQuest = { id: 'general', completed: false };
+      setDailyQuest(newQuest);
+      localStorage.setItem('questDate', today);
+    }
+  }, [dailyQuest.id, setDailyQuest]);
+
+  // When an activity completes that matches the quest ID, mark the quest completed.
+  useEffect(() => {
+    if (!dailyQuest.completed && dailyQuest.id) {
+      if (dailyQuest.id === 'general' && completedActivities.length > 0) {
+        completeDailyQuest();
+      }
+      // Additional quest types can be handled here.
+    }
+  }, [completedActivities, dailyQuest, completeDailyQuest]);
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-      <Canvas
-        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-        camera={{ position: [0, 2, 6], fov: 60 }}
-      >
-        {/* Set the scene background colour based on time of day */}
-        <color attach="background" args={[skyColor]} />
-        {/* Ambient and directional light to simulate sun/moon */}
-        <ambientLight intensity={0.3} />
-        <directionalLight
-          position={[5, 10, 5]}
-          intensity={lightIntensity}
-          color="#ffffff"
-          castShadow
-        />
-        {/* Render the princess placeholder */}
-        <Princess />
-        {/* Optional rain particles: simple instanced spheres falling from above */}
-        {isRaining && <RainParticles />}
-      </Canvas>
-      {/* Crown UI overlay */}
+      <PerfGuard onDecline={() => setIsRaining(false)} onRecover={() => {}}>
+        {(degraded) => (
+          <Canvas
+            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+            camera={{ position: [0, 2, 6], fov: 60 }}
+          >
+            <color attach="background" args={[skyColor]} />
+            <ambientLight intensity={0.3} />
+            <directionalLight
+              position={[5, 10, 5]}
+              intensity={lightIntensity}
+              color="#ffffff"
+              castShadow
+            />
+            <Princess />
+            {/* Only show rain if not degraded */}
+            {isRaining && !degraded && <RainParticles />}
+          </Canvas>
+        )}
+      </PerfGuard>
+      {/* Crown UI */}
       <div
         style={{
           position: 'absolute',
@@ -146,10 +169,7 @@ export default function MainMenu() {
           zIndex: 10,
         }}
       >
-        {/* Base crown image */}
         <img src={crownEmpty} alt="Coroană" style={{ width: '100%', height: 'auto' }} />
-        {/* Gems positioned relative to the crown.  Adjust offsets to sit nicely
-             along the top of the crown image. */}
         {gemImages.map((src, index) => {
           const leftOffset = 20 + index * 20;
           return (
@@ -168,9 +188,26 @@ export default function MainMenu() {
             />
           );
         })}
+        {/* Show a star when the daily quest is completed */}
+        {dailyQuest.completed && (
+          <img
+            src={starImg}
+            alt="Stea"
+            style={{ position: 'absolute', top: '-10px', left: '100px', width: '24px', height: '24px' }}
+          />
+        )}
       </div>
-      {/* Navigation buttons at the bottom of the screen.  We omit the settings
-          button here because the main menu only needs five entries. */}
+      {/* Daily quest message */}
+      <div
+        style={{ position: 'absolute', top: '110px', left: '20px', color: '#fff', zIndex: 10 }}
+      >
+        {!dailyQuest.completed ? (
+          <p>{t('dailyQuest')}: Joacă o activitate astăzi!</p>
+        ) : (
+          <p>{t('questCompleted')}</p>
+        )}
+      </div>
+      {/* Navigation buttons */}
       <div
         style={{
           position: 'absolute',
@@ -182,22 +219,22 @@ export default function MainMenu() {
           zIndex: 10,
         }}
       >
-        <MagicButton onClick={() => setCurrentPage('instruments')}>Instrumente</MagicButton>
-        <MagicButton onClick={() => setCurrentPage('sounds')}>Sunete</MagicButton>
-        <MagicButton onClick={() => setCurrentPage('stories')}>Povești</MagicButton>
-        <MagicButton onClick={() => setCurrentPage('songs')}>Cântece</MagicButton>
-        <MagicButton onClick={() => setCurrentPage('games')}>Jocuri</MagicButton>
+        <MagicButton onClick={() => setCurrentPage('instruments')}>{t('instruments')}</MagicButton>
+        <MagicButton onClick={() => setCurrentPage('sounds')}>{t('sounds')}</MagicButton>
+        <MagicButton onClick={() => setCurrentPage('stories')}>{t('stories')}</MagicButton>
+        <MagicButton onClick={() => setCurrentPage('songs')}>{t('songs')}</MagicButton>
+        <MagicButton onClick={() => setCurrentPage('games')}>{t('games')}</MagicButton>
       </div>
-
-      {/* Parental gate button positioned in the top-right corner */}
+      {/* Parental gate button */}
       <div
         style={{ position: 'absolute', top: '20px', right: '20px', zIndex: 10 }}
       >
-        <MagicButton onClick={() => setSettingsOpen(true)}>Poarta părinţilor</MagicButton>
+        <MagicButton onClick={() => setSettingsOpen(true)}>{t('settings')}</MagicButton>
       </div>
-
-      {/* Render the settings modal when activated */}
       {settingsOpen && <SettingsModal onClose={() => setSettingsOpen(false)} />}
+    </div>
+  );
+}
     </div>
   );
 }
