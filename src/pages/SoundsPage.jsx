@@ -11,6 +11,7 @@ import natureIcon from '../assets/Asset_Pack/categories/nature.png';
 import ambientIcon from '../assets/Asset_Pack/categories/ambient.png';
 import soundsData from '../data/soundsData.js';
 import { t } from '../i18n/index.js';
+import { soundsIcons } from '../data/soundsIcons.js';
 
 // Map internal category keys to friendly display names.  Only the first
 // six categories are used in the UI per mission requirements.
@@ -104,29 +105,50 @@ export default function SoundsPage() {
   const renderCategoryItems = (category) => {
     const items = soundsData[category] || [];
     const listenedSet = listened[category] || new Set();
+    // Helper to convert a label into a slug used for icon lookup
+    const slugifyLabel = (lbl) => {
+      // Remove any parenthetical text e.g. "(muget de vacă)"
+      let noParen = lbl.replace(/\([^)]*\)/g, '').trim();
+      // Normalize diacritics
+      noParen = noParen.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      // Split into words and take the last word as base name
+      const parts = noParen.split(/\s+/);
+      let slug = parts[parts.length - 1] || '';
+      // Remove non word characters
+      slug = slug.toLowerCase().replace(/[^a-z0-9_]/g, '');
+      return slug;
+    };
     return (
       <div style={{ textAlign: 'center' }}>
         <h2>{CATEGORY_NAMES[category]}</h2>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '1rem' }}>
-          {items.map((label, index) => (
-            <button
-              key={index}
-              onClick={() => handleItemClick(category, label)}
-              style={{
-                width: '70%',
-                margin: '4px 0',
-                padding: '0.5rem 1rem',
-                borderRadius: '8px',
-                border: '1px solid #666',
-                background: listenedSet.has(label) ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.1)',
-                color: '#fff',
-                cursor: 'pointer',
-                textAlign: 'left',
-              }}
-            >
-              {label}
-            </button>
-          ))}
+          {items.map((label, index) => {
+            const slug = slugifyLabel(label);
+            const icon = (soundsIcons[category] && soundsIcons[category][slug]) || null;
+            return (
+              <button
+                key={index}
+                onClick={() => handleItemClick(category, label)}
+                style={{
+                  width: '70%',
+                  margin: '4px 0',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '8px',
+                  border: '1px solid #666',
+                  background: listenedSet.has(label) ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.1)',
+                  color: '#fff',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                }}
+              >
+                {icon && <img src={icon} alt={slug} style={{ width: '24px', height: '24px' }} />}
+                <span>{label}</span>
+              </button>
+            );
+          })}
         </div>
         <div style={{ marginTop: '2rem' }}>
           <MagicButton onClick={() => setSelectedCategory(null)}>Înapoi</MagicButton>
