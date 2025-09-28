@@ -1,0 +1,115 @@
+{
+  "ui": {
+    "home.png": "Home button icon used to navigate back to the main menu.",
+    "back.png": "Back arrow icon used to go back to previous screens.",
+    "story.png": "Open book icon representing the Stories section.",
+    "songs.png": "Musical note icon representing the Songs section.",
+    "games.png": "Puzzle piece icon representing the Games section.",
+    "instruments.png": "Keyboard icon representing the Instruments section.",
+    "sounds.png": "Headphones icon representing the Sounds section.",
+    "crown.png": "Crown icon used in the progress UI.",
+    "star.png": "Star icon used for rewards and achievements.",
+    "settings.png": "Gear icon used to access the settings or parents gate.",
+    "menu.png": "Hamburger menu icon used for secondary menus."
+  },
+  "progress": {
+    "crown.png": "Base crown image where gems or rewards are placed.",
+    "star.png": "Gold star used to indicate a completed activity or reward.",
+    "medal.png": "Medal icon used for special achievements or high scores."
+  },
+  "categories": {
+    "farm.png": "Icon representing the farm animals category (a stylised cow silhouette on a pastel background)",
+    "wild.png": "Icon representing the wild animals category (a bear-like head with ears)",
+    "sea.png": "Icon representing the sea animals category (a fish with a triangle tail)",
+    "vehicles.png": "Icon representing the vehicles category (a small car with wheels and roof)",
+    "house.png": "Icon representing the house sounds category (a house with door and roof)",
+    "nature.png": "Icon representing the nature category (a tree with trunk and foliage)",
+    "ambient.png": "Icon representing the ambient category (a swirling star)"
+  },
+  "extra_backgrounds": {
+    "farmland.png": "Additional background depicting farmland with green fields and blue sky gradient",
+    "forest.png": "Background showing a dense forest scene with dark and light greens",
+    "sea.png": "Calming ocean background with deep blue to light blue gradient",
+    "desert.png": "Warm desert background transitioning from sand to golden hues"
+  },
+  "backgrounds": {
+    "day.png": "Main menu background depicting a bright day with a blue sky.",
+    "sunset.png": "Background showing a warm sunset atmosphere.",
+    "night.png": "Background representing a calm night scene with stars.",
+    "winter.png": "Snowy winter background used during carol or winter scenes."
+  },
+  "games": {
+    "memory": {
+      "apple.png": "Memory card image depicting a red apple.",
+      "tree.png": "Memory card image depicting a green tree.",
+      "sun.png": "Memory card image depicting a yellow sun.",
+      "moon.png": "Memory card image depicting a crescent moon.",
+      "flower.png": "Memory card image depicting a colorful flower.",
+      "fish.png": "Memory card image depicting a blue fish."
+    },
+    "puzzle": {
+      "1.png": "Puzzle tile for number 1.",
+      "2.png": "Puzzle tile for number 2.",
+      "3.png": "Puzzle tile for number 3.",
+      "4.png": "Puzzle tile for number 4.",
+      "5.png": "Puzzle tile for number 5.",
+      "6.png": "Puzzle tile for number 6.",
+      "7.png": "Puzzle tile for number 7.",
+      "8.png": "Puzzle tile for number 8.",
+      "9.png": "Puzzle tile for number 9."
+    },
+    "simon": {
+      "red.png": "Simon game red button.",
+      "green.png": "Simon game green button.",
+      "blue.png": "Simon game blue button.",
+      "yellow.png": "Simon game yellow button."
+    },
+    "shapes": {
+      "colored": {
+        "circle.png": "Colorful circle shape used for matching and shape games.",
+        "square.png": "Colorful square shape used for matching and shape games.",
+        "triangle.png": "Colorful triangle shape used for matching and shape games."
+      },
+      "silhouettes": {
+        "circle.png": "Black silhouette of a circle used in shadow matching games.",
+        "square.png": "Black silhouette of a square used in shadow matching games.",
+        "triangle.png": "Black silhouette of a triangle used in shadow matching games."
+      }
+    },
+    "letters": {
+      "A.png": "Letter A icon used in the letters game.",
+      "B.png": "Letter B icon used in the letters game.",
+      "C.png": "Letter C icon used in the letters game.",
+      "D.png": "Letter D icon used in the letters game.",
+      "E.png": "Letter E icon used in the letters game.",
+      "F.png": "Letter F icon used in the letters game.",
+      "G.png": "Letter G icon used in the letters game.",
+      "H.png": "Letter H icon used in the letters game.",
+      "I.png": "Letter I icon used in the letters game.",
+      "J.png": "Letter J icon used in the letters game.",
+      "K.png": "Letter K icon used in the letters game.",
+      "L.png": "Letter L icon used in the letters game.",
+      "M.png": "Letter M icon used in the letters game.",
+      "N.png": "Letter N icon used in the letters game.",
+      "O.png": "Letter O icon used in the letters game.",
+      "P.png": "Letter P icon used in the letters game.",
+      "Q.png": "Letter Q icon used in the letters game.",
+      "R.png": "Letter R icon used in the letters game.",
+      "S.png": "Letter S icon used in the letters game.",
+      "T.png": "Letter T icon used in the letters game.",
+      "U.png": "Letter U icon used in the letters game.",
+      "V.png": "Letter V icon used in the letters game.",
+      "W.png": "Letter W icon used in the letters game.",
+      "X.png": "Letter X icon used in the letters game.",
+      "Y.png": "Letter Y icon used in the letters game.",
+      "Z.png": "Letter Z icon used in the letters game."
+    },
+    "numbers": {
+      "1.png": "Number 1 card used in sorting games.",
+      "2.png": "Number 2 card used in sorting games.",
+      "3.png": "Number 3 card used in sorting games.",
+      "4.png": "Number 4 card used in sorting games.",
+      "5.png": "Number 5 card used in sorting games."
+    }
+  }
+}

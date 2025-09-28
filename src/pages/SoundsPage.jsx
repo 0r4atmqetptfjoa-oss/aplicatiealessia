@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
 import { useAppStore } from '../store/appStore.js';
 import MagicButton from '../components/ui/MagicButton.jsx';
+// Category icons generated in the asset pack.  Each corresponds to a category key.
+import farmIcon from '../assets/Asset_Pack/categories/farm.png';
+import wildIcon from '../assets/Asset_Pack/categories/wild.png';
+import seaIcon from '../assets/Asset_Pack/categories/sea.png';
+import vehiclesIcon from '../assets/Asset_Pack/categories/vehicles.png';
+import houseIcon from '../assets/Asset_Pack/categories/house.png';
+import natureIcon from '../assets/Asset_Pack/categories/nature.png';
+import ambientIcon from '../assets/Asset_Pack/categories/ambient.png';
 import soundsData from '../data/soundsData.js';
 import { t } from '../i18n/index.js';
 
@@ -13,6 +21,17 @@ const CATEGORY_NAMES = {
   vehicles: 'Vehicule',
   house: 'Sunete din casă',
   nature: 'Natură',
+};
+
+// Map category keys to corresponding icons.  These images are loaded above.
+const CATEGORY_ICONS = {
+  farm: farmIcon,
+  wild: wildIcon,
+  sea: seaIcon,
+  vehicles: vehiclesIcon,
+  house: houseIcon,
+  nature: natureIcon,
+  ambient: ambientIcon,
 };
 
 // Play a short synthetic click sound when a sound item is selected.  This
@@ -70,8 +89,9 @@ export default function SoundsPage() {
       <h2>Alege o categorie de sunete</h2>
       <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1rem', marginTop: '1rem' }}>
         {Object.keys(CATEGORY_NAMES).map((key) => (
-          <MagicButton key={key} onClick={() => setSelectedCategory(key)}>
-            {CATEGORY_NAMES[key]}
+          <MagicButton key={key} onClick={() => setSelectedCategory(key)} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <img src={CATEGORY_ICONS[key]} alt={CATEGORY_NAMES[key]} style={{ width: '24px', height: '24px' }} />
+            <span>{CATEGORY_NAMES[key]}</span>
           </MagicButton>
         ))}
       </div>
