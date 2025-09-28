@@ -1,9 +1,1 @@
-
-import 'package:flutter/foundation.dart';
-
-enum ThemeFlavor { classic, forest, underwater, winter }
-
-class ThemeService {
-  final ValueNotifier<ThemeFlavor> flavor = ValueNotifier<ThemeFlavor>(ThemeFlavor.classic);
-  void setFlavor(ThemeFlavor v) => flavor.value = v;
-}
+import 'package:flutter/material.dart'; class ThemeService{ ThemeMode mode=ThemeMode.light; void toggle(){ mode = mode==ThemeMode.light ? ThemeMode.dark : ThemeMode.light; }}

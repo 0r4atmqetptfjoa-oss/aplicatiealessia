@@ -1,26 +1,24 @@
-
-// A safe minimal AudioService that won't crash on Web.
-// Replace your existing file with this and expand as needed.
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'dart:async';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_soloud/flutter_soloud.dart';
 
 class AudioService {
-  static final AudioService instance = AudioService._();
-  AudioService._();
-
-  bool _initialized = false;
+  final _soloud = SoLoud.instance;
+  bool _inited = false;
 
   Future<void> init() async {
-    // On Web: flutter_soloud uses injected JS; if missing, just no-op.
-    _initialized = true;
+    if (_inited) return;
+    try { await _soloud.init(); _inited = true; } catch (e) { if (kDebugMode) print('Audio init failed: $e'); }
   }
 
-  Future<void> playAsset(String path, {double volume = 1.0}) async {
-    if (!_initialized) await init();
-    // TODO: Integrate flutter_soloud or html audio as you see fit.
-    // This stub avoids FFI on Web.
+  Future<void> playClick() async {
+    if (!_inited) await init();
+    try {
+      // TODO (Răzvan): Înlocuiește cu sunet final 'click.mp3' în assets/audio/final/
+      final h = await _soloud.loadAsset('assets/audio/final/click.mp3');
+      await _soloud.play(h);
+    } catch (_) {}
   }
 
-  Future<void> stopAll() async {
-    // no-op stub
-  }
+  Future<void> dispose() async { try { await _soloud.deinit(); } catch (_) {} }
 }

@@ -19,9 +19,7 @@ class InstrumentsMenuScreen extends StatelessWidget {
       body: GridView.builder(
         padding: const EdgeInsets.all(24),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 20,
-          mainAxisSpacing: 20,
+          crossAxisCount: 2, crossAxisSpacing: 20, mainAxisSpacing: 20,
         ),
         itemCount: instruments.length,
         itemBuilder: (context, index) {
@@ -37,7 +35,8 @@ class InstrumentsMenuScreen extends StatelessWidget {
                   Expanded(
                     child: Container(
                       color: Colors.grey.shade300,
-                      // TODO (Răzvan): Înlocuiește cu resursa finală '${instrument['asset']}'.
+                      // TODO (Răzvan): Înlocuiește placeholder-ul cu resursa finală:
+                      // child: Image.asset('assets/images/final/${instrument['asset']}', fit: BoxFit.cover),
                       child: Image.asset('assets/images/placeholders/placeholder_square.png', fit: BoxFit.cover),
                     ),
                   ),
@@ -48,7 +47,7 @@ class InstrumentsMenuScreen extends StatelessWidget {
                 ],
               ),
             ),
-          ).animate().fade(duration: 400.ms).scale(delay: (90 * index).ms);
+          ).animate().fade(duration: 400.ms).scale(delay: (80 * index).ms);
         },
       ),
     );

@@ -1,22 +1,17 @@
-
+import 'package:alesia/core/app_router.dart';
+import 'package:alesia/core/service_locator.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter/services.dart';
+import 'package:rive/rive.dart' as rive;
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  await setupLocator();
+  // Rive: optional init for faster first render
+  try { await rive.RiveNative.init(); } catch (_) {}
   runApp(const MyApp());
 }
-
-final GoRouter _router = GoRouter(
-  routes: <RouteBase>[
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const Placeholder(),
-      routes: <RouteBase>[
-        // GoRoute(path: 'instrumente', builder: (c,s)=> const InstrumentsMenuScreen() ),
-      ],
-    ),
-  ],
-);
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -24,9 +19,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
+      title: 'Alesia',
+      theme: ThemeData(
+        colorSchemeSeed: Colors.deepPurple,
+        brightness: Brightness.light,
+        useMaterial3: true,
+      ),
+      routerConfig: appRouter,
       debugShowCheckedModeBanner: false,
-      routerConfig: _router,
-      theme: ThemeData.light(),
     );
   }
 }

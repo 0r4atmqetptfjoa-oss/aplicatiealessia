@@ -9,53 +9,39 @@ import 'package:alesia/widgets/hints_overlay.dart';
 
 class XylophoneScreen extends StatefulWidget {
   const XylophoneScreen({super.key});
-
-  @override
-  State<XylophoneScreen> createState() => _State();
+  @override State<XylophoneScreen> createState()=>_State();
 }
-
 class _State extends State<XylophoneScreen> {
   late final XylophoneGame game;
-
-  @override
-  void initState() {
-    super.initState();
-    game = XylophoneGame();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Xilofon')),
-      body: GameWidget(
-        game: game,
-        overlayBuilderMap: {
-          'Zana': (ctx, gameRef) {
-            return ZanaMelodiaOverlay(animationListenable: (gameRef as XylophoneGame).zana);
-          },
-          'Rhythm': (ctx, gameRef) {
-            final g = gameRef as XylophoneGame;
-            return RhythmOverlay(
-              stateListenable: g.coach.state,
-              onStart: g.coach.start,
-              onStop: g.coach.stop,
-              onToggleRecord: g.recorder.toggle,
-              onPlayRecording: g.recorder.play,
-              onTempoChange: g.conductor.setBpm,
-              onMetronomeToggle: g.metronome.toggle,
-              beatListenable: g.conductor.beat,
-              bpmListenable: g.conductor.bpm,
-              recordingListenable: g.recorder.isRecording,
-              hasRecordingListenable: g.recorder.hasRecording,
-              metronomeOnListenable: g.metronome.isOn,
-            );
-          },
-          'Hints': (ctx, gameRef) {
-            final variant = getIt<ABTestService>().assign('StickyCoachHints', const ['off', 'on']);
-            return HintsOverlay(stateListenable: (gameRef as XylophoneGame).coach.state, sticky: variant == 'on');
-          },
+  @override void initState(){ super.initState(); game = XylophoneGame(); }
+  @override Widget build(BuildContext context){ return Scaffold(
+    appBar: AppBar(title: const Text('Xilofon')),
+    body: GameWidget(
+      game: game,
+      overlayBuilderMap: {
+        'Zana': (ctx, gameRef) => ZanaMelodiaOverlay(animationListenable: (gameRef as XylophoneGame).zana),
+        'Rhythm': (ctx, gameRef) {
+          final g = gameRef as XylophoneGame;
+          return RhythmOverlay(
+            stateListenable: g.coach.state,
+            onStart: g.conductor.start,
+            onStop: g.conductor.stop,
+            onToggleRecord: g.recorder.toggle,
+            onPlayRecording: g.recorder.play,
+            onTempoChange: g.conductor.setBpm,
+            onMetronomeToggle: g.metronome.toggle,
+            beatListenable: g.conductor.beat,
+            bpmListenable: g.conductor.bpm,
+            recordingListenable: g.recorder.isRecording,
+            hasRecordingListenable: g.recorder.hasRecording,
+            metronomeOnListenable: g.metronome.isOn,
+          );
         },
-      ),
-    );
-  }
+        'Hints': (ctx, gameRef) {
+          final variant = getIt<ABTestService>().assign('StickyCoachHints', const ['off', 'on']);
+          return HintsOverlay(stateListenable: (gameRef as XylophoneGame).coach.state, sticky: variant=='on');
+        },
+      },
+    ),
+  ); }
 }

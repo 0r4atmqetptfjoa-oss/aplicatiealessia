@@ -1,3 +1,0 @@
-
-// Fix: cast num to double for LinearProgressIndicator
-LinearProgressIndicator(value: progress.toDouble());

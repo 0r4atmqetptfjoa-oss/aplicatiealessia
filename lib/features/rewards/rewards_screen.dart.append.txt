@@ -1,4 +1,0 @@
-
-// Fix: List<String> has no `.entries`; use `.asMap().entries`.
-final entries = progress.stickers.asMap().entries.toList()
-  ..sort((a,b)=>a.key.compareTo(b.key));

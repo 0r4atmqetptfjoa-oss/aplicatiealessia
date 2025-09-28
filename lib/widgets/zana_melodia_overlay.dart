@@ -1,84 +1,34 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:rive/rive.dart';
-import 'package:flutter/foundation.dart';
+// import 'package:rive/rive.dart'; // Activează când adaugi fișierul .riv
 
-class ZanaMelodiaOverlay extends StatefulWidget {
+class ZanaMelodiaOverlay extends StatelessWidget {
   final ValueListenable<String> animationListenable;
   const ZanaMelodiaOverlay({super.key, required this.animationListenable});
 
   @override
-  State<ZanaMelodiaOverlay> createState() => _ZanaMelodiaOverlayState();
-}
-
-class _ZanaMelodiaOverlayState extends State<ZanaMelodiaOverlay> {
-  Artboard? _artboard;
-  RiveAnimationController? _controller;
-  bool _riveOk = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadRive();
-    widget.animationListenable.addListener(_onAnimChange);
-  }
-
-  @override
-  void dispose() {
-    widget.animationListenable.removeListener(_onAnimChange);
-    super.dispose();
-  }
-
-  void _onAnimChange() {
-    if (_artboard == null) return;
-    final name = widget.animationListenable.value;
-    if(_controller != null) {
-      _artboard!.removeController(_controller!);
-    }
-    _controller = SimpleAnimation(name);
-    _artboard!.addController(_controller!);
-    setState(() {});
-  }
-
-  Future<void> _loadRive() async {
-    try {
-      final data = await rootBundle.load('assets/rive/zana_melodia.riv');
-      final file = RiveFile.import(data);
-      final art = file.mainArtboard;
-      _controller = SimpleAnimation(widget.animationListenable.value);
-      art.addController(_controller!);
-      setState(() {
-        _artboard = art;
-        _riveOk = true;
-      });
-    } catch (_) {
-      setState(() {
-        _riveOk = false;
-      });
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Align(
-        alignment: Alignment.topRight,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: SizedBox(
-            width: 120, height: 120,
-            child: IgnorePointer(
-              ignoring: true,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: _riveOk && _artboard != null
-                    ? Rive(artboard: _artboard!, fit: BoxFit.contain)
-                    : Image.asset(
-                        'assets/images/placeholders/placeholder_square.png',
-                        fit: BoxFit.cover,
-                      ),
-              ),
+    return Align(
+      alignment: Alignment.topRight,
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.85),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // TODO (Răzvan): Înlocuiește cu animația Rive 'zana_melodia.riv'
+                Image.asset('assets/images/placeholders/placeholder_square.png', width: 40, height: 40),
+                const SizedBox(width: 8),
+                ValueListenableBuilder<String>(
+                  valueListenable: animationListenable,
+                  builder: (_, v, __) => Text('Zâna: $v', style: const TextStyle(fontWeight: FontWeight.bold)),
+                ),
+              ],
             ),
           ),
         ),

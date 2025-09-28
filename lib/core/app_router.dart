@@ -8,8 +8,7 @@ import 'package:alesia/features/instruments/presentation/xylophone_screen.dart';
 import 'package:alesia/features/songs/songs_screen.dart';
 import 'package:alesia/features/sounds/sounds_map_screen.dart';
 import 'package:alesia/features/stories/story_player_screen.dart';
-import 'package:alesia/features/parent/parent_hub_screen.dart';
-import 'package:alesia/features/rewards/stickers_screen.dart';
+import 'package:alesia/features/stories/story_graph_editor_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -28,10 +27,9 @@ final appRouter = GoRouter(
       ],
     ),
     GoRoute(path: '/canciones', builder: (context, state) => const SongsScreen()),
-    GoRoute(path: '/povesti', builder: (context, state) => const StoryPlayerScreen(jsonScenario: '',)),
+    GoRoute(path: '/povesti', builder: (context, state) => const StoryPlayerScreen()),
     GoRoute(path: '/jocuri', builder: (context, state) => const GamesMenuScreen()),
     GoRoute(path: '/sunete', builder: (context, state) => const SoundsMapScreen()),
-    GoRoute(path: '/parinte', builder: (context, state) => const ParentHubScreen()),
-    GoRoute(path: '/rewards/stickers', builder: (context, state) => const StickersScreen()),
+    GoRoute(path: '/povesti-editor-vizual', builder: (context, state) => const StoryGraphEditorScreen()),
   ],
 );
