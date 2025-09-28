@@ -32,7 +32,6 @@ class _ProfilesScreenState extends State<ProfilesScreen> {
                       if (name == null || name.isEmpty) return;
                       final color = (Random().nextDouble() * 0xFFFFFF).toInt() | 0xFF000000;
                       await ps.addProfile(name, color);
-                      // setState este apelat automat de ValueListenableBuilder
                     },
                     child: const Center(child: Icon(Icons.add, size: 48)),
                   ),
