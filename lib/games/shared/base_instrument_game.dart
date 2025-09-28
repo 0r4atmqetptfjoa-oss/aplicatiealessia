@@ -1,35 +1,38 @@
-import 'dart:async';
 import 'package:flame/game.dart';
-import 'package:flutter/material.dart';
-import 'package:alesia/core/service_locator.dart';
-import 'package:alesia/services/audio_service.dart';
+import 'package:flutter/foundation.dart';
 
-class Conductor {
-  final ValueNotifier<int> bpm = ValueNotifier<int>(90);
-  final ValueNotifier<int> beat = ValueNotifier<int>(0);
-  Timer? _t;
-  void setBpm(int v){ bpm.value=v.clamp(40,220); _restart(); }
-  void _restart(){ _t?.cancel(); final interval=Duration(milliseconds:(60000/bpm.value).round()); _t=Timer.periodic(interval,(_){ beat.value=(beat.value+1)%4;}); }
-  void start()=>_restart(); void stop(){ _t?.cancel(); _t=null; }
+/// Minimal shared base for instrument games to keep screens compiling.
+abstract class BaseInstrumentGame extends FlameGame {
+  BaseInstrumentGame({required this.instrumentId});
+  final String instrumentId;
+
+  // Simple coaching/recording/metronome stand-ins used by UI.
+  final coach = _CoachState();
+  final recorder = _RecorderState();
+  final conductor = _ConductorState();
+  final metronome = _MetronomeState();
 }
-class Metronome{ final ValueNotifier<bool> isOn=ValueNotifier<bool>(false); void toggle()=>isOn.value=!isOn.value; }
-class Recorder{ final ValueNotifier<bool> isRecording=ValueNotifier<bool>(false); final ValueNotifier<bool> hasRecording=ValueNotifier<bool>(false);
-  void toggle(){ isRecording.value=!isRecording.value; if(!isRecording.value) hasRecording.value=true; } void play(){} }
-class CoachState{ final ValueNotifier<String> state=ValueNotifier<String>('idle'); }
 
-abstract class BaseInstrumentGame extends FlameGame{
-  final String instrumentId; BaseInstrumentGame({required this.instrumentId});
-  final Conductor conductor=Conductor(); final Metronome metronome=Metronome(); final Recorder recorder=Recorder(); final CoachState coach=CoachState();
-  late final VoidCallback _beatListener;
+class _CoachState {
+  final ValueNotifier<String> state = ValueNotifier<String>('idle');
+  void start() => state.value = 'playing';
+  void stop() => state.value = 'stopped';
+}
 
-  @override Future<void> onLoad() async {
-    overlays.add('Zana'); overlays.add('Rhythm'); overlays.add('Hints');
-    _beatListener = () { if (metronome.isOn.value) { getIt<AudioService>().playMetronomeTick(); } };
-    conductor.beat.addListener(_beatListener);
-  }
+class _RecorderState {
+  final ValueNotifier<bool> isRecording = ValueNotifier<bool>(false);
+  final ValueNotifier<bool> hasRecording = ValueNotifier<bool>(false);
+  void toggle() { isRecording.value = !isRecording.value; if (!isRecording.value) hasRecording.value = true; }
+  void play() {}
+}
 
-  @override void onRemove() {
-    conductor.beat.removeListener(_beatListener);
-    super.onRemove();
-  }
+class _ConductorState {
+  final ValueNotifier<int> beat = ValueNotifier<int>(0);
+  final ValueNotifier<int> bpm = ValueNotifier<int>(100);
+  void setBpm(int v) => bpm.value = v;
+}
+
+class _MetronomeState {
+  final ValueNotifier<bool> isOn = ValueNotifier<bool>(false);
+  void toggle() => isOn.value = !isOn.value;
 }

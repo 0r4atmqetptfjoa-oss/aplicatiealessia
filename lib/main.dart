@@ -1,17 +1,20 @@
 import 'package:alesia/core/app_router.dart';
 import 'package:alesia/core/service_locator.dart';
-import 'package:alesia/services/audio_service.dart';
+import 'package:alesia/services/theme_service.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:rive/rive.dart' as rive;
+import 'package:get_it/get_it.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
+  // Initialize Firebase safely (no-op if firebase_options not configured yet).
+  try { await Firebase.initializeApp(); } catch (_) {}
+
   await setupLocator();
-  try { await rive.RiveNative.init(); } catch (_) {}
-  // Sound preloader
-  await getIt<AudioService>().preload();
+
   runApp(const MyApp());
 }
 
@@ -20,15 +23,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'Alesia',
-      theme: ThemeData(
-        colorSchemeSeed: Colors.deepPurple,
-        brightness: Brightness.light,
-        useMaterial3: true,
+    final theme = GetIt.I<ThemeService>();
+    return AnimatedBuilder(
+      animation: theme,
+      builder: (_, __) => MaterialApp.router(
+        title: 'Alesia',
+        theme: theme.currentThemeData,
+        routerConfig: appRouter,
+        debugShowCheckedModeBanner: false,
       ),
-      routerConfig: appRouter,
-      debugShowCheckedModeBanner: false,
     );
   }
 }

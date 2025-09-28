@@ -1,26 +1,90 @@
-class StoryChoice { final String text; final String nextId; StoryChoice(this.text, this.nextId); }
-class StoryNode { final String id; final String subtitle; final String? audioId; final List<StoryChoice> choices;
-  StoryNode({required this.id,this.subtitle='',this.audioId,List<StoryChoice>? choices}):choices=choices??[]; }
+import 'dart:convert';
+import 'dart:typed_data';
+import 'package:archive/archive.dart';
+import 'package:flutter/services.dart' show rootBundle;
+
+class Story {
+  Story({required this.id, required this.title, required this.nodes, this.startNodeId});
+  final String id;
+  final String title;
+  final Map<String, StoryNode> nodes;
+  final String? startNodeId;
+
+  StoryNode? get start => startNodeId != null ? nodes[startNodeId] : null;
+}
+
+class StoryNode {
+  StoryNode({
+    required this.id,
+    required this.text,
+    this.imagePath,
+    this.audioPath,
+    List<StoryChoice>? choices,
+  }) : choices = choices ?? <StoryChoice>[];
+
+  final String id;
+  final String text;
+  final String? imagePath;
+  final String? audioPath;
+  final List<StoryChoice> choices;
+}
+
+class StoryChoice {
+  final String text;
+  final String nextId;
+  const StoryChoice({required this.text, required this.nextId});
+}
 
 class StoryService {
-  final Map<String,StoryNode> graph = {
-    'start': StoryNode(id:'start', subtitle:'Început', choices:[StoryChoice('Continuă','end')]),
-    'end': StoryNode(id:'end', subtitle:'Sfârșit'),
-  };
+  /// Loads an interactive story from a ZIP asset that contains `story.json`
+  /// and optional media files referenced by relative paths.
+  Future<Story> loadStory(String storyAssetPath) async {
+    final data = await rootBundle.load(storyAssetPath);
+    final bytes = data.buffer.asUint8List();
+    final archive = ZipDecoder().decodeBytes(bytes);
 
-  Map<String, dynamic> get graphJson => graph.map((k, v) => MapEntry(k, {
-    'subtitle': v.subtitle, 'audioId': v.audioId, 'choices': v.choices.map((c)=>{'t':c.text,'n':c.nextId}).toList()
-  }));
+    // Find story.json entry
+    final storyEntry = archive.files.firstWhere(
+      (f) => f.name.endsWith('story.json'),
+      orElse: () => throw StateError('story.json not found in $storyAssetPath'),
+    );
 
-  Future<void> replaceGraph(Map<String, StoryNode> g) async { graph..clear()..addAll(g); }
-  Future<void> putNode(StoryNode n) async { graph[n.id]=n; }
-  Future<void> removeNode(String id) async {
-    graph.remove(id);
-    for (final n in graph.values) { n.choices.removeWhere((c)=>c.nextId==id); }
+    final jsonStr = utf8.decode(storyEntry.content as List<int>);
+    final map = json.decode(jsonStr) as Map<String, dynamic>;
+
+    final id = (map['id'] ?? 'story') as String;
+    final title = (map['title'] ?? 'Story') as String;
+    final startId = map['start'] as String?;
+
+    final nodesMap = <String, StoryNode>{};
+    final nodesJson = Map<String, dynamic>.from(map['nodes'] as Map);
+    nodesJson.forEach((nodeId, rawNode) {
+      final n = Map<String, dynamic>.from(rawNode as Map);
+      final choicesJson = (n['choices'] as List? ?? const [])
+          .map((c) => StoryChoice(text: c['text'] as String, nextId: c['nextId'] as String))
+          .toList();
+      nodesMap[nodeId] = StoryNode(
+        id: nodeId,
+        text: (n['text'] ?? '') as String,
+        imagePath: n['image'] as String?,
+        audioPath: n['audio'] as String?,
+        choices: choicesJson,
+      );
+    });
+
+    return Story(id: id, title: title, nodes: nodesMap, startNodeId: startId);
   }
-  Future<void> updateNode(String id,{String? subtitle,String? audioId}) async {
-    final n = graph[id]; if(n==null) return;
-    graph[id] = StoryNode(id:n.id, subtitle: subtitle??n.subtitle, audioId: audioId??n.audioId, choices: List.of(n.choices));
+
+  /// Helper to extract raw bytes from a file inside the same ZIP bundle.
+  Uint8List? extractBytes(Archive archive, String relativePath) {
+    final entry = archive.files.firstWhere(
+      (f) => f.name == relativePath,
+      orElse: () => ArchiveFile('missing', 0, null),
+    );
+    if (entry.content == null) return null;
+    final data = entry.content;
+    if (data is List<int>) return Uint8List.fromList(data);
+    if (data is Uint8List) return data;
+    return null;
   }
-  Future<void> addChoice(String from, StoryChoice c) async { graph[from]?.choices.add(c); }
 }
