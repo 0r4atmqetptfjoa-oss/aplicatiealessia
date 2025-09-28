@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:ui';
+import 'dart:io';
 import 'package:alesia/core/service_locator.dart';
 import 'package:alesia/services/story_layout_service.dart';
 import 'package:alesia/services/story_service.dart';
+import 'package:alesia/services/story_history_service.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -17,6 +19,7 @@ class StoryGraphEditorScreen extends StatefulWidget {
 class _StoryGraphEditorScreenState extends State<StoryGraphEditorScreen> {
   final story = getIt<StoryService>();
   final layout = getIt<StoryLayoutService>();
+  final history = getIt<StoryHistoryService>();
 
   final Map<String, Rect> _nodeRects = {};
   final Set<String> _selected = {};
@@ -25,7 +28,7 @@ class _StoryGraphEditorScreenState extends State<StoryGraphEditorScreen> {
   bool _draggingNodes = false;
   Rect? _selectionRect;
 
-  // Undo/redo stacks (serialized snapshots)
+  // Undo/redo (persisted too)
   final List<String> _undo = [];
   final List<String> _redo = [];
 
@@ -38,7 +41,18 @@ class _StoryGraphEditorScreenState extends State<StoryGraphEditorScreen> {
       await layout.init();
       await layout.ensureDefaults(story.graph.keys);
       _cacheRects();
-      _pushSnapshot(); // initial state
+      await history.load();
+      if (history.undo.isNotEmpty) {
+        _undo
+          ..clear()
+          ..addAll(history.undo);
+        _redo
+          ..clear()
+          ..addAll(history.redo);
+        await _restoreFrom(_undo.last);
+      } else {
+        _pushSnapshot(); // initial
+      }
       setState(() {});
     });
   }
@@ -52,7 +66,10 @@ class _StoryGraphEditorScreenState extends State<StoryGraphEditorScreen> {
     }
   }
 
-  // Snapshot contains: graph+layout
+  void _persistStacks() async {
+    await history.saveStacks(_undo, _redo);
+  }
+
   void _pushSnapshot() {
     final snap = json.encode({
       'graph': story.graphJson,
@@ -60,27 +77,21 @@ class _StoryGraphEditorScreenState extends State<StoryGraphEditorScreen> {
     });
     _undo.add(snap);
     _redo.clear();
+    _persistStacks();
   }
 
   Future<void> _restoreFrom(String snap) async {
     final data = json.decode(snap) as Map<String, dynamic>;
-    // graph
-    final g = <String, StoryNode>{{}};
     final mg = Map<String, dynamic>.from(data['graph'] as Map);
-    final newGraph = <String, StoryNode>{};
+    final newGraph = <String, StoryNode>{{}};
     mg.forEach((id, raw) {
       final m = Map<String, dynamic>.from(raw);
-      final choices = (m['choices'] as List).map((c) {
-        final cc = Map<String, dynamic>.from(c);
-        return StoryChoice(cc['t'] as String, cc['n'] as String);
-      }).toList();
+      final choices = (m['choices'] as List).map((c) { final cc = Map<String, dynamic>.from(c); return StoryChoice(cc['t'] as String, cc['n'] as String); }).toList();
       newGraph[id] = StoryNode(id: id, subtitle: (m['subtitle'] ?? '') as String, audioId: m['audioId'] as String?, choices: choices);
     });
     await story.replaceGraph(newGraph);
-    // layout
     await layout.importJson(json.encode(data['layout']), merge: false);
     _cacheRects();
-    setState(() {});
   }
 
   void _undoAction() async {
@@ -89,6 +100,8 @@ class _StoryGraphEditorScreenState extends State<StoryGraphEditorScreen> {
     _redo.add(current);
     final prev = _undo.last;
     await _restoreFrom(prev);
+    _persistStacks();
+    setState(() {});
   }
 
   void _redoAction() async {
@@ -96,6 +109,8 @@ class _StoryGraphEditorScreenState extends State<StoryGraphEditorScreen> {
     final next = _redo.removeLast();
     _undo.add(next);
     await _restoreFrom(next);
+    _persistStacks();
+    setState(() {});
   }
 
   Map<String, List<String>> _edges() {
@@ -148,15 +163,11 @@ class _StoryGraphEditorScreenState extends State<StoryGraphEditorScreen> {
   List<String> _validate() {
     final issues = <String>[];
     final g = story.graph;
-    // 1) ținte inexistente
     for (final n in g.values) {
       for (final c in n.choices) {
-        if (!g.containsKey(c.nextId)) {
-          issues.add('Link din "${n.id}" către inexistent "${c.nextId}"');
-        }
+        if (!g.containsKey(c.nextId)) { issues.add('Link din "${n.id}" către inexistent "${c.nextId}"'); }
       }
     }
-    // 2) accesibilitate din start
     final visited = <String>{};
     void dfs(String u) {
       if (visited.contains(u)) return;
@@ -164,28 +175,18 @@ class _StoryGraphEditorScreenState extends State<StoryGraphEditorScreen> {
       for (final v in g[u]?.choices.map((e) => e.nextId) ?? const <String>[]) { dfs(v); }
     }
     if (g.containsKey('start')) { dfs('start'); }
-    for (final id in g.keys) {
-      if (!visited.contains(id)) { issues.add('Nod inaccesibil: "$id" (nu se ajunge din start)'); }
-    }
-    // 3) cicluri
-    final temp = <String>{};
-    final perm = <String>{};
-    bool cycle = false;
+    for (final id in g.keys) { if (!visited.contains(id)) { issues.add('Nod inaccesibil: "$id"'); } }
+    final temp = <String>{}; final perm = <String>{};
     bool visit(String u) {
       if (perm.contains(u)) return false;
       if (temp.contains(u)) return true;
       temp.add(u);
-      for (final v in g[u]?.choices.map((e) => e.nextId) ?? const <String>[]) {
-        if (visit(v)) return true;
-      }
-      temp.remove(u); perm.add(u);
-      return false;
+      for (final v in g[u]?.choices.map((e) => e.nextId) ?? const <String>[]) { if (visit(v)) return true; }
+      temp.remove(u); perm.add(u); return false;
     }
-    for (final id in g.keys) { if (visit(id)) { cycle = true; break; } }
-    if (cycle) issues.add('Graful conține cel puțin un CICLU');
-    // 4) lipsă terminale
+    for (final id in g.keys) { if (visit(id)) { issues.add('Graful conține cel puțin un CICLU'); break; } }
     final terminale = g.values.where((n) => n.choices.isEmpty).toList();
-    if (terminale.isEmpty) issues.add('Graful nu are noduri terminale (fără alegeri).');
+    if (terminale.isEmpty) issues.add('Graful nu are noduri terminale.');
     return issues;
   }
 
@@ -222,7 +223,6 @@ class _StoryGraphEditorScreenState extends State<StoryGraphEditorScreen> {
           : null,
       body: GestureDetector(
         onTapDown: (d) {
-          // hit test nodes
           final local = d.localPosition;
           final hit = _nodeRects.entries.firstWhere(
             (e) => e.value.contains(local),
@@ -230,9 +230,7 @@ class _StoryGraphEditorScreenState extends State<StoryGraphEditorScreen> {
           ).key;
           if (hit.isNotEmpty) {
             if (!_selected.contains(hit)) {
-              _selected
-                ..clear()
-                ..add(hit);
+              _selected..clear()..add(hit);
             }
             _draggingNodes = true;
             _dragStart = local;
@@ -257,8 +255,7 @@ class _StoryGraphEditorScreenState extends State<StoryGraphEditorScreen> {
           } else if (_selectionRect != null) {
             final origin = _selectionRect!.topLeft;
             _selectionRect = Rect.fromPoints(origin, local);
-            _selected
-              ..clear();
+            _selected..clear();
             _nodeRects.forEach((id, r) {
               if (_selectionRect!.overlaps(r)) _selected.add(id);
             });
@@ -267,7 +264,6 @@ class _StoryGraphEditorScreenState extends State<StoryGraphEditorScreen> {
         },
         onPanEnd: (_) async {
           if (_draggingNodes) {
-            // persist positions
             for (final id in _selected) {
               await layout.set(id, _nodeRects[id]!.topLeft);
             }
@@ -301,7 +297,6 @@ class _GraphPainter extends CustomPainter {
     final bg = Paint()..color = const Color(0xFFF7F7FB);
     canvas.drawRect(Offset.zero & size, bg);
 
-    // Draw edges (Bézier with arrows)
     for (final e in graph.entries) {
       final fromId = e.key;
       final fromRect = rects[fromId];
@@ -321,7 +316,6 @@ class _GraphPainter extends CustomPainter {
       }
     }
 
-    // Draw nodes
     for (final e in graph.entries) {
       final r = rects[e.key];
       if (r == null) continue;
@@ -337,15 +331,12 @@ class _GraphPainter extends CustomPainter {
       canvas.drawRRect(rr, nodePaint);
       canvas.drawRRect(rr, border);
 
-      // Title
       final tp = TextPainter(text: TextSpan(text: e.key, style: const TextStyle(color: Colors.black87, fontSize: 14, fontWeight: FontWeight.bold)), textDirection: TextDirection.ltr)..layout(maxWidth: r.width-12);
       tp.paint(canvas, Offset(r.left + 6, r.top + 6));
-      // Subtitle
       final sp = TextPainter(text: TextSpan(text: e.value.subtitle, style: const TextStyle(color: Colors.black54, fontSize: 12)), textDirection: TextDirection.ltr)..layout(maxWidth: r.width-12);
       sp.paint(canvas, Offset(r.left + 6, r.top + 30));
     }
 
-    // Selection rectangle
     if (selection != null) {
       final selPaint = Paint()
         ..color = const Color(0x663C82F6)
@@ -371,7 +362,6 @@ class _GraphPainter extends CustomPainter {
   }
 
   void _drawArrow(Canvas canvas, Path path, Color color) {
-    final pm = PathMetrics();
     final metrics = path.computeMetrics();
     for (final m in metrics) {
       final end = m.length;
@@ -379,7 +369,7 @@ class _GraphPainter extends CustomPainter {
       if (pos == null) continue;
       final p = pos.position; final angle = pos.angle;
       const size = 8.0;
-      final a = p + Offset(math.cos(angle), math.sin(angle)) * 0;
+      final a = p;
       final b = p - Offset(math.cos(angle + 0.3), math.sin(angle + 0.3)) * size;
       final c = p - Offset(math.cos(angle - 0.3), math.sin(angle - 0.3)) * size;
       final tri = Path()..moveTo(a.dx, a.dy)..lineTo(b.dx, b.dy)..lineTo(c.dx, c.dy)..close();

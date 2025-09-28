@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
+import 'package:alesia/core/service_locator.dart';
+import 'package:alesia/services/audio_service.dart';
 
 class Conductor {
   final ValueNotifier<int> bpm = ValueNotifier<int>(90);
@@ -18,5 +20,21 @@ class CoachState{ final ValueNotifier<String> state=ValueNotifier<String>('idle'
 abstract class BaseInstrumentGame extends FlameGame{
   final String instrumentId; BaseInstrumentGame({required this.instrumentId});
   final Conductor conductor=Conductor(); final Metronome metronome=Metronome(); final Recorder recorder=Recorder(); final CoachState coach=CoachState();
-  @override Future<void> onLoad() async { overlays.add('Zana'); overlays.add('Rhythm'); overlays.add('Hints'); }
+  late final VoidCallback _beatListener;
+
+  @override Future<void> onLoad() async {
+    overlays.add('Zana'); overlays.add('Rhythm'); overlays.add('Hints');
+    // metronome audio on every beat
+    _beatListener = () {
+      if (metronome.isOn.value) {
+        getIt<AudioService>().playMetronomeTick();
+      }
+    };
+    conductor.beat.addListener(_beatListener);
+  }
+
+  @override void onRemove() {
+    conductor.beat.removeListener(_beatListener);
+    super.onRemove();
+  }
 }

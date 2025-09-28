@@ -20,7 +20,6 @@ class StoryLayoutService {
   }
 
   Offset? get(String id) => _pos[id];
-
   Future<void> set(String id, Offset o) async { _pos[id]=o; await _save(); }
   Future<void> remove(String id) async { _pos.remove(id); await _save(); }
 
@@ -28,12 +27,7 @@ class StoryLayoutService {
     if (ids.isEmpty) return;
     double x=80, y=80;
     for (final id in ids) {
-      _pos.putIfAbsent(id, (){
-        final v = Offset(x,y);
-        x += 240;
-        if (x > 1600) { x = 80; y += 200; }
-        return v;
-      });
+      _pos.putIfAbsent(id, (){ final v = Offset(x,y); x += 240; if (x > 1600) { x = 80; y += 200; } return v; });
     }
     await _save();
   }
@@ -54,18 +48,12 @@ class StoryLayoutService {
     levels.forEach((k, v) => layerMap.putIfAbsent(v, () => []).add(k));
     const dx=260.0, dy=200.0, mx=80.0, my=80.0;
     layerMap.forEach((layer, nodes) {
-      for (int i=0;i<nodes.length;i++) {
-        _pos[nodes[i]] = Offset(mx + layer*dx, my + i*dy);
-      }
+      for (int i=0;i<nodes.length;i++) { _pos[nodes[i]] = Offset(mx + layer*dx, my + i*dy); }
     });
     await _save();
   }
 
-  String exportJson() {
-    final m = _pos.map((k, v) => MapEntry(k, [v.dx, v.dy]));
-    return json.encode(m);
-  }
-
+  String exportJson() { final m = _pos.map((k, v) => MapEntry(k, [v.dx, v.dy])); return json.encode(m); }
   Future<void> importJson(String raw,{bool merge=true}) async {
     final m = Map<String, dynamic>.from(json.decode(raw));
     final incoming = <String, Offset>{};

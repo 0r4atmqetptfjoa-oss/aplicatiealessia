@@ -9,6 +9,7 @@ import 'package:alesia/services/theme_service.dart';
 import 'package:alesia/services/ab_test_service.dart';
 import 'package:alesia/services/story_service.dart';
 import 'package:alesia/services/story_layout_service.dart';
+import 'package:alesia/services/story_history_service.dart';
 
 final getIt = GetIt.instance;
 
@@ -23,4 +24,5 @@ Future<void> setupLocator() async {
   getIt.registerLazySingleton<ABTestService>(() => ABTestService());
   getIt.registerLazySingleton<StoryService>(() => StoryService());
   getIt.registerLazySingleton<StoryLayoutService>(() => StoryLayoutService());
+  getIt.registerLazySingleton<StoryHistoryService>(() => StoryHistoryService());
 }

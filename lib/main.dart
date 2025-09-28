@@ -8,7 +8,6 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   await setupLocator();
-  // Rive: optional init for faster first render
   try { await rive.RiveNative.init(); } catch (_) {}
   runApp(const MyApp());
 }

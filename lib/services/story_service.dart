@@ -12,12 +12,7 @@ class StoryService {
     'subtitle': v.subtitle, 'audioId': v.audioId, 'choices': v.choices.map((c)=>{'t':c.text,'n':c.nextId}).toList()
   }));
 
-  Future<void> replaceGraph(Map<String, StoryNode> g) async {
-    graph
-      ..clear()
-      ..addAll(g);
-  }
-
+  Future<void> replaceGraph(Map<String, StoryNode> g) async { graph..clear()..addAll(g); }
   Future<void> putNode(StoryNode n) async { graph[n.id]=n; }
   Future<void> removeNode(String id) async {
     graph.remove(id);
