@@ -1,66 +1,86 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 class ChildProfile {
   final String id;
-  final String name;
-  final String avatar; // ex: 'avatar_1'
-  ChildProfile({required this.id, required this.name, required this.avatar});
+  String name;
+  int color;
 
-  Map<String, dynamic> toJson() => {'id': id, 'name': name, 'avatar': avatar};
-  factory ChildProfile.fromJson(Map<String, dynamic> j) =>
-      ChildProfile(id: j['id'], name: j['name'], avatar: j['avatar']);
+  ChildProfile({required this.id, required this.name, required this.color});
+
+  factory ChildProfile.fromJson(Map<String, dynamic> json) {
+    return ChildProfile(
+      id: json['id'],
+      name: json['name'],
+      color: json['color'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'color': color,
+    };
+  }
 }
 
 class ProfileService {
-  static const _kProfiles = 'profiles';
-  static const _kCurrent = 'current_profile';
-  final ValueNotifier<ChildProfile?> current = ValueNotifier(null);
-  final List<ChildProfile> profiles = [];
-  SharedPreferences? _prefs;
+  late SharedPreferences _prefs;
+  final Uuid _uuid = const Uuid();
+
+  final ValueNotifier<List<ChildProfile>> profiles = ValueNotifier([]);
+  final ValueNotifier<String?> activeId = ValueNotifier(null);
 
   Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
-    final listJson = _prefs!.getStringList(_kProfiles) ?? [];
-    profiles
-      ..clear()
-      ..addAll(listJson.map((s) => ChildProfile.fromJson(json.decode(s))));
-    final id = _prefs!.getString(_kCurrent);
-    if (id != null) {
-      current.value = profiles.where((p) => p.id == id).cast<ChildProfile?>().firstOrNull;
+    _loadProfiles();
+  }
+
+  void _loadProfiles() {
+    final profilesJson = _prefs.getStringList('profiles') ?? [];
+    profiles.value = profilesJson
+        .map((json) => ChildProfile.fromJson(jsonDecode(json)))
+        .toList();
+    activeId.value = _prefs.getString('activeProfile');
+    if (activeId.value == null && profiles.value.isNotEmpty) {
+      activeId.value = profiles.value.first.id;
     }
   }
 
-  Future<void> _persist() async {
-    await _prefs?.setStringList(_kProfiles, profiles.map((p) => json.encode(p.toJson())).toList());
-    await _prefs?.setString(_kCurrent, current.value?.id ?? '');
+  Future<void> _saveProfiles() async {
+    final profilesJson =
+        profiles.value.map((p) => jsonEncode(p.toJson())).toList();
+    await _prefs.setStringList('profiles', profilesJson);
+    await _prefs.setString('activeProfile', activeId.value ?? '');
   }
 
-  Future<void> createAndSelect(String name, String avatar) async {
-    final id = DateTime.now().millisecondsSinceEpoch.toString();
-    final p = ChildProfile(id: id, name: name, avatar: avatar);
-    profiles.add(p);
-    current.value = p;
-    await _persist();
-  }
-
-  Future<void> select(String id) async {
-    current.value = profiles.firstWhere((p) => p.id == id);
-    await _persist();
-  }
-
-  Future<void> delete(String id) async {
-    profiles.removeWhere((p) => p.id == id);
-    if (current.value?.id == id) {
-      current.value = profiles.isNotEmpty ? profiles.first : null;
+  Future<void> addProfile(String name, int color) async {
+    final newProfile = ChildProfile(id: _uuid.v4(), name: name, color: color);
+    final updatedProfiles = List<ChildProfile>.from(profiles.value)..add(newProfile);
+    profiles.value = updatedProfiles;
+    if (activeId.value == null) {
+      setActive(newProfile.id);
     }
-    await _persist();
+    await _saveProfiles();
   }
 
-  bool get hasCurrent => current.value != null;
-}
-
-extension FirstOrNull<E> on Iterable<E> {
-  E? get firstOrNull => isEmpty ? null : first;
+  Future<void> setActive(String id) async {
+    activeId.value = id;
+    await _saveProfiles();
+  }
+  
+  ChildProfile? get active {
+    if (activeId.value == null) {
+      return null;
+    }
+    try {
+      return profiles.value.firstWhere((p) => p.id == activeId.value);
+    } catch (e) {
+      return null;
+    }
+  }
 }

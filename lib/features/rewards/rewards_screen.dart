@@ -8,36 +8,27 @@ class RewardsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final progress = getIt<ProgressService>();
-    final entries = progress.stickers.entries.toList()..sort((a,b)=>a.key.compareTo(b.key));
+    final stickers = progress.stickers.toList()..sort();
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Colecție Stickere')),
-      body: entries.isEmpty
-          ? const Center(child: Text('Nicio recompensă încă. Joacă-te pentru a câștiga stickere!'))
-          : GridView.builder(
-              padding: const EdgeInsets.all(16),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-              ),
-              itemCount: entries.length,
-              itemBuilder: (context, i) {
-                final e = entries[i];
-                return Card(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // TODO (Răzvan): Înlocuiește placeholder-ul cu iconul final pentru sticker '${e.key}.png'
-                      Image.asset('assets/images/placeholders/placeholder_square.png', width: 72, height: 72),
-                      const SizedBox(height: 8),
-                      Text(e.key, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
-                      Text('x${e.value}', style: const TextStyle(fontSize: 12)),
-                    ],
-                  ),
-                );
-              },
+      appBar: AppBar(
+        title: const Text('Recompense'),
+      ),
+      body: GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 4,
+        ),
+        itemCount: stickers.length,
+        itemBuilder: (context, index) {
+          final stickerId = stickers[index];
+          return Card(
+            child: Center(
+              child: Text(stickerId), // Placeholder
+              // TODO (Răzvan): Înlocuiește cu sprite sticker final 'assets/images/final/<id>.png'
             ),
+          );
+        },
+      ),
     );
   }
 }

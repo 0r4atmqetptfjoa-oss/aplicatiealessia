@@ -1,51 +1,25 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-enum SeasonTheme { auto, spring, summer, autumn, winter }
+enum ThemeFlavor {
+  classic,
+  forest,
+  underwater,
+  winter,
+}
 
 class ThemeService {
-  final ValueNotifier<ThemeData> theme = ValueNotifier(_build(SeasonTheme.autumn));
-  SeasonTheme _current = SeasonTheme.autumn;
+  late SharedPreferences _prefs;
+  final ValueNotifier<ThemeFlavor> flavor = ValueNotifier(ThemeFlavor.classic);
 
-  SeasonTheme get current => _current;
-
-  void setTheme(SeasonTheme season) {
-    _current = season;
-    theme.value = _build(season);
+  Future<void> init() async {
+    _prefs = await SharedPreferences.getInstance();
+    final flavorName = _prefs.getString('themeFlavor') ?? 'classic';
+    flavor.value = ThemeFlavor.values.firstWhere((e) => e.name == flavorName, orElse: () => ThemeFlavor.classic);
   }
 
-  static ThemeData _build(SeasonTheme s) {
-    switch (s) {
-      case SeasonTheme.spring:
-        return ThemeData(
-          colorSchemeSeed: const Color(0xFF66BB6A),
-          brightness: Brightness.light,
-          useMaterial3: true,
-        );
-      case SeasonTheme.summer:
-        return ThemeData(
-          colorSchemeSeed: const Color(0xFFFFB300),
-          brightness: Brightness.light,
-          useMaterial3: true,
-        );
-      case SeasonTheme.autumn:
-        return ThemeData(
-          colorSchemeSeed: const Color(0xFF8D6E63),
-          brightness: Brightness.light,
-          useMaterial3: true,
-        );
-      case SeasonTheme.winter:
-        return ThemeData(
-          colorSchemeSeed: const Color(0xFF90CAF9),
-          brightness: Brightness.light,
-          useMaterial3: true,
-        );
-      case SeasonTheme.auto:
-      default:
-        return ThemeData(
-          colorSchemeSeed: const Color(0xFF7E57C2),
-          brightness: Brightness.light,
-          useMaterial3: true,
-        );
-    }
+  Future<void> setFlavor(ThemeFlavor newFlavor) async {
+    flavor.value = newFlavor;
+    await _prefs.setString('themeFlavor', newFlavor.name);
   }
 }

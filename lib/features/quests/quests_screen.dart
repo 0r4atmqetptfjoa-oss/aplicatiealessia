@@ -1,68 +1,35 @@
-import 'package:alesia/core/service_locator.dart';
-import 'package:alesia/services/progress_service.dart';
-import 'package:alesia/services/quest_service.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
-class QuestsScreen extends StatefulWidget {
+class QuestsScreen extends StatelessWidget {
   const QuestsScreen({super.key});
 
   @override
-  State<QuestsScreen> createState() => _QuestsScreenState();
-}
-
-class _QuestsScreenState extends State<QuestsScreen> {
-  @override
   Widget build(BuildContext context) {
-    final qs = getIt<QuestService>().quests;
+    // Exemplu de date - înlocuiește cu logica ta
+    final quests = [
+      {'name': 'Cântă 5 minute', 'progress': 0.5},
+      {'name': 'Completează o poveste', 'progress': 0.0},
+    ];
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Misiuni & Recompense')),
-      body: ListView.separated(
-        padding: const EdgeInsets.all(16),
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
-        itemCount: qs.length,
-        itemBuilder: (context, i) {
-          final q = qs[i];
-          final progress = (q.progress / q.goal).clamp(0, 1.0);
+      appBar: AppBar(
+        title: const Text('Misiuni'),
+      ),
+      body: ListView.builder(
+        itemCount: quests.length,
+        itemBuilder: (context, index) {
+          final quest = quests[index];
+          final progress = quest['progress'] as num;
           return Card(
-            elevation: 4,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(q.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 4),
-                  Text(q.description),
-                  const SizedBox(height: 12),
-                  LinearProgressIndicator(value: progress),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('${q.progress}/${q.goal}'),
-                      ElevatedButton(
-                        onPressed: q.claimed || q.progress < q.goal ? null : () async {
-                          final ok = await getIt<QuestService>().claim(q.id);
-                          if (ok) {
-                            await getIt<ProgressService>().awardSticker(q.rewardSticker);
-                            if (mounted) setState(() {});
-                            if (mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Sticker câștigat: ${q.rewardSticker}')),
-                              );
-                            }
-                          }
-                        },
-                        child: Text(q.claimed ? 'Revendicat' : 'Revendică'),
-                      ),
-                    ],
-                  ),
-                ],
+            margin: const EdgeInsets.all(8.0),
+            child: ListTile(
+              title: Text(quest['name'] as String),
+              subtitle: Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: LinearProgressIndicator(value: progress.toDouble()),
               ),
             ),
-          ).animate().fadeIn().scale();
+          );
         },
       ),
     );
