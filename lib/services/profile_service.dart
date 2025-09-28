@@ -1,1 +1,0 @@
-class ProfileService { String name='Alesia'; int age=4; }

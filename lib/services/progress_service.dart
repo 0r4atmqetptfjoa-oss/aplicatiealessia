@@ -1,1 +1,0 @@
-class ProgressService { int stars = 0; void addStars(int n)=>stars+=n; }

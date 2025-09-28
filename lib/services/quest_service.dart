@@ -1,1 +1,0 @@
-class QuestService { int level=1; void next()=>level++; }

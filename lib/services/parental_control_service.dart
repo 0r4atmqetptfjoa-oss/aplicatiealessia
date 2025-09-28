@@ -1,1 +1,0 @@
-class ParentalControlService { bool _locked=false; bool get locked=>_locked; void toggle()=>_locked=!_locked; }

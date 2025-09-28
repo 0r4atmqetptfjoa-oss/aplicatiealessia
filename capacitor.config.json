@@ -1,0 +1,6 @@
+{
+  "appId": "com.example.lumeaalesiei",
+  "appName": "Lumea Alesiei",
+  "webDir": "dist",
+  "bundledWebRuntime": false
+}
