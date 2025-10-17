@@ -8,7 +8,11 @@ import 'package:flutter/material.dart';
 /// errors.
 import 'package:go_router/go_router.dart';
 import 'package:video_player/video_player.dart';
-import 'package:rive/rive.dart';
+// Rive is used for animations in later phases.  For the placeholder
+// implementation we avoid loading Rive assets that don't exist yet.  When
+// real assets are provided, you can re-introduce the Rive imports and
+// widgets.
+// import 'package:rive/rive.dart';
 
 /// The main menu for the application.
 ///
@@ -64,27 +68,34 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     required VoidCallback onTap,
     Key? key,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: SizedBox(
-        height: 80,
-        width: 80,
-        child: RiveAnimation.asset(
-          'assets/rive/menu_animations.riv',
-          artboard: artboard,
-          fit: BoxFit.contain,
-          onInit: (artboardInstance) {
-            // This callback gives you access to the artboard so you can
-            // hook into state machine inputs.  For example:
-            // final controller = StateMachineController.fromArtboard(
-            //   artboardInstance,
-            //   'State Machine 1',
-            // );
-            // artboardInstance.addController(controller);
-            // _someTrigger = controller.findSMI('triggerName') as SMITrigger;
-          },
-        ),
-      ),
+    // Placeholder implementation: use an IconButton with an icon that
+    // represents the module.  When the real Rive assets become
+    // available, replace this widget with a RiveAnimation as shown in
+    // the commented code above.
+    IconData icon;
+    switch (artboard) {
+      case 'BTN_SUNETE':
+        icon = Icons.volume_up;
+        break;
+      case 'BTN_INSTRUMENTE':
+        icon = Icons.piano;
+        break;
+      case 'BTN_CANTECE':
+        icon = Icons.music_note;
+        break;
+      case 'BTN_POVESTI':
+        icon = Icons.menu_book;
+        break;
+      case 'BTN_JOCURI':
+      default:
+        icon = Icons.extension;
+        break;
+    }
+    return IconButton(
+      iconSize: 64,
+      color: Colors.white,
+      onPressed: onTap,
+      icon: Icon(icon),
     );
   }
 
@@ -122,14 +133,17 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Animated title
-                      SizedBox(
-                        height: 200,
-                        child: RiveAnimation.asset(
-                          'assets/rive/menu_animations.riv',
-                          artboard: 'TITLE_ANIM',
-                          fit: BoxFit.contain,
+                      // Title: Use plain text while placeholder assets
+                      // are in use.  Replace this with a Rive animation
+                      // when the real file is available.
+                      const Text(
+                        'Lumea Alessiei',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 48,
+                          fontWeight: FontWeight.bold,
                         ),
+                        textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 40),
                       // Row of menu buttons.  Use Wrap so that

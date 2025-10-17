@@ -48,6 +48,7 @@ flutter:
   # directories, Flutter will include them automatically.
   assets:
     - assets/images/
+    - assets/video/menu/main_background_loop.mp4
     - assets/rive/
     - assets/rive_3d/
     - assets/audio/
