@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:rive/rive.dart';
+// import 'package:rive/rive.dart';
 import 'package:audioplayers/audioplayers.dart';
 
 /// Displays a list of items for a given sound category.
@@ -33,72 +33,70 @@ class _SoundsDetailScreenState extends State<SoundsDetailScreen> {
   }
 
   // Map categories to their list of sound items.  Each item defines
-  // the display label, the artboard name in the Rive file and the
-  // path to the audio file.  Update this map when you add new
+  // the display label, artboard name (unused in this simplified version)
+  // and the path to the audio file.  We use `.wav` files for the
+  // placeholder sounds.  Adjust these lists when you add new
   // categories or items.
   static final Map<String, List<_SoundItem>> _itemsByCategory = {
     'ferma': [
-      _SoundItem('Vacă', 'VACA', 'assets/audio/sunete/ferma/vaca.mp3'),
-      _SoundItem('Oaie', 'OAIE', 'assets/audio/sunete/ferma/oaie.mp3'),
-      _SoundItem('Porc', 'PORC', 'assets/audio/sunete/ferma/porc.mp3'),
-      _SoundItem('Cal', 'CAL', 'assets/audio/sunete/ferma/cal.mp3'),
-      _SoundItem('Capră', 'CAPRA', 'assets/audio/sunete/ferma/capra.mp3'),
-      _SoundItem('Cocoș', 'COCOS', 'assets/audio/sunete/ferma/cocos.mp3'),
-      _SoundItem('Curcan', 'CURCAN', 'assets/audio/sunete/ferma/curcan.mp3'),
-      _SoundItem('Gâscă', 'GASCA', 'assets/audio/sunete/ferma/gasca.mp3'),
-      _SoundItem('Câine', 'CAINE', 'assets/audio/sunete/ferma/caine.mp3'),
-      _SoundItem('Pisică', 'PISICA', 'assets/audio/sunete/ferma/pisica.mp3'),
+      const _SoundItem('Vacă', 'VACA', 'assets/audio/sunete/ferma/vaca.wav'),
+      const _SoundItem('Oaie', 'OAIE', 'assets/audio/sunete/ferma/oaie.wav'),
+      const _SoundItem('Porc', 'PORC', 'assets/audio/sunete/ferma/porc.wav'),
+      const _SoundItem('Cal', 'CAL', 'assets/audio/sunete/ferma/cal.wav'),
+      const _SoundItem('Găină', 'GAINA', 'assets/audio/sunete/ferma/gaina.wav'),
+      const _SoundItem('Rață', 'RATA', 'assets/audio/sunete/ferma/rata.wav'),
+      const _SoundItem('Câine', 'CAINE', 'assets/audio/sunete/ferma/caine.wav'),
+      const _SoundItem('Pisică', 'PISICA', 'assets/audio/sunete/ferma/pisica.wav'),
+      const _SoundItem('Curcan', 'CURCAN', 'assets/audio/sunete/ferma/curcan.wav'),
+      const _SoundItem('Iepure', 'IEPURE', 'assets/audio/sunete/ferma/iepure.wav'),
     ],
     'marine': [
-      _SoundItem('Delfin', 'DELFIN', 'assets/audio/sunete/marine/delfin.mp3'),
-      _SoundItem('Rechin', 'RECHIN', 'assets/audio/sunete/marine/rechin.mp3'),
-      _SoundItem('Balena', 'BALENA', 'assets/audio/sunete/marine/balena.mp3'),
-      _SoundItem('Caracatiță', 'CARACATITA', 'assets/audio/sunete/marine/caracatita.mp3'),
-      _SoundItem('Cal de mare', 'CALDEMARE', 'assets/audio/sunete/marine/caldemare.mp3'),
-      _SoundItem('Meduză', 'MEDUZA', 'assets/audio/sunete/marine/meduza.mp3'),
-      _SoundItem('Țestoasă', 'TESTOASA', 'assets/audio/sunete/marine/testoasa.mp3'),
-      _SoundItem('Pește', 'PESTE', 'assets/audio/sunete/marine/peste.mp3'),
-      _SoundItem('Creveți', 'CREVETI', 'assets/audio/sunete/marine/creveti.mp3'),
-      _SoundItem('Focă', 'FOCA', 'assets/audio/sunete/marine/foca.mp3'),
+      const _SoundItem('Delfin', 'DELFIN', 'assets/audio/sunete/marine/delfin.wav'),
+      const _SoundItem('Balena', 'BALENA', 'assets/audio/sunete/marine/balena.wav'),
+      const _SoundItem('Pește', 'PESTE', 'assets/audio/sunete/marine/peste.wav'),
+      const _SoundItem('Caracatiță', 'CARACATITA', 'assets/audio/sunete/marine/caracatita.wav'),
+      const _SoundItem('Cal de mare', 'CALDEMARE', 'assets/audio/sunete/marine/cal_de_mare.wav'),
+      const _SoundItem('Rechin', 'RECHIN', 'assets/audio/sunete/marine/rechin.wav'),
+      const _SoundItem('Meduză', 'MEDUZA', 'assets/audio/sunete/marine/meduza.wav'),
+      const _SoundItem('Focă', 'FOCA', 'assets/audio/sunete/marine/foca.wav'),
+      const _SoundItem('Crab', 'CRAB', 'assets/audio/sunete/marine/crab.wav'),
+      const _SoundItem('Stea de mare', 'STEAMARE', 'assets/audio/sunete/marine/stea_de_mare.wav'),
     ],
     'vehicule': [
-      // Note: labels use proper Romanian diacritics; artboard names
-      // omit diacritics to match Rive artboard identifiers; file names
-      // are lowercase without diacritics.
-      _SoundItem('Mașină', 'MASINA', 'assets/audio/sunete/vehicule/masina.mp3'),
-      _SoundItem('Ambulanță', 'AMBULANTA', 'assets/audio/sunete/vehicule/ambulanta.mp3'),
-      _SoundItem('Motocicletă', 'MOTOCICLETA', 'assets/audio/sunete/vehicule/motocicleta.mp3'),
-      _SoundItem('Camion', 'CAMION', 'assets/audio/sunete/vehicule/camion.mp3'),
-      _SoundItem('Tren', 'TREN', 'assets/audio/sunete/vehicule/tren.mp3'),
-      _SoundItem('Avion', 'AVION', 'assets/audio/sunete/vehicule/avion.mp3'),
-      _SoundItem('Barcă', 'BARCA', 'assets/audio/sunete/vehicule/barca.mp3'),
-      _SoundItem('Elicopter', 'ELICOPTER', 'assets/audio/sunete/vehicule/elicopter.mp3'),
-      _SoundItem('Autobuz', 'AUTOBUZ', 'assets/audio/sunete/vehicule/autobuz.mp3'),
-      _SoundItem('Tractor', 'TRACTOR', 'assets/audio/sunete/vehicule/tractor.mp3'),
+      const _SoundItem('Mașină', 'MASINA', 'assets/audio/sunete/vehicule/masina.wav'),
+      const _SoundItem('Tren', 'TREN', 'assets/audio/sunete/vehicule/tren.wav'),
+      const _SoundItem('Avion', 'AVION', 'assets/audio/sunete/vehicule/avion.wav'),
+      const _SoundItem('Autobuz', 'AUTOBUZ', 'assets/audio/sunete/vehicule/autobuz.wav'),
+      const _SoundItem('Ambulanță', 'AMBULANTA', 'assets/audio/sunete/vehicule/ambulanta.wav'),
+      const _SoundItem('Tractor', 'TRACTOR', 'assets/audio/sunete/vehicule/tractor.wav'),
+      const _SoundItem('Vapor', 'VAPOR', 'assets/audio/sunete/vehicule/vapor.wav'),
+      const _SoundItem('Motocicletă', 'MOTOCICLETA', 'assets/audio/sunete/vehicule/motocicleta.wav'),
+      const _SoundItem('Elicopter', 'ELICOPTER', 'assets/audio/sunete/vehicule/elicopter.wav'),
+      const _SoundItem('Camion de pompieri', 'CAMIONPOMPIERI', 'assets/audio/sunete/vehicule/camion_pompieri.wav'),
     ],
     'salbatice': [
-      _SoundItem('Leu', 'LEU', 'assets/audio/sunete/salbatice/leu.mp3'),
-      _SoundItem('Tigru', 'TIGRU', 'assets/audio/sunete/salbatice/tigru.mp3'),
-      _SoundItem('Elefant', 'ELEFANT', 'assets/audio/sunete/salbatice/elefant.mp3'),
-      _SoundItem('Zebră', 'ZEBRA', 'assets/audio/sunete/salbatice/zebra.mp3'),
-      _SoundItem('Girafă', 'GIRAFA', 'assets/audio/sunete/salbatice/girafa.mp3'),
-      _SoundItem('Urs', 'URS', 'assets/audio/sunete/salbatice/urs.mp3'),
-      _SoundItem('Maimuță', 'MAIMUTA', 'assets/audio/sunete/salbatice/maimuta.mp3'),
-      _SoundItem('Crocodil', 'CROCODIL', 'assets/audio/sunete/salbatice/crocodil.mp3'),
-      _SoundItem('Rinocer', 'RINOCER', 'assets/audio/sunete/salbatice/rinocer.mp3'),
-      _SoundItem('Hipopotam', 'HIPOPOTAM', 'assets/audio/sunete/salbatice/hipopotam.mp3'),
+      const _SoundItem('Leu', 'LEU', 'assets/audio/sunete/salbatice/leu.wav'),
+      const _SoundItem('Tigru', 'TIGRU', 'assets/audio/sunete/salbatice/tigru.wav'),
+      const _SoundItem('Maimuță', 'MAIMUTA', 'assets/audio/sunete/salbatice/maimuta.wav'),
+      const _SoundItem('Elefant', 'ELEFANT', 'assets/audio/sunete/salbatice/elefant.wav'),
+      const _SoundItem('Șarpe', 'SARPE', 'assets/audio/sunete/salbatice/sarpe.wav'),
+      const _SoundItem('Girafă', 'GIRAFA', 'assets/audio/sunete/salbatice/girafa.wav'),
+      const _SoundItem('Zebră', 'ZEBRA', 'assets/audio/sunete/salbatice/zebra.wav'),
+      const _SoundItem('Rinocer', 'RINOCER', 'assets/audio/sunete/salbatice/rinocer.wav'),
+      const _SoundItem('Crocodil', 'CROCODIL', 'assets/audio/sunete/salbatice/crocodil.wav'),
+      const _SoundItem('Hipopotam', 'HIPOPOTAM', 'assets/audio/sunete/salbatice/hipopotam.wav'),
     ],
     'pasari': [
-      _SoundItem('Bufniță', 'BUFNITA', 'assets/audio/sunete/pasari/bufnita.mp3'),
-      _SoundItem('Papagal', 'PAPAGAL', 'assets/audio/sunete/pasari/papagal.mp3'),
-      _SoundItem('Vrabie', 'VRABIE', 'assets/audio/sunete/pasari/vrabie.mp3'),
-      _SoundItem('Pinguin', 'PINGUIN', 'assets/audio/sunete/pasari/pinguin.mp3'),
-      _SoundItem('Flamingo', 'FLAMINGO', 'assets/audio/sunete/pasari/flamingo.mp3'),
-      _SoundItem('Tucan', 'TUCAN', 'assets/audio/sunete/pasari/tucan.mp3'),
-      _SoundItem('Lebădă', 'LEBADA', 'assets/audio/sunete/pasari/lebada.mp3'),
-      _SoundItem('Vultur', 'VULTUR', 'assets/audio/sunete/pasari/vultur.mp3'),
-      _SoundItem('Păun', 'PAUN', 'assets/audio/sunete/pasari/paun.mp3'),
-      _SoundItem('Rață', 'RATA', 'assets/audio/sunete/pasari/rata.mp3'),
+      const _SoundItem('Bufniță', 'BUFNITA', 'assets/audio/sunete/pasari/bufnita.wav'),
+      const _SoundItem('Papagal', 'PAPAGAL', 'assets/audio/sunete/pasari/papagal.wav'),
+      const _SoundItem('Vrabie', 'VRABIE', 'assets/audio/sunete/pasari/vrabie.wav'),
+      const _SoundItem('Pinguin', 'PINGUIN', 'assets/audio/sunete/pasari/pinguin.wav'),
+      const _SoundItem('Flamingo', 'FLAMINGO', 'assets/audio/sunete/pasari/flamingo.wav'),
+      const _SoundItem('Tucan', 'TUCAN', 'assets/audio/sunete/pasari/tucan.wav'),
+      const _SoundItem('Lebădă', 'LEBADA', 'assets/audio/sunete/pasari/lebada.wav'),
+      const _SoundItem('Vultur', 'VULTUR', 'assets/audio/sunete/pasari/vultur.wav'),
+      const _SoundItem('Păun', 'PAUN', 'assets/audio/sunete/pasari/paun.wav'),
+      const _SoundItem('Găinușă de apă', 'GAINUSAAPA', 'assets/audio/sunete/pasari/gainusa_de_apa.wav'),
     ],
   };
 
@@ -192,30 +190,20 @@ class _SoundItemCard extends StatefulWidget {
 }
 
 class _SoundItemCardState extends State<_SoundItemCard> {
-  SMITrigger? _pressTrigger;
-  Artboard? _artboard;
+  // In this simplified implementation we no longer use Rive for the
+  // sound buttons.  Instead we derive the image path from the audio
+  // file path by replacing the `audio/sunete` segment with
+  // `images/sounds_module` and swapping the extension for `.png`.
 
-  void _onRiveInit(Artboard artboard) {
-    // Called when the Rive artboard is loaded.  Attach the state
-    // machine controller if available and store the press trigger for
-    // later use.
-    final controller = StateMachineController.fromArtboard(
-      artboard,
-      'State Machine 1',
-    );
-    if (controller != null) {
-      artboard.addController(controller);
-      final input = controller.findInput<bool>('isPressed');
-      if (input is SMITrigger) {
-        _pressTrigger = input;
-      }
-    }
-    _artboard = artboard;
+  String get _imagePath {
+    final audioPath = widget.item.audioPath;
+    // Example: assets/audio/sunete/ferma/vaca.mp3 → assets/images/sounds_module/ferma/vaca.png
+    return audioPath
+        .replaceFirst('assets/audio/sunete', 'assets/images/sounds_module')
+        .replaceFirst('.mp3', '.png');
   }
 
   void _handleTap() {
-    // Fire the press trigger to play the animation.
-    _pressTrigger?.fire();
     widget.onTap();
   }
 
@@ -232,10 +220,12 @@ class _SoundItemCardState extends State<_SoundItemCard> {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: RiveAnimation.asset(
-                  'assets/rive/sound_buttons.riv',
-                  artboard: widget.item.artboard,
-                  onInit: _onRiveInit,
+                // Display a static image for the sound item.  The image
+                // filename matches the audio filename (same name and
+                // category) but with `.png` extension and located under
+                // `assets/images/sounds_module`.
+                child: Image.asset(
+                  _imagePath,
                   fit: BoxFit.contain,
                 ),
               ),

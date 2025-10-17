@@ -26,27 +26,28 @@ class SoundsMenuScreen extends StatelessWidget {
       _Category(
         key: 'ferma',
         label: 'Animale de fermă',
-        iconPath: 'assets/images/sounds_module/ferma.png',
+        // Use the category icons stored under assets/images/sounds_module/categories
+        iconPath: 'assets/images/sounds_module/categories/ferma.png',
       ),
       _Category(
         key: 'marine',
         label: 'Animale marine',
-        iconPath: 'assets/images/sounds_module/marine.png',
+        iconPath: 'assets/images/sounds_module/categories/marine.png',
       ),
       _Category(
         key: 'vehicule',
         label: 'Vehicule',
-        iconPath: 'assets/images/sounds_module/vehicule.png',
+        iconPath: 'assets/images/sounds_module/categories/vehicule.png',
       ),
       _Category(
         key: 'salbatice',
         label: 'Animale sălbatice',
-        iconPath: 'assets/images/sounds_module/salbatice.png',
+        iconPath: 'assets/images/sounds_module/categories/salbatice.png',
       ),
       _Category(
         key: 'pasari',
         label: 'Păsări',
-        iconPath: 'assets/images/sounds_module/pasari.png',
+        iconPath: 'assets/images/sounds_module/categories/pasari.png',
       ),
     ];
     return Scaffold(
