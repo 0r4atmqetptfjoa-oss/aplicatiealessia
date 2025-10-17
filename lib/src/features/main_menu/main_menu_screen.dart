@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:video_player/video_player.dart';
-import 'package:rive/rive.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'rive_menu_button.dart';
 
 class MainMenuScreen extends StatefulWidget {
   const MainMenuScreen({super.key});
@@ -35,27 +36,10 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     super.dispose();
   }
 
-  Widget _buildMenuButton({
-    required String artboard,
-    required VoidCallback onTap,
-    Key? key,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: SizedBox(
-        width: 120,
-        height: 120,
-        child: RiveAnimation.asset(
-          'assets/rive/menu_buttons.riv',
-          artboard: artboard,
-          fit: BoxFit.contain,
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
@@ -81,10 +65,14 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const RiveAnimation.asset(
-                        'assets/rive/title.riv', // Placeholder for the title animation
-                        artboard: 'TITLE_ANIMATION',
-                        fit: BoxFit.contain,
+                      Text(
+                        l10n.mainMenuTitle,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 48,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 40),
                       Wrap(
@@ -92,25 +80,40 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                         spacing: 24,
                         runSpacing: 24,
                         children: [
-                          _buildMenuButton(
-                            artboard: 'BTN_SUNETE',
+                          RiveMenuButton(
+                            riveAsset: 'assets/rive/menu_buttons.riv',
+                            artboardName: 'BTN_SUNETE',
+                            stateMachineName: 'State Machine 1',
                             onTap: () => context.go('/sounds'),
+                            label: l10n.sounds,
                           ),
-                          _buildMenuButton(
-                            artboard: 'BTN_INSTRUMENTE',
+                          RiveMenuButton(
+                            riveAsset: 'assets/rive/menu_buttons.riv',
+                            artboardName: 'BTN_INSTRUMENTE',
+                            stateMachineName: 'State Machine 1',
                             onTap: () => context.go('/instruments'),
+                            label: l10n.instruments,
                           ),
-                          _buildMenuButton(
-                            artboard: 'BTN_CANTECE',
+                          RiveMenuButton(
+                            riveAsset: 'assets/rive/menu_buttons.riv',
+                            artboardName: 'BTN_CANTECE',
+                            stateMachineName: 'State Machine 1',
                             onTap: () => context.go('/songs'),
+                            label: l10n.songs,
                           ),
-                          _buildMenuButton(
-                            artboard: 'BTN_POVESTI',
+                          RiveMenuButton(
+                            riveAsset: 'assets/rive/menu_buttons.riv',
+                            artboardName: 'BTN_POVESTI',
+                            stateMachineName: 'State Machine 1',
                             onTap: () => context.go('/stories'),
+                            label: l10n.stories,
                           ),
-                          _buildMenuButton(
-                            artboard: 'BTN_JOCURI',
+                          RiveMenuButton(
+                            riveAsset: 'assets/rive/menu_buttons.riv',
+                            artboardName: 'BTN_JOCURI',
+                            stateMachineName: 'State Machine 1',
                             onTap: () => context.go('/games'),
+                            label: l10n.games,
                           ),
                         ],
                       ),

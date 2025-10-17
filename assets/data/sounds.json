@@ -1,0 +1,82 @@
+{
+  "categories": [
+    {
+      "id": "ferma",
+      "name": "Animale de fermă",
+      "items": [
+        {"id": "vaca", "name": "Vacă"},
+        {"id": "oaie", "name": "Oaie"},
+        {"id": "porc", "name": "Porc"},
+        {"id": "cal", "name": "Cal"},
+        {"id": "gaina", "name": "Găină"},
+        {"id": "rata", "name": "Rață"},
+        {"id": "caine", "name": "Câine"},
+        {"id": "pisica", "name": "Pisică"},
+        {"id": "curcan", "name": "Curcan"},
+        {"id": "iepure", "name": "Iepure"}
+      ]
+    },
+    {
+      "id": "pasari",
+      "name": "Păsări",
+      "items": [
+        {"id": "macaleandru", "name": "Măcăleandru"},
+        {"id": "lebada", "name": "Lebădă"},
+        {"id": "bufnita", "name": "Bufniță"},
+        {"id": "rata_salbatica", "name": "Rață Sălbatică"},
+        {"id": "flamingo", "name": "Flamingo"},
+        {"id": "porumbel", "name": "Porumbel"},
+        {"id": "fazan", "name": "Fazan"},
+        {"id": "starca", "name": "Stârcă"}
+      ]
+    },
+    {
+      "id": "marine",
+      "name": "Animale marine",
+      "items": [
+        {"id": "delfin", "name": "Delfin"},
+        {"id": "balena", "name": "Balenă"},
+        {"id": "peste", "name": "Pește"},
+        {"id": "caracatita", "name": "Caracatiță"},
+        {"id": "cal_de_mare", "name": "Cal de mare"},
+        {"id": "rechin", "name": "Rechin"},
+        {"id": "meduza", "name": "Meduză"},
+        {"id": "foca", "name": "Focă"},
+        {"id": "crab", "name": "Crab"},
+        {"id": "stea_de_mare", "name": "Stea de mare"}
+      ]
+    },
+    {
+      "id": "vehicule",
+      "name": "Vehicule",
+      "items": [
+        {"id": "masina", "name": "Mașină"},
+        {"id": "tren", "name": "Tren"},
+        {"id": "avion", "name": "Avion"},
+        {"id": "autobuz", "name": "Autobuz"},
+        {"id": "ambulanta", "name": "Ambulanță"},
+        {"id": "tractor", "name": "Tractor"},
+        {"id": "vapor", "name": "Vapor"},
+        {"id": "motocicleta", "name": "Motocicletă"},
+        {"id": "elicopter", "name": "Elicopter"},
+        {"id": "camion_pompieri", "name": "Camion de pompieri"}
+      ]
+    },
+    {
+      "id": "salbatice",
+      "name": "Animale sălbatice",
+      "items": [
+        {"id": "leu", "name": "Leu"},
+        {"id": "tigru", "name": "Tigru"},
+        {"id": "maimuta", "name": "Maimuță"},
+        {"id": "elefant", "name": "Elefant"},
+        {"id": "sarpe", "name": "Șarpe"},
+        {"id": "girafa", "name": "Girafă"},
+        {"id": "zebra", "name": "Zebră"},
+        {"id": "rinocer", "name": "Rinocer"},
+        {"id": "crocodil", "name": "Crocodil"},
+        {"id": "hipopotam", "name": "Hipopotam"}
+      ]
+    }
+  ]
+}

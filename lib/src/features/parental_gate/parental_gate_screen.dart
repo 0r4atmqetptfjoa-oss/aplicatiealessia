@@ -1,16 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-
-/// A placeholder parental gate screen.
-///
-/// In a later phase this screen will ask a simple math question and
-/// validate the answer before granting access to the settings.  For now
-/// it simply displays a label.
 import 'package:go_router/go_router.dart';
 
-/// A simple parental gate screen that challenges the user with a
-/// fixed math question.  Only an adult can type the correct answer
-/// and proceed.  Wrong answers will show an error and return the
-/// child to the main menu.
 class ParentalGateScreen extends StatefulWidget {
   const ParentalGateScreen({super.key});
 
@@ -19,61 +10,82 @@ class ParentalGateScreen extends StatefulWidget {
 }
 
 class _ParentalGateScreenState extends State<ParentalGateScreen> {
-  final TextEditingController _controller = TextEditingController();
-  String? _errorText;
+  Timer? _timer;
+  int _holdDuration = 0;
+  final int _requiredHoldTime = 3; // seconds
 
-  void _validateAnswer(BuildContext context) {
-    final answer = _controller.text.trim();
-    if (answer == '8') {
-      // Correct answer – proceed to settings (or home for now)
-      context.go('/home');
-    } else {
-      // Show an error message and reset
+  void _onPointerDown(PointerDownEvent details) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
-        _errorText = 'Răspuns greșit. Încercați din nou!';
+        _holdDuration++;
       });
-      Future.delayed(const Duration(seconds: 2), () {
-        context.go('/home');
-      });
-    }
+      if (_holdDuration >= _requiredHoldTime) {
+        _timer?.cancel();
+        // Navigate to settings or a placeholder
+        context.go('/home'); 
+      }
+    });
+  }
+
+  void _onPointerUp(PointerUpEvent details) {
+    _timer?.cancel();
+    setState(() {
+      _holdDuration = 0;
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Control Parental')),
-      body: Padding(
-        padding: const EdgeInsets.all(32.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Accesul la setări este protejat.',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'Cât fac 3 + 5?',
-              style: TextStyle(fontSize: 18),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _controller,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: 'Răspuns',
-                errorText: _errorText,
-                border: const OutlineInputBorder(),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                'Pentru a continua, ține apăsat butonul.',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
               ),
-              onSubmitted: (_) => _validateAnswer(context),
-            ),
-            const SizedBox(height: 12),
-            ElevatedButton(
-              onPressed: () => _validateAnswer(context),
-              child: const Text('Verifică'),
-            ),
-          ],
+              const SizedBox(height: 40),
+              GestureDetector(
+                onPointerDown: _onPointerDown,
+                onPointerUp: _onPointerUp,
+                child: SizedBox(
+                  width: 150,
+                  height: 150,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      SizedBox(
+                        width: 150,
+                        height: 150,
+                        child: CircularProgressIndicator(
+                          value: _holdDuration / _requiredHoldTime,
+                          strokeWidth: 10,
+                          backgroundColor: Colors.grey.shade300,
+                        ),
+                      ),
+                      const Icon(Icons.touch_app, size: 80, color: Colors.blue),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                '${_requiredHoldTime - _holdDuration} secunde rămase',
+                style: const TextStyle(fontSize: 18),
+              ),
+            ],
+          ),
         ),
       ),
     );

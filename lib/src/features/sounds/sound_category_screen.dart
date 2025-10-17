@@ -1,112 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:rive/rive.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/data_provider.dart';
+import '../../core/audio_service.dart';
 
-class SoundCategoryScreen extends StatefulWidget {
+class SoundCategoryScreen extends ConsumerWidget {
   final String category;
 
   const SoundCategoryScreen({super.key, required this.category});
 
   @override
-  State<SoundCategoryScreen> createState() => _SoundCategoryScreenState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final data = ref.watch(appDataProvider);
+
+    return data.when(
+      loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (err, stack) => Scaffold(body: Center(child: Text('Error: $err'))),
+      data: (appData) {
+        final categoryData = appData.sounds['categories'].firstWhere((c) => c['id'] == category);
+        final items = categoryData['items'] as List;
+
+        return _SoundCategoryView(category: category, items: items, categoryName: categoryData['name']);
+      },
+    );
+  }
 }
 
-class _SoundCategoryScreenState extends State<SoundCategoryScreen> {
-  late final AudioPlayer _audioPlayer;
+class _SoundCategoryView extends ConsumerStatefulWidget {
+  final String category;
+  final List items;
+  final String categoryName;
+
+  const _SoundCategoryView({required this.category, required this.items, required this.categoryName});
+
+  @override
+  ConsumerState<_SoundCategoryView> createState() => _SoundCategoryViewState();
+}
+
+class _SoundCategoryViewState extends ConsumerState<_SoundCategoryView> {
   SMIInput<bool>? _riveInput;
-
-  @override
-  void initState() {
-    super.initState();
-    _audioPlayer = AudioPlayer();
-  }
-
-  @override
-  void dispose() {
-    _audioPlayer.dispose();
-    super.dispose();
-  }
-
-  static final Map<String, List<_SoundItem>> _itemsByCategory = {
-    'pasari': [
-      const _SoundItem('Măcăleandru', 'MACALEANDRU', 'assets/audio/sunete/pasari/macaleandru.wav'),
-      const _SoundItem('Lebădă', 'LEBADA', 'assets/audio/sunete/pasari/lebada.wav'),
-      const _SoundItem('Bufniță', 'BUFNITA', 'assets/audio/sunete/pasari/bufnita.wav'),
-      const _SoundItem('Rață Sălbatică', 'RATA_SALBATICA', 'assets/audio/sunete/pasari/rata_salbatica.wav'),
-      const _SoundItem('Flamingo', 'FLAMINGO', 'assets/audio/sunete/pasari/flamingo.wav'),
-      const _SoundItem('Porumbel', 'PORUMBEL', 'assets/audio/sunete/pasari/porumbel.wav'),
-      const _SoundItem('Fazan', 'FAZAN', 'assets/audio/sunete/pasari/fazan.wav'),
-      const _SoundItem('Stârcă', 'STARCA', 'assets/audio/sunete/pasari/starca.wav'),
-    ],
-    'ferma': [
-      const _SoundItem('Vacă', 'VACA', 'assets/audio/sunete/ferma/vaca.wav'),
-      const _SoundItem('Oaie', 'OAIE', 'assets/audio/sunete/ferma/oaie.wav'),
-      const _SoundItem('Porc', 'PORC', 'assets/audio/sunete/ferma/porc.wav'),
-      const _SoundItem('Cal', 'CAL', 'assets/audio/sunete/ferma/cal.wav'),
-      const _SoundItem('Găină', 'GAINA', 'assets/audio/sunete/ferma/gaina.wav'),
-      const _SoundItem('Rață', 'RATA', 'assets/audio/sunete/ferma/rata.wav'),
-      const _SoundItem('Câine', 'CAINE', 'assets/audio/sunete/ferma/caine.wav'),
-      const _SoundItem('Pisică', 'PISICA', 'assets/audio/sunete/ferma/pisica.wav'),
-      const _SoundItem('Curcan', 'CURCAN', 'assets/audio/sunete/ferma/curcan.wav'),
-      const _SoundItem('Iepure', 'IEPURE', 'assets/audio/sunete/ferma/iepure.wav'),
-    ],
-    'marine': [
-      const _SoundItem('Delfin', 'DELFIN', 'assets/audio/sunete/marine/delfin.wav'),
-      const _SoundItem('Balena', 'BALENA', 'assets/audio/sunete/marine/balena.wav'),
-      const _SoundItem('Pește', 'PESTE', 'assets/audio/sunete/marine/peste.wav'),
-      const _SoundItem('Caracatiță', 'CARACATITA', 'assets/audio/sunete/marine/caracatita.wav'),
-      const _SoundItem('Cal de mare', 'CALDEMARE', 'assets/audio/sunete/marine/cal_de_mare.wav'),
-      const _SoundItem('Rechin', 'RECHIN', 'assets/audio/sunete/marine/rechin.wav'),
-      const _SoundItem('Meduză', 'MEDUZA', 'assets/audio/sunete/marine/meduza.wav'),
-      const _SoundItem('Focă', 'FOCA', 'assets/audio/sunete/marine/foca.wav'),
-      const _SoundItem('Crab', 'CRAB', 'assets/audio/sunete/marine/crab.wav'),
-      const _SoundItem('Stea de mare', 'STEAMARE', 'assets/audio/sunete/marine/stea_de_mare.wav'),
-    ],
-    'vehicule': [
-      const _SoundItem('Mașină', 'MASINA', 'assets/audio/sunete/vehicule/masina.wav'),
-      const _SoundItem('Tren', 'TREN', 'assets/audio/sunete/vehicule/tren.wav'),
-      const _SoundItem('Avion', 'AVION', 'assets/audio/sunete/vehicule/avion.wav'),
-      const _SoundItem('Autobuz', 'AUTOBUZ', 'assets/audio/sunete/vehicule/autobuz.wav'),
-      const _SoundItem('Ambulanță', 'AMBULANTA', 'assets/audio/sunete/vehicule/ambulanta.wav'),
-      const _SoundItem('Tractor', 'TRACTOR', 'assets/audio/sunete/vehicule/tractor.wav'),
-      const _SoundItem('Vapor', 'VAPOR', 'assets/audio/sunete/vehicule/vapor.wav'),
-      const _SoundItem('Motocicletă', 'MOTOCICLETA', 'assets/audio/sunete/vehicule/motocicleta.wav'),
-      const _SoundItem('Elicopter', 'ELICOPTER', 'assets/audio/sunete/vehicule/elicopter.wav'),
-      const _SoundItem('Camion de pompieri', 'CAMIONPOMPIERI', 'assets/audio/sunete/vehicule/camion_pompieri.wav'),
-    ],
-    'salbatice': [
-      const _SoundItem('Leu', 'LEU', 'assets/audio/sunete/salbatice/leu.wav'),
-      const _SoundItem('Tigru', 'TIGRU', 'assets/audio/sunete/salbatice/tigru.wav'),
-      const _SoundItem('Maimuță', 'MAIMUTA', 'assets/audio/sunete/salbatice/maimuta.wav'),
-      const _SoundItem('Elefant', 'ELEFANT', 'assets/audio/sunete/salbatice/elefant.wav'),
-      const _SoundItem('Șarpe', 'SARPE', 'assets/audio/sunete/salbatice/sarpe.wav'),
-      const _SoundItem('Girafă', 'GIRAFA', 'assets/audio/sunete/salbatice/girafa.wav'),
-      const _SoundItem('Zebră', 'ZEBRA', 'assets/audio/sunete/salbatice/zebra.wav'),
-      const _SoundItem('Rinocer', 'RINOCER', 'assets/audio/sunete/salbatice/rinocer.wav'),
-      const _SoundItem('Crocodil', 'CROCODIL', 'assets/audio/sunete/salbatice/crocodil.wav'),
-      const _SoundItem('Hipopotam', 'HIPOPOTAM', 'assets/audio/sunete/salbatice/hipopotam.wav'),
-    ],
-  };
-
-  List<_SoundItem> get _items => _itemsByCategory[widget.category.toLowerCase()] ?? const [];
-
-  String get _categoryLabel {
-    switch (widget.category.toLowerCase()) {
-      case 'pasari':
-        return 'Păsări';
-      case 'ferma':
-        return 'Animale de fermă';
-      case 'marine':
-        return 'Animale marine';
-      case 'vehicule':
-        return 'Vehicule';
-      case 'salbatice':
-        return 'Animale sălbatice';
-      default:
-        return widget.category;
-    }
-  }
 
   String get _riveFile {
     return 'assets/rive/${widget.category.toLowerCase()}.riv';
@@ -114,15 +47,6 @@ class _SoundCategoryScreenState extends State<SoundCategoryScreen> {
 
   String get _backgroundFile {
     return 'assets/images/sounds_module/${widget.category.toLowerCase()}_background.png';
-  }
-
-  Future<void> _playSound(String path) async {
-    try {
-      await _audioPlayer.stop();
-      await _audioPlayer.play(AssetSource(path.replaceFirst('assets/', '')));
-    } catch (e) {
-      print("Error playing sound: $e");
-    }
   }
 
   void _onRiveInit(Artboard artboard) {
@@ -137,9 +61,11 @@ class _SoundCategoryScreenState extends State<SoundCategoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final audioService = ref.read(audioServiceProvider);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Sunete: $_categoryLabel'),
+        title: Text('Sunete: ${widget.categoryName}'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go('/sounds'),
@@ -166,14 +92,15 @@ class _SoundCategoryScreenState extends State<SoundCategoryScreen> {
             crossAxisSpacing: 24,
             childAspectRatio: 0.9,
           ),
-          itemCount: _items.length,
+          itemCount: widget.items.length,
           itemBuilder: (context, index) {
-            final item = _items[index];
+            final item = widget.items[index];
+            final audioPath = 'assets/audio/sounds/${widget.category}/${item["id"]}.wav';
             return _SoundItemCard(
-              item: item,
+              item: _SoundItem(item['name'], item['id'].toUpperCase(), audioPath),
               riveFile: _riveFile,
               onTap: () {
-                _playSound(item.audioPath);
+                audioService.play(audioPath, channel: AudioChannel.soundEffect);
                 _triggerAnimation();
               },
               onRiveInit: _onRiveInit,

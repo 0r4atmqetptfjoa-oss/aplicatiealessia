@@ -1,54 +1,29 @@
-import 'dart:io';
-
-import 'package:audioplayers/audioplayers.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:video_player/video_player.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/audio_service.dart';
 
-/// Screen that plays a selected song.
-///
-/// Combines audio playback (from the `assets/audio/cantece/` folder) and
-/// video playback (from the `assets/video/cantece/` folder) so that
-/// music and animation are in sync.  The video loops by default and
-/// the audio stops/starts when the user toggles the play/pause button.
-class SongPlayerScreen extends StatefulWidget {
+class SongPlayerScreen extends ConsumerStatefulWidget {
   final String songId;
   const SongPlayerScreen({super.key, required this.songId});
 
   @override
-  State<SongPlayerScreen> createState() => _SongPlayerScreenState();
+  ConsumerState<SongPlayerScreen> createState() => _SongPlayerScreenState();
 }
 
-class _SongPlayerScreenState extends State<SongPlayerScreen> {
+class _SongPlayerScreenState extends ConsumerState<SongPlayerScreen> {
   late VideoPlayerController _videoController;
-  late AudioPlayer _audioPlayer;
   bool _isPlaying = false;
-  bool _isAudioLoaded = false;
   bool _isVideoInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    _audioPlayer = AudioPlayer();
     _initMedia();
   }
 
   Future<void> _initMedia() async {
-    // Prepare audio.  Prefer .mp3; fall back to .wav if .mp3 is not available.
-    final audioPathMp3 = 'assets/audio/cantece/${widget.songId}.mp3';
-    final audioPathWav = 'assets/audio/cantece/${widget.songId}.wav';
-    try {
-      await _audioPlayer.setSource(AssetSource(audioPathMp3));
-      _isAudioLoaded = true;
-    } catch (_) {
-      try {
-        await _audioPlayer.setSource(AssetSource(audioPathWav));
-        _isAudioLoaded = true;
-      } catch (_) {
-        // Ignore – audio remains unavailable.
-      }
-    }
-    // Prepare video.
     final videoPath = 'assets/video/cantece/${widget.songId}_dance.mp4';
     _videoController = VideoPlayerController.asset(videoPath)
       ..setLooping(true)
@@ -62,20 +37,26 @@ class _SongPlayerScreenState extends State<SongPlayerScreen> {
   @override
   void dispose() {
     _videoController.dispose();
-    _audioPlayer.dispose();
+    // Stop music on dispose
+    ref.read(audioServiceProvider).stop(AudioChannel.music);
     super.dispose();
   }
 
   void _togglePlayback() {
-    if (!_isAudioLoaded || !_isVideoInitialized) return;
+    if (!_isVideoInitialized) return;
+
+    final audioService = ref.read(audioServiceProvider);
+    final audioPath = 'assets/audio/cantece/${widget.songId}.mp3';
+
     setState(() {
       _isPlaying = !_isPlaying;
     });
+
     if (_isPlaying) {
-      _audioPlayer.resume();
+      audioService.play(audioPath, channel: AudioChannel.music);
       _videoController.play();
     } else {
-      _audioPlayer.pause();
+      audioService.stop(AudioChannel.music);
       _videoController.pause();
     }
   }
@@ -99,7 +80,6 @@ class _SongPlayerScreenState extends State<SongPlayerScreen> {
       ),
       body: Column(
         children: [
-          // Video display
           Expanded(
             child: Center(
               child: _isVideoInitialized
@@ -110,7 +90,6 @@ class _SongPlayerScreenState extends State<SongPlayerScreen> {
                   : const CircularProgressIndicator(),
             ),
           ),
-          // Controls
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
@@ -119,7 +98,7 @@ class _SongPlayerScreenState extends State<SongPlayerScreen> {
                 IconButton(
                   iconSize: 48,
                   icon: Icon(_isPlaying ? Icons.pause_circle : Icons.play_circle),
-                  onPressed: (_isAudioLoaded && _isVideoInitialized) ? _togglePlayback : null,
+                  onPressed: _isVideoInitialized ? _togglePlayback : null,
                 ),
               ],
             ),
