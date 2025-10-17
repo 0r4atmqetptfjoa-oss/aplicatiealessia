@@ -30,16 +30,34 @@ class InstrumentsScreen extends ConsumerStatefulWidget {
 }
 
 class _InstrumentsScreenState extends ConsumerState<InstrumentsScreen> {
-  /// Handles Rive events fired from the 3D state machine.
+  StateMachineController? _controller;
+
+  /// Initializes the Rive artboard and sets up the state machine controller.
   ///
-  /// When the event name is `PLAY_SOUND`, the event's data is expected
-  /// to be a [String] representing the instrument sound identifier.
-  /// This callback forwards the identifier to the [AudioService] to
-  /// play the corresponding sound.  Any other events are ignored.
-  void _onRiveEvent(RiveEvent event) {
-    if (event.name == 'PLAY_SOUND' && event.data is String) {
-      final soundId = event.data as String;
-      ref.read(audioServiceProvider).playInstrumentSound(soundId);
+  /// This method is invoked via the [RiveAnimation]'s `onInit` callback.  It
+  /// loads the state machine named `InstrumentStateMachine`, attaches it to
+  /// the artboard, and registers an event listener.  When events with the
+  /// name `PLAY_SOUND` are reported, the [AudioService] is notified to
+  /// play the corresponding sound.  The event's user data (a [String])
+  /// should identify the sound (e.g. `PIANO_C4`).
+  void _onRiveInit(Artboard artboard) {
+    // Create the state machine controller from the artboard.  If the
+    // machine cannot be found, silently ignore events.
+    final controller = StateMachineController.fromArtboard(
+      artboard,
+      'InstrumentStateMachine',
+    );
+    if (controller != null) {
+      artboard.addController(controller);
+      _controller = controller;
+      // Register an event listener to handle events reported by the
+      // state machine.  The callback receives an [Event] object.
+      controller.addEventListener((Event event) {
+        if (event.name == 'PLAY_SOUND' && event.userData is String) {
+          final soundId = event.userData as String;
+          ref.read(audioServiceProvider).playInstrumentSound(soundId);
+        }
+      });
     }
   }
 
@@ -64,11 +82,13 @@ class _InstrumentsScreenState extends ConsumerState<InstrumentsScreen> {
         child: Center(
           child: RiveAnimation.asset(
             'assets/rive_3d/instruments_scene.riv',
-            // Ensure the state machine is active.
             stateMachines: const ['InstrumentStateMachine'],
             fit: BoxFit.contain,
-            // Listen for events fired from the Rive file.
-            onEvent: _onRiveEvent,
+            // Enable pointer events so the Rive widget can detect taps and
+            // drags.  Without this, interactions defined in the Rive file
+            // will not trigger.
+            enablePointerEvents: true,
+            onInit: _onRiveInit,
           ),
         ),
       ),

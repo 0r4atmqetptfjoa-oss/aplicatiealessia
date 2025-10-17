@@ -11,7 +11,10 @@ class GamesMenuScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Define the available games.  Additional games can be added here.
     final games = [
+      {'title': 'Alfabet', 'route': '/games/alphabet'},
+      {'title': 'Numere', 'route': '/games/numbers'},
       {'title': 'Puzzle', 'route': '/games/puzzle'},
     ];
     return Scaffold(
@@ -22,8 +25,9 @@ class GamesMenuScreen extends StatelessWidget {
           final game = games[index];
           return ListTile(
             title: Text(game['title']!),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () {
-              // Navigate using GoRouter
+              // Use GoRouter to navigate to the selected game.
               context.go(game['route']!);
             },
           );

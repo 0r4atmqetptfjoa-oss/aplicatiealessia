@@ -16,6 +16,8 @@ import '../../features/stories/stories_menu_screen.dart';
 import '../../features/stories/story_player_screen.dart';
 import '../../features/games/games_menu_screen.dart';
 import '../../features/games/puzzle_game_screen.dart';
+import '../../features/games/alphabet_game_screen.dart';
+import '../../features/games/numbers_game_screen.dart';
 
 /// A Riverpod provider that exposes the application's router.
 ///
@@ -113,6 +115,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           return const GamesMenuScreen();
         },
         routes: [
+          GoRoute(
+            path: 'alphabet',
+            name: 'alphabetGame',
+            builder: (BuildContext context, GoRouterState state) {
+              return const AlphabetGameScreen();
+            },
+          ),
+          GoRoute(
+            path: 'numbers',
+            name: 'numbersGame',
+            builder: (BuildContext context, GoRouterState state) {
+              return const NumbersGameScreen();
+            },
+          ),
           GoRoute(
             path: 'puzzle',
             name: 'puzzleGame',
