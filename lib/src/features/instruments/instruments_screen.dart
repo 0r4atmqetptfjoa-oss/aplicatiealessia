@@ -41,7 +41,7 @@ class _InstrumentsScreenState extends ConsumerState<InstrumentsScreen> {
   /// play the corresponding sound.  The event's user data (a [String])
   /// should identify the sound (e.g. `PIANO_C4`).
   void _onRiveInit(Artboard artboard) {
-    // Create the state machine controller from the artboard.  If the
+    // Create the state machine controller from the artboard. If the
     // machine cannot be found, silently ignore events.
     final controller = StateMachineController.fromArtboard(
       artboard,
@@ -51,10 +51,22 @@ class _InstrumentsScreenState extends ConsumerState<InstrumentsScreen> {
       artboard.addController(controller);
       _controller = controller;
       // Register an event listener to handle events reported by the
-      // state machine.  The callback receives an [Event] object.
-      controller.addEventListener((Event event) {
-        if (event.name == 'PLAY_SOUND' && event.userData is String) {
-          final soundId = event.userData as String;
+      // state machine. The callback receives a [RiveEvent] object. The
+      // user data accompanying the event is not strongly typed on older
+      // versions of the runtime, so we cast dynamically when accessing it.
+      controller.addEventListener((RiveEvent event) {
+        // Attempt to extract the userData from the event. In Rive
+        // 0.13.x the event does not expose a `data` getter and may
+        // instead store arbitrary user data on a `userData` property.
+        dynamic userData;
+        try {
+          // The `userData` field is only present on general events.
+          userData = (event as dynamic).userData;
+        } catch (_) {
+          userData = null;
+        }
+        if (event.name == 'PLAY_SOUND' && userData is String) {
+          final soundId = userData as String;
           ref.read(audioServiceProvider).playInstrumentSound(soundId);
         }
       });
@@ -84,10 +96,10 @@ class _InstrumentsScreenState extends ConsumerState<InstrumentsScreen> {
             'assets/rive_3d/instruments_scene.riv',
             stateMachines: const ['InstrumentStateMachine'],
             fit: BoxFit.contain,
-            // Enable pointer events so the Rive widget can detect taps and
-            // drags.  Without this, interactions defined in the Rive file
-            // will not trigger.
-            enablePointerEvents: true,
+            // Use the default hit test behavior (opaque) to allow
+            // interactions. Pointer events are captured by default; there is
+            // no need for an `enablePointerEvents` parameter on
+            // `RiveAnimation` in this runtime version.
             onInit: _onRiveInit,
           ),
         ),
