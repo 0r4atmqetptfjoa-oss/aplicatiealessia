@@ -2,13 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-// L10n (generated via flutter gen-l10n)
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-
-// Firebase (optional - guarded)
-import 'package:firebase_core/firebase_core.dart';
-// import 'firebase_options.dart'; // TODO(restore): uncomment after running `flutterfire configure`
+// L10n (local, fara flutter_gen)
+import 'l10n/app_localizations.dart';
 
 import 'src/features/main_menu/main_menu_screen.dart';
 
@@ -21,16 +16,6 @@ Future<void> main() async {
     DeviceOrientation.landscapeRight,
   ]);
 
-  // Try to init Firebase, but don't fail if firebase_options.dart is missing.
-  try {
-    await Firebase.initializeApp(
-      // options: DefaultFirebaseOptions.currentPlatform, // TODO(restore)
-    );
-  } catch (e) {
-    // Safe fallback so the app can run without Firebase during local dev
-    debugPrint('Firebase init skipped: $e');
-  }
-
   runApp(const LumeaAlessieiApp());
 }
 
@@ -42,12 +27,11 @@ class LumeaAlessieiApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Lumea Alessiei',
-      // L10n wiring
+      // L10n wiring (local)
       localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
+        AppLocalizationsDelegate(),
+        // Material/Widgets/Cupertino delegates pot fi adaugate daca ai nevoie de traduceri sistem.
+        // Dar pentru aceasta implementare minimalista nu sunt obligatorii.
       ],
       supportedLocales: AppLocalizations.supportedLocales,
       home: const MainMenuScreen(),

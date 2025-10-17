@@ -21,9 +21,9 @@ class _ParentalGateScreenState extends State<ParentalGateScreen> {
     final heldMs = DateTime.now().difference(_downAt ?? DateTime.now()).inMilliseconds;
     _pressed = false;
     setState(() {});
-    final ok = heldMs >= 1500; // hold 1.5s as simple gate
+    final ok = heldMs >= 1500; // hold 1.5s
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(ok ? 'Unlocked' : 'Keep holding a bit longer')),
+      SnackBar(content: Text(ok ? 'Unlocked' : 'Ține apăsat un pic mai mult')),
     );
     if (ok && mounted) {
       Navigator.of(context).maybePop(true);
