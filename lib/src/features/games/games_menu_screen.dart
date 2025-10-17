@@ -18,7 +18,19 @@ class GamesMenuScreen extends StatelessWidget {
       {'title': 'Puzzle', 'route': '/games/puzzle'},
     ];
     return Scaffold(
-      appBar: AppBar(title: const Text('Jocuri')),
+      appBar: AppBar(
+        title: const Text('Jocuri'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/home'),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.home),
+            onPressed: () => context.go('/home'),
+          ),
+        ],
+      ),
       body: ListView.builder(
         itemCount: games.length,
         itemBuilder: (context, index) {

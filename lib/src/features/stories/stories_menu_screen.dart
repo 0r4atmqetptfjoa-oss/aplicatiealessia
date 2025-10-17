@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:go_router/go_router.dart';
 
 /// A data model describing a story item.
 class _StoryItem {
@@ -30,7 +31,19 @@ class StoriesMenuScreen extends StatelessWidget {
       ),
     ];
     return Scaffold(
-      appBar: AppBar(title: const Text('Povești')),
+      appBar: AppBar(
+        title: const Text('Povești'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/home'),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.home),
+            onPressed: () => context.go('/home'),
+          ),
+        ],
+      ),
       body: ListView.builder(
         itemCount: stories.length,
         itemBuilder: (context, index) {

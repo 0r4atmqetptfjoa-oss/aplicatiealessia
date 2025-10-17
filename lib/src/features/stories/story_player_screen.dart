@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
+import 'package:go_router/go_router.dart';
 
 /// Screen that plays a selected story video.
 ///
@@ -59,7 +60,19 @@ class _StoryPlayerScreenState extends State<StoryPlayerScreen> {
   Widget build(BuildContext context) {
     final title = widget.storyId.replaceAll('_', ' ').toUpperCase();
     return Scaffold(
-      appBar: AppBar(title: Text(title)),
+      appBar: AppBar(
+        title: Text(title),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/stories'),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.home),
+            onPressed: () => context.go('/home'),
+          ),
+        ],
+      ),
       body: Column(
         children: [
           Expanded(

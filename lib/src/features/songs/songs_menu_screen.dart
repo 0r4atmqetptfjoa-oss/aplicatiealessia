@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:go_router/go_router.dart';
 
 /// A data model describing a song item.
 class _SongItem {
@@ -32,7 +33,19 @@ class SongsMenuScreen extends StatelessWidget {
     ];
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Cântece')),
+      appBar: AppBar(
+        title: const Text('Cântece'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/home'),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.home),
+            onPressed: () => context.go('/home'),
+          ),
+        ],
+      ),
       body: ListView.builder(
         itemCount: songs.length,
         itemBuilder: (context, index) {

@@ -197,10 +197,15 @@ class _SoundItemCardState extends State<_SoundItemCard> {
 
   String get _imagePath {
     final audioPath = widget.item.audioPath;
-    // Example: assets/audio/sunete/ferma/vaca.mp3 → assets/images/sounds_module/ferma/vaca.png
-    return audioPath
-        .replaceFirst('assets/audio/sunete', 'assets/images/sounds_module')
-        .replaceFirst('.mp3', '.png');
+    // Example: assets/audio/sunete/ferma/vaca.wav → assets/images/sounds_module/ferma/vaca.png
+    var path = audioPath.replaceFirst('assets/audio/sunete', 'assets/images/sounds_module');
+    // Replace the extension (.mp3 or .wav) with .png
+    if (path.endsWith('.mp3')) {
+      path = path.replaceFirst('.mp3', '.png');
+    } else if (path.endsWith('.wav')) {
+      path = path.replaceFirst('.wav', '.png');
+    }
+    return path;
   }
 
   void _handleTap() {

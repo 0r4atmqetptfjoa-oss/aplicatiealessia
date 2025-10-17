@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 /// A simple drag‑and‑drop puzzle game.
 ///
@@ -139,10 +140,14 @@ class _PuzzleGameScreenState extends State<PuzzleGameScreen> {
         title: const Text('Puzzle'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
+          onPressed: () => context.go('/games'),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.home),
+            onPressed: () => context.go('/home'),
+          ),
+        ],
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
