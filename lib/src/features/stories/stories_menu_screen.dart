@@ -1,35 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:go_router/go_router.dart';
+import 'package:rive/rive.dart';
 
-/// A data model describing a story item.
 class _StoryItem {
   final String id;
   final String title;
-  final String imageAsset;
-  const _StoryItem({required this.id, required this.title, required this.imageAsset});
+  final String artboard;
+  const _StoryItem({required this.id, required this.title, required this.artboard});
 }
 
-/// Menu for selecting stories.
-///
-/// Displays a list of available stories loaded from the assets folder.  Each
-/// entry shows a thumbnail and the story title.  Tapping a story navigates
-/// to the player screen where the full narrated video plays.
 class StoriesMenuScreen extends StatelessWidget {
   const StoriesMenuScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Define available stories.  This could be loaded dynamically in a
-    // future phase by scanning the assets directory.  For now we include
-    // the placeholder story Scufița Roșie.
     final List<_StoryItem> stories = [
-      const _StoryItem(
-        id: 'scufita_rosie',
-        title: 'Scufița Roșie',
-        imageAsset: 'assets/images/stories_module/scufita_rosie.png',
-      ),
+      const _StoryItem(id: 'scufita_rosie', title: 'Scufița Roșie', artboard: 'BTN_SCUFITA_ROSIE'),
+      // Add more stories here
     ];
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Povești'),
@@ -44,24 +33,56 @@ class StoriesMenuScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: ListView.builder(
-        itemCount: stories.length,
-        itemBuilder: (context, index) {
-          final story = stories[index];
-          return ListTile(
-            leading: Image.asset(
-              story.imageAsset,
-              width: 56,
-              height: 56,
-              fit: BoxFit.cover,
-            ),
-            title: Text(story.title),
-            trailing: const Icon(Icons.play_arrow),
-            onTap: () {
-              context.go('/stories/play/${story.id}');
-            },
-          );
-        },
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/images/stories_module/background.png"), // Placeholder background
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: GridView.builder(
+          padding: const EdgeInsets.all(24),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            mainAxisSpacing: 24,
+            crossAxisSpacing: 24,
+            childAspectRatio: 1.0,
+          ),
+          itemCount: stories.length,
+          itemBuilder: (context, index) {
+            final story = stories[index];
+            return _StoryButton(
+              artboard: story.artboard,
+              onTap: () => context.go('/stories/play/${story.id}'),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _StoryButton extends StatelessWidget {
+  final String artboard;
+  final VoidCallback onTap;
+
+  const _StoryButton({required this.artboard, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Card(
+        elevation: 6,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: RiveAnimation.asset(
+            'assets/rive/story_buttons.riv',
+            artboard: artboard,
+            fit: BoxFit.contain,
+          ),
+        ),
       ),
     );
   }

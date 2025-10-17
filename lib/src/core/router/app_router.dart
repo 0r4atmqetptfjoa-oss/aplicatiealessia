@@ -8,7 +8,7 @@ import '../../features/splash/splash_screen.dart';
 import '../../features/main_menu/main_menu_screen.dart';
 import '../../features/parental_gate/parental_gate_screen.dart';
 import '../../features/sounds/sounds_menu_screen.dart';
-import '../../features/sounds/sounds_detail_screen.dart';
+import '../../features/sounds/sound_category_screen.dart'; // Import the new unified screen
 import '../../features/instruments/instruments_screen.dart';
 import '../../features/songs/songs_menu_screen.dart';
 import '../../features/songs/song_player_screen.dart';
@@ -62,7 +62,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             name: 'soundsDetail',
             builder: (BuildContext context, GoRouterState state) {
               final category = state.pathParameters['category'] ?? '';
-              return SoundsDetailScreen(category: category);
+              return SoundCategoryScreen(category: category);
             },
           ),
         ],
