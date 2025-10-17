@@ -21,11 +21,6 @@ dependencies:
     sdk: flutter
   intl: 0.20.2
 
-  # Firebase
-  firebase_core: ^2.24.2
-  firebase_analytics: ^10.7.4
-  firebase_crashlytics: ^3.4.4
-
   # State management
   flutter_riverpod: ^3.0.3  # Latest stable as of Oct 2025【203366105876355†L35-L40】
 
@@ -57,15 +52,12 @@ flutter:
   # directories, Flutter will include them automatically.
   assets:
     - assets/audio/
-    - assets/audio/menu/
-    - assets/audio/songs/
     - assets/audio/sounds/
     - assets/audio/sounds/ferma/
     - assets/audio/sounds/marine/
     - assets/audio/sounds/pasari/
     - assets/audio/sounds/salbatice/
     - assets/audio/sounds/vehicule/
-    - assets/audio/stories/
     - assets/images/
     - assets/images/games_module/
     - assets/images/menu/
@@ -82,4 +74,3 @@ flutter:
     - assets/rive_3d/
     - assets/video/
     - assets/video/menu/
-    - assets/video/stories/

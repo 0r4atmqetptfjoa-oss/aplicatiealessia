@@ -1,11 +1,11 @@
 // ignore_for_file: avoid_print
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // L10n (local, fara flutter_gen)
 import 'l10n/app_localizations.dart';
-
-import 'src/features/main_menu/main_menu_screen.dart';
+import 'src/core/router/app_router.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,25 +16,23 @@ Future<void> main() async {
     DeviceOrientation.landscapeRight,
   ]);
 
-  runApp(const LumeaAlessieiApp());
+  runApp(const ProviderScope(child: LumeaAlessieiApp()));
 }
 
-class LumeaAlessieiApp extends StatelessWidget {
+class LumeaAlessieiApp extends ConsumerWidget {
   const LumeaAlessieiApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.watch(appRouterProvider);
+
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'Lumea Alessiei',
       // L10n wiring (local)
-      localizationsDelegates: const [
-        AppLocalizationsDelegate(),
-        // Material/Widgets/Cupertino delegates pot fi adaugate daca ai nevoie de traduceri sistem.
-        // Dar pentru aceasta implementare minimalista nu sunt obligatorii.
-      ],
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      home: const MainMenuScreen(),
+      routerConfig: router,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
         useMaterial3: true,

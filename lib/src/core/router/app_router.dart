@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 
 // Import stub screens for the initial routing configuration.  These
 // placeholders will be fleshed out in subsequent phases of the project.
@@ -27,11 +26,8 @@ import '../../features/games/numbers_game_screen.dart';
 /// declares all top‑level routes up front.  Nested or parameterized
 /// routes can be added as the application grows.
 final appRouterProvider = Provider<GoRouter>((ref) {
-  final analytics = FirebaseAnalytics.instance;
-
   return GoRouter(
     initialLocation: '/',
-    observers: [FirebaseAnalyticsObserver(analytics: analytics)],
     routes: <RouteBase>[
       GoRoute(
         path: '/',
