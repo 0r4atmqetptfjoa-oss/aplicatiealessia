@@ -1,0 +1,54 @@
+name: lumea_alessiei
+description: >-
+  Alessia's World – an educational and entertaining Flutter application for
+  children aged 1–5.  This package defines the dependencies and asset
+  structure used throughout the project.  Assets are stored under
+  `assets/` and include images, audio, video and Rive animations.
+
+# Do not publish this package to pub.dev.
+publish_to: "none"
+
+# The version number of your application.  Follow semantic versioning.
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.2.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State management
+  flutter_riverpod: ^3.0.3  # Latest stable as of Oct 2025【203366105876355†L35-L40】
+
+  # Declarative routing
+  go_router: ^16.2.5       # Latest stable as of Oct 2025【518616366760646†L37-L41】
+
+  # Animation runtime for Rive files
+  rive: ^0.13.20           # Latest stable release【677641478062624†L35-L41】
+
+  # Audio playback for music and sound effects
+  audioplayers: ^6.5.1    # Latest stable release【31693634839323†L35-L39】
+
+  # Video playback for looping backgrounds and story videos
+  video_player: ^2.10.0   # Latest stable release【489316545003798†L37-L41】
+
+  # Cupertino icons for iOS-style glyphs (optional but useful)
+  cupertino_icons: ^1.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true
+
+  # Declare the asset folders.  When you add new files under these
+  # directories, Flutter will include them automatically.
+  assets:
+    - assets/images/
+    - assets/rive/
+    - assets/rive_3d/
+    - assets/audio/
+    - assets/video/
