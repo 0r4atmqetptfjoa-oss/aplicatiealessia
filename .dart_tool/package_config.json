@@ -159,9 +159,9 @@
     },
     {
       "name": "flutter_lints",
-      "rootUri": "file:///C:/Users/razva/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_lints-6.0.0",
+      "rootUri": "file:///C:/Users/razva/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_lints-2.0.3",
       "packageUri": "lib/",
-      "languageVersion": "3.8"
+      "languageVersion": "2.19"
     },
     {
       "name": "flutter_riverpod",
@@ -261,9 +261,9 @@
     },
     {
       "name": "lints",
-      "rootUri": "file:///C:/Users/razva/AppData/Local/Pub/Cache/hosted/pub.dev/lints-6.0.0",
+      "rootUri": "file:///C:/Users/razva/AppData/Local/Pub/Cache/hosted/pub.dev/lints-2.1.1",
       "packageUri": "lib/",
-      "languageVersion": "3.8"
+      "languageVersion": "3.0"
     },
     {
       "name": "logging",

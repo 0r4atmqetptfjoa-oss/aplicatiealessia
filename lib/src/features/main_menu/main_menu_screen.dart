@@ -114,51 +114,67 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
           // Foreground: title and buttons
           SafeArea(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Animated title
-                SizedBox(
-                  height: 200,
-                  child: RiveAnimation.asset(
-                    'assets/rive/menu_animations.riv',
-                    artboard: 'TITLE_ANIM',
-                    fit: BoxFit.contain,
+                // The central section (title + buttons) expands to fill
+                // available space to prevent overflow on devices with
+                // limited vertical height.
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Animated title
+                      SizedBox(
+                        height: 200,
+                        child: RiveAnimation.asset(
+                          'assets/rive/menu_animations.riv',
+                          artboard: 'TITLE_ANIM',
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                      const SizedBox(height: 40),
+                      // Row of menu buttons.  Use Wrap so that
+                      // buttons automatically wrap to the next line on
+                      // narrow screens, preventing overflow in
+                      // landscape mode.
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: 16,
+                        runSpacing: 16,
+                        children: [
+                          _buildMenuButton(
+                            artboard: 'BTN_SUNETE',
+                            onTap: () => context.go('/sounds'),
+                          ),
+                          _buildMenuButton(
+                            artboard: 'BTN_INSTRUMENTE',
+                            onTap: () => context.go('/instruments'),
+                          ),
+                          _buildMenuButton(
+                            artboard: 'BTN_CANTECE',
+                            onTap: () => context.go('/songs'),
+                          ),
+                          _buildMenuButton(
+                            artboard: 'BTN_POVESTI',
+                            onTap: () => context.go('/stories'),
+                          ),
+                          _buildMenuButton(
+                            artboard: 'BTN_JOCURI',
+                            onTap: () => context.go('/games'),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 40),
-                // Row of menu buttons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildMenuButton(
-                      artboard: 'BTN_SUNETE',
-                      onTap: () => context.go('/sounds'),
+                // Parental control/settings button anchored to bottom
+                Padding(
+                  padding: const EdgeInsets.only(right: 16, bottom: 8),
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: IconButton(
+                      icon: const Icon(Icons.settings, color: Colors.white),
+                      onPressed: () => context.go('/parental-gate'),
                     ),
-                    _buildMenuButton(
-                      artboard: 'BTN_INSTRUMENTE',
-                      onTap: () => context.go('/instruments'),
-                    ),
-                    _buildMenuButton(
-                      artboard: 'BTN_CANTECE',
-                      onTap: () => context.go('/songs'),
-                    ),
-                    _buildMenuButton(
-                      artboard: 'BTN_POVESTI',
-                      onTap: () => context.go('/stories'),
-                    ),
-                    _buildMenuButton(
-                      artboard: 'BTN_JOCURI',
-                      onTap: () => context.go('/games'),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                // Parental control/settings button
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: IconButton(
-                    icon: const Icon(Icons.settings, color: Colors.white),
-                    onPressed: () => context.go('/parental-gate'),
                   ),
                 ),
               ],

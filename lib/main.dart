@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'src/core/router/app_router.dart';
 
@@ -10,6 +11,14 @@ import 'src/core/router/app_router.dart';
 /// GoRouter makes navigation declarative and enables deep-linking support.
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  // Force the application into landscape mode on Android.  This app is
+  // designed for landscape use only.  If you need to support
+  // additional orientations on other platforms in the future, adjust
+  // this call accordingly.
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
+  ]);
   runApp(const ProviderScope(child: LumeaAlessieiApp()));
 }
 
