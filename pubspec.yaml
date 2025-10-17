@@ -47,8 +47,30 @@ flutter:
   # Declare the asset folders.  When you add new files under these
   # directories, Flutter will include them automatically.
   assets:
+    - assets/audio/
+    - assets/audio/menu/
+    - assets/audio/songs/
+    - assets/audio/sounds/
+    - assets/audio/sounds/ferma/
+    - assets/audio/sounds/marine/
+    - assets/audio/sounds/pasari/
+    - assets/audio/sounds/salbatice/
+    - assets/audio/sounds/vehicule/
+    - assets/audio/stories/
     - assets/images/
+    - assets/images/games_module/
+    - assets/images/menu/
+    - assets/images/songs_module/
+    - assets/images/sounds_module/
+    - assets/images/sounds_module/categories/
+    - assets/images/sounds_module/ferma/
+    - assets/images/sounds_module/marine/
+    - assets/images/sounds_module/pasari/
+    - assets/images/sounds_module/salbatice/
+    - assets/images/sounds_module/vehicule/
+    - assets/images/stories_module/
     - assets/rive/
     - assets/rive_3d/
-    - assets/audio/
     - assets/video/
+    - assets/video/menu/
+    - assets/video/stories/
