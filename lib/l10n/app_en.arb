@@ -1,9 +1,9 @@
 {
   "@@locale": "en",
-  "mainMenuTitle": "Alessia's World",
-  "sounds": "Sounds",
-  "instruments": "Instruments",
-  "songs": "Songs",
-  "stories": "Stories",
-  "games": "Games"
+  "appTitle": "Alessia's World",
+  "menuSounds": "Sounds",
+  "menuInstruments": "Instruments",
+  "menuSongs": "Songs",
+  "menuStories": "Stories",
+  "menuGames": "Games"
 }

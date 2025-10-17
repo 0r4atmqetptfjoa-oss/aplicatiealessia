@@ -1,9 +1,9 @@
 {
   "@@locale": "ro",
-  "mainMenuTitle": "Lumea Alessiei",
-  "sounds": "Sunete",
-  "instruments": "Instrumente",
-  "songs": "Cântece",
-  "stories": "Povești",
-  "games": "Jocuri"
+  "appTitle": "Lumea Alessiei",
+  "menuSounds": "Sunete",
+  "menuInstruments": "Instrumente",
+  "menuSongs": "Cântece",
+  "menuStories": "Povești",
+  "menuGames": "Jocuri"
 }

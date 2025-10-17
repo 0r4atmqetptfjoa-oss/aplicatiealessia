@@ -9,20 +9,20 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get mainMenuTitle => 'Alessia\'s World';
+  String get appTitle => 'Alessia\'s World';
 
   @override
-  String get sounds => 'Sounds';
+  String get menuSounds => 'Sounds';
 
   @override
-  String get instruments => 'Instruments';
+  String get menuInstruments => 'Instruments';
 
   @override
-  String get songs => 'Songs';
+  String get menuSongs => 'Songs';
 
   @override
-  String get stories => 'Stories';
+  String get menuStories => 'Stories';
 
   @override
-  String get games => 'Games';
+  String get menuGames => 'Games';
 }

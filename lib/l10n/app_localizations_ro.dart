@@ -9,20 +9,20 @@ class AppLocalizationsRo extends AppLocalizations {
   AppLocalizationsRo([String locale = 'ro']) : super(locale);
 
   @override
-  String get mainMenuTitle => 'Lumea Alessiei';
+  String get appTitle => 'Lumea Alessiei';
 
   @override
-  String get sounds => 'Sunete';
+  String get menuSounds => 'Sunete';
 
   @override
-  String get instruments => 'Instrumente';
+  String get menuInstruments => 'Instrumente';
 
   @override
-  String get songs => 'Cântece';
+  String get menuSongs => 'Cântece';
 
   @override
-  String get stories => 'Povești';
+  String get menuStories => 'Povești';
 
   @override
-  String get games => 'Jocuri';
+  String get menuGames => 'Jocuri';
 }

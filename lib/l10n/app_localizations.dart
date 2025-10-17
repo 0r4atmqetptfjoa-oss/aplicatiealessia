@@ -67,8 +67,8 @@ abstract class AppLocalizations {
 
   final String localeName;
 
-  static AppLocalizations? of(BuildContext context) {
-    return Localizations.of<AppLocalizations>(context, AppLocalizations);
+  static AppLocalizations of(BuildContext context) {
+    return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
   }
 
   static const LocalizationsDelegate<AppLocalizations> delegate =
@@ -98,41 +98,41 @@ abstract class AppLocalizations {
     Locale('ro')
   ];
 
-  /// No description provided for @mainMenuTitle.
+  /// No description provided for @appTitle.
   ///
-  /// In ro, this message translates to:
-  /// **'Lumea Alessiei'**
-  String get mainMenuTitle;
+  /// In en, this message translates to:
+  /// **'Alessia\'s World'**
+  String get appTitle;
 
-  /// No description provided for @sounds.
+  /// No description provided for @menuSounds.
   ///
-  /// In ro, this message translates to:
-  /// **'Sunete'**
-  String get sounds;
+  /// In en, this message translates to:
+  /// **'Sounds'**
+  String get menuSounds;
 
-  /// No description provided for @instruments.
+  /// No description provided for @menuInstruments.
   ///
-  /// In ro, this message translates to:
-  /// **'Instrumente'**
-  String get instruments;
+  /// In en, this message translates to:
+  /// **'Instruments'**
+  String get menuInstruments;
 
-  /// No description provided for @songs.
+  /// No description provided for @menuSongs.
   ///
-  /// In ro, this message translates to:
-  /// **'Cântece'**
-  String get songs;
+  /// In en, this message translates to:
+  /// **'Songs'**
+  String get menuSongs;
 
-  /// No description provided for @stories.
+  /// No description provided for @menuStories.
   ///
-  /// In ro, this message translates to:
-  /// **'Povești'**
-  String get stories;
+  /// In en, this message translates to:
+  /// **'Stories'**
+  String get menuStories;
 
-  /// No description provided for @games.
+  /// No description provided for @menuGames.
   ///
-  /// In ro, this message translates to:
-  /// **'Jocuri'**
-  String get games;
+  /// In en, this message translates to:
+  /// **'Games'**
+  String get menuGames;
 }
 
 class _AppLocalizationsDelegate

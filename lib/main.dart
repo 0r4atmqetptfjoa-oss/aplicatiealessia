@@ -1,64 +1,60 @@
+// ignore_for_file: avoid_print
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:video_player/video_player.dart';
-import 'package:rive/rive.dart';
-import 'src/core/router/app_router.dart';
+
+// L10n (generated via flutter gen-l10n)
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
+// Firebase (optional - guarded)
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+// import 'firebase_options.dart'; // TODO(restore): uncomment after running `flutterfire configure`
 
-Future<void> precacheAssets(BuildContext context) async {
-  await precacheImage(const AssetImage('assets/images/sounds_module/pasari_background.png'), context);
-  await precacheImage(const AssetImage('assets/images/sounds_module/ferma_background.png'), context);
-  await precacheImage(const AssetImage('assets/images/sounds_module/marine_background.png'), context);
-  await precacheImage(const AssetImage('assets/images/sounds_module/vehicule_background.png'), context);
-  await precacheImage(const AssetImage('assets/images/sounds_module/salbatice_background.png'), context);
+import 'src/features/main_menu/main_menu_screen.dart';
 
-  // Pre-cache Rive animations
-  await RiveFile.asset('assets/rive/menu_buttons.riv');
-  await RiveFile.asset('assets/rive/title.riv');
-}
-
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
-  // Force the application into landscape mode
+  // Lock orientation to landscape
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.landscapeLeft,
     DeviceOrientation.landscapeRight,
   ]);
 
-  runApp(const ProviderScope(child: LumeaAlessieiApp()));
+  // Try to init Firebase, but don't fail if firebase_options.dart is missing.
+  try {
+    await Firebase.initializeApp(
+      // options: DefaultFirebaseOptions.currentPlatform, // TODO(restore)
+    );
+  } catch (e) {
+    // Safe fallback so the app can run without Firebase during local dev
+    debugPrint('Firebase init skipped: $e');
+  }
+
+  runApp(const LumeaAlessieiApp());
 }
 
-class LumeaAlessieiApp extends ConsumerWidget {
+class LumeaAlessieiApp extends StatelessWidget {
   const LumeaAlessieiApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final router = ref.watch(appRouterProvider);
-
-    // Pre-cache assets after the first frame
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      precacheAssets(context);
-    });
-
-    return MaterialApp.router(
+  Widget build(BuildContext context) {
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Lumea Alessiei',
-      theme: ThemeData(
-        brightness: Brightness.light,
-        primarySwatch: Colors.blue,
-        fontFamily: 'Roboto',
-      ),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      // L10n wiring
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       supportedLocales: AppLocalizations.supportedLocales,
-      routerConfig: router,
+      home: const MainMenuScreen(),
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
+        useMaterial3: true,
+      ),
     );
   }
 }
