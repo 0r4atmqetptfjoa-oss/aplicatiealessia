@@ -25,4 +25,19 @@ class AppLocalizationsRo extends AppLocalizations {
 
   @override
   String get menuGames => 'Jocuri';
+
+  @override
+  String get gameAlphabet => 'Alfabet';
+
+  @override
+  String get gameNumbers => 'Numere';
+
+  @override
+  String get gamePuzzle => 'Puzzle';
+
+  @override
+  String get songTwinkleTwinkle => 'Twinkle, Twinkle, Little Star';
+
+  @override
+  String get storyRedRidingHood => 'Scufița Roșie';
 }
