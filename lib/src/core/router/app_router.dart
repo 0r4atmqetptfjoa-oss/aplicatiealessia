@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lumea_alessiei/src/features/paywall/paywall_screen.dart';
+import 'package:lumea_alessiei/src/features/profiles/profile_selection_screen.dart';
+import 'package:lumea_alessiei/src/services/subscription_service.dart';
+import 'package:lumea_alessiei/src/services/user_profile_service.dart';
 
-// Import stub screens for the initial routing configuration.  These
-// placeholders will be fleshed out in subsequent phases of the project.
 import '../../features/splash/splash_screen.dart';
 import '../../features/main_menu/main_menu_screen.dart';
 import '../../features/parental_gate/parental_gate_screen.dart';
 import '../../features/sounds/sounds_menu_screen.dart';
-import '../../features/sounds/sound_category_screen.dart'; // Import the new unified screen
+import '../../features/sounds/sound_category_screen.dart';
 import '../../features/instruments/instruments_screen.dart';
 import '../../features/songs/songs_menu_screen.dart';
 import '../../features/songs/song_player_screen.dart';
@@ -19,144 +21,101 @@ import '../../features/games/puzzle_game_screen.dart';
 import '../../features/games/alphabet_game_screen.dart';
 import '../../features/games/numbers_game_screen.dart';
 
-/// A Riverpod provider that exposes the application's router.
-///
-/// By defining the router as a provider we make it easy to read
-/// elsewhere in the app (for example in unit tests).  The router
-/// declares all top‑level routes up front.  Nested or parameterized
-/// routes can be added as the application grows.
 final appRouterProvider = Provider<GoRouter>((ref) {
+  final profileService = ref.watch(userProfileServiceProvider);
+  final subscriptionService = ref.watch(subscriptionServiceProvider);
+
+  // Define premium content IDs for demonstration
+  const premiumSongs = {'twinkle_twinkle'}; // Assuming this is now premium
+  const premiumStories = {'scufita_rosie'}; // Assuming this is now premium
+
   return GoRouter(
     initialLocation: '/',
+    redirect: (BuildContext context, GoRouterState state) async {
+      final activeProfileId = await profileService.getActiveProfileId();
+      final isAtSplash = state.location == '/';
+
+      if (isAtSplash) {
+        await Future.delayed(const Duration(seconds: 2));
+        return activeProfileId == null ? '/profiles' : '/home';
+      }
+
+      // Paywall logic
+      final isSubscribed = subscriptionService.isSubscribed;
+      final goingToSong = state.location.startsWith('/songs/play/');
+      final goingToStory = state.location.startsWith('/stories/play/');
+
+      if (!isSubscribed) {
+        if (goingToSong) {
+          final songId = state.pathParameters['songId']!;
+          if (premiumSongs.contains(songId)) return '/paywall';
+        }
+        if (goingToStory) {
+          final storyId = state.pathParameters['storyId']!;
+          if (premiumStories.contains(storyId)) return '/paywall';
+        }
+      }
+
+      return null; // No redirect needed
+    },
     routes: <RouteBase>[
-      GoRoute(
-        path: '/',
-        name: 'splash',
-        builder: (BuildContext context, GoRouterState state) {
-          return const SplashScreen();
-        },
-        redirect: (BuildContext context, GoRouterState state) async {
-          // Simulate a delay for the splash screen
-          await Future.delayed(const Duration(seconds: 2));
-          return '/home';
-        },
-      ),
-      GoRoute(
-        path: '/home',
-        name: 'home',
-        builder: (BuildContext context, GoRouterState state) {
-          return const MainMenuScreen();
-        },
-      ),
-      GoRoute(
-        path: '/parental-gate',
-        name: 'parentalGate',
-        builder: (BuildContext context, GoRouterState state) {
-          return const ParentalGateScreen();
-        },
-      ),
+      GoRoute(path: '/', name: 'splash', builder: (c, s) => const SplashScreen()),
+      GoRoute(path: '/profiles', name: 'profiles', builder: (c, s) => const ProfileSelectionScreen()),
+      GoRoute(path: '/home', name: 'home', builder: (c, s) => const MainMenuScreen()),
+      GoRoute(path: '/paywall', name: 'paywall', builder: (c, s) => const PaywallScreen()),
+      GoRoute(path: '/parental-gate', name: 'parentalGate', builder: (c, s) => const ParentalGateScreen()),
       GoRoute(
         path: '/sounds',
         name: 'sounds',
-        builder: (BuildContext context, GoRouterState state) {
-          return const SoundsMenuScreen();
-        },
+        builder: (c, s) => const SoundsMenuScreen(),
         routes: [
           GoRoute(
             path: ':category',
             name: 'soundsDetail',
-            builder: (BuildContext context, GoRouterState state) {
-              final category = state.pathParameters['category'] ?? '';
-              return SoundCategoryScreen(category: category);
-            },
+            builder: (c, s) => SoundCategoryScreen(category: s.pathParameters['category'] ?? ''),
           ),
         ],
       ),
       GoRoute(
         path: '/instruments',
         name: 'instruments',
-        builder: (BuildContext context, GoRouterState state) {
-          return const InstrumentsScreen();
-        },
+        builder: (c, s) => const InstrumentsScreen(),
       ),
       GoRoute(
         path: '/songs',
         name: 'songs',
-        builder: (BuildContext context, GoRouterState state) {
-          return const SongsMenuScreen();
-        },
+        builder: (c, s) => const SongsMenuScreen(),
         routes: [
           GoRoute(
             path: 'play/:songId',
             name: 'songPlayer',
-            builder: (BuildContext context, GoRouterState state) {
-              final songId = state.pathParameters['songId'];
-              if (songId == null) {
-                return const Text('Error: songId is missing');
-              }
-              return SongPlayerScreen(songId: songId);
-            },
+            builder: (c, s) => SongPlayerScreen(songId: s.pathParameters['songId']!),
           ),
         ],
       ),
       GoRoute(
         path: '/stories',
         name: 'stories',
-        builder: (BuildContext context, GoRouterState state) {
-          return const StoriesMenuScreen();
-        },
+        builder: (c, s) => const StoriesMenuScreen(),
         routes: [
           GoRoute(
             path: 'play/:storyId',
             name: 'storyPlayer',
-            builder: (BuildContext context, GoRouterState state) {
-              final storyId = state.pathParameters['storyId'];
-              if (storyId == null) {
-                return const Text('Error: storyId is missing');
-              }
-              return StoryPlayerScreen(storyId: storyId);
-            },
+            builder: (c, s) => StoryPlayerScreen(storyId: s.pathParameters['storyId']!),
           ),
         ],
       ),
       GoRoute(
         path: '/games',
         name: 'games',
-        builder: (BuildContext context, GoRouterState state) {
-          return const GamesMenuScreen();
-        },
+        builder: (c, s) => const GamesMenuScreen(),
         routes: [
-          GoRoute(
-            path: 'alphabet',
-            name: 'alphabetGame',
-            builder: (BuildContext context, GoRouterState state) {
-              return const AlphabetGameScreen();
-            },
-          ),
-          GoRoute(
-            path: 'numbers',
-            name: 'numbersGame',
-            builder: (BuildContext context, GoRouterState state) {
-              return const NumbersGameScreen();
-            },
-          ),
-          GoRoute(
-            path: 'puzzle',
-            name: 'puzzleGame',
-            builder: (BuildContext context, GoRouterState state) {
-              return const PuzzleGameScreen();
-            },
-          ),
+          GoRoute(path: 'alphabet', name: 'alphabetGame', builder: (c, s) => const AlphabetGameScreen()),
+          GoRoute(path: 'numbers', name: 'numbersGame', builder: (c, s) => const NumbersGameScreen()),
+          GoRoute(path: 'puzzle', name: 'puzzleGame', builder: (c, s) => const PuzzleGameScreen()),
         ],
       ),
     ],
-    errorBuilder: (BuildContext context, GoRouterState state) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('Eroare')),
-        body: Center(
-          child: Text('Pagina nu a fost găsită: ${state.uri}'),
-        ),
-      );
-    },
+    errorBuilder: (c, s) => Scaffold(appBar: AppBar(title: const Text('Error')), body: Center(child: Text('Page not found: ${s.uri}'))),
   );
 });

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:video_player/video_player.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/audio_service.dart';
+import '../../services/audio_service.dart';
 
 class SongPlayerScreen extends ConsumerStatefulWidget {
   final String songId;
@@ -28,16 +28,17 @@ class _SongPlayerScreenState extends ConsumerState<SongPlayerScreen> {
     _videoController = VideoPlayerController.asset(videoPath)
       ..setLooping(true)
       ..initialize().then((_) {
-        setState(() {
-          _isVideoInitialized = true;
-        });
+        if (mounted) {
+          setState(() {
+            _isVideoInitialized = true;
+          });
+        }
       });
   }
 
   @override
   void dispose() {
     _videoController.dispose();
-    // Stop music on dispose
     ref.read(audioServiceProvider).stop(AudioChannel.music);
     super.dispose();
   }
@@ -46,7 +47,7 @@ class _SongPlayerScreenState extends ConsumerState<SongPlayerScreen> {
     if (!_isVideoInitialized) return;
 
     final audioService = ref.read(audioServiceProvider);
-    final audioPath = 'assets/audio/cantece/${widget.songId}.mp3';
+    final audioPath = 'assets/audio/songs/${widget.songId}.mp3';
 
     setState(() {
       _isPlaying = !_isPlaying;

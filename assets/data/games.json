@@ -1,0 +1,19 @@
+{
+  "games": [
+    {
+      "id": "alphabet",
+      "title": "gameAlphabet",
+      "artboard": "BTN_ALPHABET"
+    },
+    {
+      "id": "numbers",
+      "title": "gameNumbers",
+      "artboard": "BTN_NUMBERS"
+    },
+    {
+      "id": "puzzle",
+      "title": "gamePuzzle",
+      "artboard": "BTN_PUZZLE"
+    }
+  ]
+}

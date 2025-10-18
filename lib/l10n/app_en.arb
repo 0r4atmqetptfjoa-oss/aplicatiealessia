@@ -5,5 +5,10 @@
   "menuInstruments": "Instruments",
   "menuSongs": "Songs",
   "menuStories": "Stories",
-  "menuGames": "Games"
+  "menuGames": "Games",
+  "gameAlphabet": "Alphabet",
+  "gameNumbers": "Numbers",
+  "gamePuzzle": "Puzzle",
+  "songTwinkleTwinkle": "Twinkle, Twinkle, Little Star",
+  "storyRedRidingHood": "Little Red Riding Hood"
 }

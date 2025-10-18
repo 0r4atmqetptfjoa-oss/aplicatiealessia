@@ -1,0 +1,14 @@
+{
+  "@@locale": "es",
+  "appTitle": "El Mundo de Alessia",
+  "menuSounds": "Sonidos",
+  "menuInstruments": "Instrumentos",
+  "menuSongs": "Canciones",
+  "menuStories": "Cuentos",
+  "menuGames": "Juegos",
+  "gameAlphabet": "Alfabeto",
+  "gameNumbers": "Números",
+  "gamePuzzle": "Rompecabezas",
+  "songTwinkleTwinkle": "Estrellita, ¿dónde estás?",
+  "storyRedRidingHood": "Caperucita Roja"
+}

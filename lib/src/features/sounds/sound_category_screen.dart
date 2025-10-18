@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:rive/rive.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/data_provider.dart';
-import '../../core/audio_service.dart';
+import '../../services/audio_service.dart';
 
 class SoundCategoryScreen extends ConsumerWidget {
   final String category;
@@ -100,7 +100,7 @@ class _SoundCategoryViewState extends ConsumerState<_SoundCategoryView> {
               item: _SoundItem(item['name'], item['id'].toUpperCase(), audioPath),
               riveFile: _riveFile,
               onTap: () {
-                audioService.play(audioPath, channel: AudioChannel.soundEffect);
+                audioService.play(audioPath, channel: AudioChannel.sfx);
                 _triggerAnimation();
               },
               onRiveInit: _onRiveInit,
