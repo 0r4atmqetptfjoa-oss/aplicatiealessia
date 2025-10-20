@@ -15,21 +15,37 @@ class MainMenuScreen extends ConsumerStatefulWidget {
 
 class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
   late VideoPlayerController _videoController;
+  Artboard? _titleArtboard;
   bool _videoInitialized = false;
 
   @override
   void initState() {
     super.initState();
+    _initializeAssets();
+  }
+
+  Future<void> _initializeAssets() async {
+    // Initialize video
     _videoController = VideoPlayerController.asset('assets/video/menu/main_background_loop.mp4')
       ..setLooping(true)
       ..initialize().then((_) {
         if (mounted) {
-          setState(() {
-            _videoInitialized = true;
-            _videoController.play();
-          });
+          setState(() => _videoInitialized = true);
+          _videoController.play();
         }
       });
+
+    // Preload the Rive title animation
+    try {
+      final riveFile = await RiveFile.asset('assets/rive/title.riv');
+      final artboard = riveFile.mainArtboard;
+      artboard.addController(SimpleAnimation('Timeline 1')); // Or your specific animation
+      if (mounted) {
+        setState(() => _titleArtboard = artboard);
+      }
+    } catch (e) {
+      print('Error loading Rive title animation: $e');
+    }
   }
 
   @override
@@ -67,11 +83,9 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
                     children: [
                       SizedBox(
                         height: 100,
-                        child: RiveAnimation.asset(
-                          'assets/rive/title.riv',
-                          artboard: 'TITLE_ANIMATION',
-                          fit: BoxFit.contain,
-                        ),
+                        child: _titleArtboard != null
+                            ? Rive(artboard: _titleArtboard!)
+                            : const SizedBox.shrink(), // Show nothing while loading
                       ),
                       const SizedBox(height: 40),
                       Wrap(
@@ -86,7 +100,7 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
                             onTap: () => context.go('/sounds'),
                             label: l10n.menuSounds,
                           ),
-                          RiveButton(
+                           RiveButton(
                             riveAsset: 'assets/rive/menu_buttons.riv',
                             artboardName: 'BTN_INSTRUMENTE',
                             stateMachineName: 'State Machine 1',

@@ -22,9 +22,6 @@ import '../../features/games/alphabet_game_screen.dart';
 import '../../features/games/numbers_game_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
-  final profileService = ref.watch(userProfileServiceProvider);
-  final subscriptionService = ref.watch(subscriptionServiceProvider);
-
   // Define premium content IDs for demonstration
   const premiumSongs = {'twinkle_twinkle'}; // Assuming this is now premium
   const premiumStories = {'scufita_rosie'}; // Assuming this is now premium
@@ -32,6 +29,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: '/',
     redirect: (BuildContext context, GoRouterState state) async {
+      final profileService = ref.read(userProfileServiceProvider);
+      final subscriptionService = ref.read(subscriptionServiceProvider);
+
       final activeProfileId = await profileService.getActiveProfileId();
       final isAtSplash = state.location == '/';
 

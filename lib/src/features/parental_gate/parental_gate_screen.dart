@@ -11,6 +11,14 @@ class ShapeOption {
   final Shape shape;
   final Color color;
   const ShapeOption(this.shape, this.color);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ShapeOption && runtimeType == other.runtimeType && shape == other.shape && color == other.color;
+
+  @override
+  int get hashCode => shape.hashCode ^ color.hashCode;
 }
 
 // --- Main Screen ---
@@ -34,12 +42,15 @@ class _ParentalGateScreenState extends State<ParentalGateScreen> {
 
   void _generateChallenge() {
     final random = Random();
-    final shapes = Shape.values;
-    final colors = [Colors.red, Colors.blue, Colors.green, Colors.yellow, Colors.purple];
-    _options = List.generate(3, (_) {
-      return ShapeOption(shapes[random.nextInt(shapes.length)], colors[random.nextInt(colors.length)]);
+    final shapes = Shape.values.toList()..shuffle();
+    final colors = [Colors.red, Colors.blue, Colors.green, Colors.yellow, Colors.purple]..shuffle();
+
+    _options = List.generate(3, (index) {
+      return ShapeOption(shapes[index], colors[index]);
     });
+
     _correctShape = _options[random.nextInt(_options.length)];
+    setState(() {}); // Refresh the UI with the new challenge
   }
 
   void _onHoldSuccess() {
@@ -49,7 +60,7 @@ class _ParentalGateScreenState extends State<ParentalGateScreen> {
   }
 
   void _onShapeSelected(ShapeOption selectedShape) {
-    if (selectedShape.shape == _correctShape.shape && selectedShape.color == _correctShape.color) {
+    if (selectedShape == _correctShape) {
       context.go('/home'); // Or to a dedicated settings screen
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -63,20 +74,25 @@ class _ParentalGateScreenState extends State<ParentalGateScreen> {
   }
 
   void _showPrivacyPolicy() async {
-    final privacyPolicy = await rootBundle.loadString('assets/privacy/privacy_policy.txt');
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Privacy Policy'),
-        content: SingleChildScrollView(child: Text(privacyPolicy)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
+    try {
+      final privacyPolicy = await rootBundle.loadString('assets/privacy/privacy_policy.txt');
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Privacy Policy'),
+          content: SingleChildScrollView(child: Text(privacyPolicy)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close'),
+            ),
+          ],
+        ),
+      );
+    } catch (e) {
+      print("Could not load privacy policy: $e");
+    }
   }
 
   @override
@@ -99,6 +115,7 @@ class _ParentalGateScreenState extends State<ParentalGateScreen> {
         duration: const Duration(milliseconds: 300),
         child: _isShapeMatching
             ? ShapeMatchingView(
+                key: ValueKey(_correctShape), // Ensure the view rebuilds on new challenge
                 correctShape: _correctShape,
                 options: _options,
                 onShapeSelected: _onShapeSelected,
@@ -109,7 +126,7 @@ class _ParentalGateScreenState extends State<ParentalGateScreen> {
   }
 }
 
-// --- Hold Button View ---
+// --- Hold Button View (no changes) ---
 class HoldButtonView extends StatefulWidget {
   final VoidCallback onHoldSuccess;
   const HoldButtonView({super.key, required this.onHoldSuccess});
@@ -126,6 +143,7 @@ class _HoldButtonViewState extends State<HoldButtonView> {
   void _onPointerDown(PointerDownEvent details) {
     if (_timer != null) return;
     _timer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
+      if (!mounted) return;
       setState(() {
         _progress += 0.05 / _requiredHoldTime;
       });
@@ -139,9 +157,11 @@ class _HoldButtonViewState extends State<HoldButtonView> {
   void _onPointerUp(PointerUpEvent details) {
     _timer?.cancel();
     _timer = null;
-    setState(() {
-      _progress = 0.0;
-    });
+    if (mounted) {
+      setState(() {
+        _progress = 0.0;
+      });
+    }
   }
 
   @override
@@ -156,7 +176,7 @@ class _HoldButtonViewState extends State<HoldButtonView> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('Press and hold the button to continue', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+          const Text('Press and hold the button to continue', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold), textAlign: TextAlign.center,),
           const SizedBox(height: 40),
           GestureDetector(
             onPointerDown: _onPointerDown,
@@ -179,7 +199,7 @@ class _HoldButtonViewState extends State<HoldButtonView> {
   }
 }
 
-// --- Shape Matching View ---
+// --- Shape Matching View (no changes) ---
 class ShapeMatchingView extends StatelessWidget {
   final ShapeOption correctShape;
   final List<ShapeOption> options;
@@ -217,7 +237,7 @@ class ShapeMatchingView extends StatelessWidget {
   }
 }
 
-// --- Shape Widget (for drawing shapes) ---
+// --- Shape Widget (no changes) ---
 class ShapeWidget extends StatelessWidget {
   final Shape shape;
   final Color color;
