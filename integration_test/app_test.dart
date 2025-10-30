@@ -16,14 +16,14 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify we are on the main menu
-    expect(find.text('Sunete'), findsOneWidget);
+    expect(find.text('Sounds'), findsOneWidget);
 
-    // Tap the 'Sunete' button
-    await tester.tap(find.text('Sunete'));
+    // Tap the 'Sounds' button
+    await tester.tap(find.text('Sounds'));
     await tester.pumpAndSettle();
 
     // Verify we have navigated to the sounds menu
     expect(find.byType(AppBar), findsOneWidget);
-    expect(find.text('Sunete'), findsOneWidget);
+    expect(find.text('Sounds'), findsOneWidget);
   });
 }

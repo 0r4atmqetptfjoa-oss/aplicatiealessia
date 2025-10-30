@@ -8,14 +8,24 @@ import '../../core/data_provider.dart';
 class SongsMenuScreen extends ConsumerWidget {
   const SongsMenuScreen({super.key});
 
+  String _getSongTitle(AppLocalizations? l10n, String titleKey) {
+    if (l10n == null) return titleKey;
+    switch (titleKey) {
+      case 'songTwinkleTwinkle':
+        return l10n.songTwinkleTwinkle;
+      default:
+        return titleKey;
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final data = ref.watch(appDataProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.menuSongs),
+        title: Text(l10n?.menuSongs ?? 'Songs'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go('/home'),
@@ -33,30 +43,33 @@ class SongsMenuScreen extends ConsumerWidget {
         data: (appData) {
           final songs = appData.songs['songs'] as List;
           return Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage("assets/images/songs_module/background.png"), // Placeholder
+                image: const AssetImage("assets/images/songs_module/background.png"),
                 fit: BoxFit.cover,
+                onError: (exception, stackTrace) {
+                  // Don't crash if the background is missing
+                },
               ),
             ),
-            child: GridView.builder(
+            child: GridView.extent(
+              maxCrossAxisExtent: 300.0,
               padding: const EdgeInsets.all(24),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                mainAxisSpacing: 24,
-                crossAxisSpacing: 24,
-              ),
-              itemCount: songs.length,
-              itemBuilder: (context, index) {
-                final song = songs[index];
+              mainAxisSpacing: 24,
+              crossAxisSpacing: 24,
+              children: songs.map((song) {
+                final artboard = song['artboard'] as String? ?? 'UNKNOWN';
+                final songId = song['id'] as String? ?? '';
+                final titleKey = song['title'] as String? ?? '';
+
                 return RiveButton(
                   riveAsset: 'assets/rive/song_buttons.riv',
-                  artboardName: song['artboard']!,
-                  stateMachineName: 'State Machine 1', // Assuming a consistent state machine name
-                  onTap: () => context.go('/songs/play/${song['id']}'),
-                  label: l10n.lookup(song['title']!) ?? song['title']!,
+                  artboardName: artboard,
+                  stateMachineName: 'State Machine 1',
+                  onTap: () => context.go('/songs/play/$songId'),
+                  label: _getSongTitle(l10n, titleKey),
                 );
-              },
+              }).toList(),
             ),
           );
         },

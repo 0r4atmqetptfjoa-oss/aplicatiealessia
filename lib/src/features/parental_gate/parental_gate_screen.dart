@@ -91,6 +91,8 @@ class _ParentalGateScreenState extends State<ParentalGateScreen> {
         ),
       );
     } catch (e) {
+      // Using print in a development tool is acceptable.
+      // ignore: avoid_print
       print("Could not load privacy policy: $e");
     }
   }
@@ -126,7 +128,7 @@ class _ParentalGateScreenState extends State<ParentalGateScreen> {
   }
 }
 
-// --- Hold Button View (no changes) ---
+// --- Hold Button View ---
 class HoldButtonView extends StatefulWidget {
   final VoidCallback onHoldSuccess;
   const HoldButtonView({super.key, required this.onHoldSuccess});
@@ -178,7 +180,7 @@ class _HoldButtonViewState extends State<HoldButtonView> {
         children: [
           const Text('Press and hold the button to continue', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold), textAlign: TextAlign.center,),
           const SizedBox(height: 40),
-          GestureDetector(
+          Listener(
             onPointerDown: _onPointerDown,
             onPointerUp: _onPointerUp,
             child: SizedBox(

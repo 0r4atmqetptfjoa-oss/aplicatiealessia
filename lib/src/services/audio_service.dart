@@ -63,10 +63,12 @@ class AudioService {
   }
 
   Future<void> crossfade(String newAssetPath, {Duration duration = const Duration(milliseconds: 300)}) async {
-    await _musicPlayer.setVolume(0.0, duration: duration);
+    // The 'duration' parameter is not supported by the audioplayers package in this way.
+    // Implementing a manual fade.
+    await _musicPlayer.setVolume(0.0);
     await _musicPlayer.stop();
     await play(newAssetPath, channel: AudioChannel.music);
-    await _musicPlayer.setVolume(1.0, duration: duration);
+    await _musicPlayer.setVolume(1.0);
   }
 
   void dispose() {

@@ -32,7 +32,7 @@ class _LumeaAlessieiAppState extends ConsumerState<LumeaAlessieiApp> {
     super.initState();
     // After the first frame, kick off the asset pre-caching.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(precacheServiceProvider).precacheCriticalAssets(context);
+      ref.read(precacheServiceProvider).precacheCriticalAssets(context, ref);
     });
   }
 

@@ -3,28 +3,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../models/user_profile.dart';
 import '../../services/user_profile_service.dart';
+import '../../core/router/app_router.dart'; // Import the router provider
 
 class ProfileSelectionScreen extends ConsumerWidget {
   const ProfileSelectionScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final profilesFuture = ref.watch(userProfileServiceProvider).getProfiles();
+    final profilesFuture = ref.watch(profilesProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Select Profile')),
-      body: FutureBuilder<List<UserProfile>>(
-        future: profilesFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
-
-          final profiles = snapshot.data ?? [];
-
+      body: profilesFuture.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, stack) => Center(child: Text('Error: $err')),
+        data: (profiles) {
           return GridView.builder(
             padding: const EdgeInsets.all(24),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -35,7 +28,7 @@ class ProfileSelectionScreen extends ConsumerWidget {
             itemCount: profiles.length + 1, // +1 for the 'Add Profile' button
             itemBuilder: (context, index) {
               if (index == profiles.length) {
-                return _AddProfileButton();
+                return const _AddProfileButton();
               }
               final profile = profiles[index];
               return _ProfileCard(profile: profile);
@@ -57,10 +50,13 @@ class _ProfileCard extends ConsumerWidget {
       onTap: () async {
         final service = ref.read(userProfileServiceProvider);
         await service.setActiveProfile(profile.id);
-        context.go('/home');
+        ref.invalidate(appRouterProvider); // Invalidate to trigger router refresh
+        if (context.mounted) {
+          context.go('/home');
+        }
       },
       child: Card(
-        color: profile.themeColor.withOpacity(0.8),
+        color: profile.themeColor.withAlpha(200),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -75,11 +71,12 @@ class _ProfileCard extends ConsumerWidget {
 }
 
 class _AddProfileButton extends StatelessWidget {
+  const _AddProfileButton();
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // Navigate to a create profile screen or show a dialog
         showDialog(
           context: context,
           builder: (context) => const _CreateProfileDialog(),
@@ -114,8 +111,7 @@ class _CreateProfileDialogState extends ConsumerState<_CreateProfileDialog> {
     if (_textController.text.isNotEmpty) {
       final service = ref.read(userProfileServiceProvider);
       await service.createNewProfile(_textController.text);
-      // Refresh the profiles list by invalidating the provider
-      ref.refresh(userProfileServiceProvider);
+      ref.invalidate(profilesProvider); // Use invalidate to refresh the list
       if (mounted) Navigator.of(context).pop();
     }
   }

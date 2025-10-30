@@ -97,7 +97,7 @@ class _AlphabetGameScreenState extends State<AlphabetGameScreen> {
                   builder: (context, candidateData, rejectedData) {
                     return _TargetObject(objectName: entry.value);
                   },
-                  onAccept: (data) => _onLetterDropped(data, entry.key),
+                  onAcceptWithDetails: (details) => _onLetterDropped(details.data, entry.key),
                 );
               }).toList(),
             ),

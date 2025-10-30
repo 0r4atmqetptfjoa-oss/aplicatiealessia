@@ -18,10 +18,13 @@ class SoundCategoryScreen extends ConsumerWidget {
       loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (err, stack) => Scaffold(body: Center(child: Text('Error: $err'))),
       data: (appData) {
-        final categoryData = appData.sounds['categories'].firstWhere((c) => c['id'] == category);
+        final categoryData = appData.sounds['categories'].firstWhere((c) => c['id'] == category, orElse: () => null);
+        if (categoryData == null) {
+          return Scaffold(body: Center(child: Text('Category not found: $category')));
+        }
         final items = categoryData['items'] as List;
 
-        return _SoundCategoryView(category: category, items: items, categoryName: categoryData['name']);
+        return _SoundCategoryView(category: category, items: items, categoryName: categoryData['name'] ?? '');
       },
     );
   }
@@ -51,8 +54,10 @@ class _SoundCategoryViewState extends ConsumerState<_SoundCategoryView> {
 
   void _onRiveInit(Artboard artboard) {
     final controller = StateMachineController.fromArtboard(artboard, 'State Machine 1');
-    artboard.addController(controller!);
-    _riveInput = controller.findInput<bool>('play');
+    if (controller != null) {
+      artboard.addController(controller);
+      _riveInput = controller.findInput<bool>('play');
+    }
   }
 
   void _triggerAnimation() {
@@ -82,6 +87,9 @@ class _SoundCategoryViewState extends ConsumerState<_SoundCategoryView> {
           image: DecorationImage(
             image: AssetImage(_backgroundFile),
             fit: BoxFit.cover,
+            onError: (exception, stackTrace) {
+              // Don't crash if the background is missing
+            },
           ),
         ),
         child: GridView.builder(
@@ -95,9 +103,12 @@ class _SoundCategoryViewState extends ConsumerState<_SoundCategoryView> {
           itemCount: widget.items.length,
           itemBuilder: (context, index) {
             final item = widget.items[index];
-            final audioPath = 'assets/audio/sounds/${widget.category}/${item["id"]}.wav';
+            final itemId = item['id'] as String? ?? '';
+            final itemName = item['name'] as String? ?? '';
+            final audioPath = 'assets/audio/sounds/${widget.category}/$itemId.wav';
+
             return _SoundItemCard(
-              item: _SoundItem(item['name'], item['id'].toUpperCase(), audioPath),
+              item: _SoundItem(itemName, itemId.toUpperCase(), audioPath),
               riveFile: _riveFile,
               onTap: () {
                 audioService.play(audioPath, channel: AudioChannel.sfx);
@@ -134,7 +145,7 @@ class _SoundItemCard extends StatelessWidget {
       onTap: onTap,
       child: Card(
         elevation: 6,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -146,6 +157,7 @@ class _SoundItemCard extends StatelessWidget {
                   artboard: item.artboard,
                   onInit: onRiveInit,
                   fit: BoxFit.contain,
+                  placeHolder: const Icon(Icons.hide_image, size: 48, color: Colors.grey),
                 ),
               ),
             ),

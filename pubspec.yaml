@@ -45,6 +45,8 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
+  integration_test:
+    sdk: flutter
 
 flutter:
   uses-material-design: true
@@ -53,6 +55,7 @@ flutter:
   # Declare the asset folders.  When you add new files under these
   # directories, Flutter will include them automatically.
   assets:
+    - assets/data/
     - assets/audio/
     - assets/audio/sounds/
     - assets/audio/sounds/ferma/
@@ -73,6 +76,5 @@ flutter:
     - assets/images/sounds_module/vehicule/
     - assets/images/stories_module/
     - assets/rive/
-    - assets/rive_3d/
     - assets/video/
     - assets/video/menu/

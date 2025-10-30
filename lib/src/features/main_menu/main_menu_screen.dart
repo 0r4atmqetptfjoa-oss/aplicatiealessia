@@ -25,7 +25,6 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
   }
 
   Future<void> _initializeAssets() async {
-    // Initialize video
     _videoController = VideoPlayerController.asset('assets/video/menu/main_background_loop.mp4')
       ..setLooping(true)
       ..initialize().then((_) {
@@ -35,16 +34,15 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
         }
       });
 
-    // Preload the Rive title animation
     try {
       final riveFile = await RiveFile.asset('assets/rive/title.riv');
       final artboard = riveFile.mainArtboard;
-      artboard.addController(SimpleAnimation('Timeline 1')); // Or your specific animation
+      artboard.addController(SimpleAnimation('Timeline 1'));
       if (mounted) {
         setState(() => _titleArtboard = artboard);
       }
     } catch (e) {
-      print('Error loading Rive title animation: $e');
+      // Errors are logged visually in debug mode, no need for print.
     }
   }
 
@@ -56,7 +54,7 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       body: Stack(
@@ -73,66 +71,61 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
             )
           else
             Container(color: Colors.black),
-          Container(color: Colors.black.withOpacity(0.3)),
+          Container(color: Colors.black.withAlpha(77)),
           SafeArea(
             child: Column(
               children: [
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        height: 100,
-                        child: _titleArtboard != null
-                            ? Rive(artboard: _titleArtboard!)
-                            : const SizedBox.shrink(), // Show nothing while loading
-                      ),
-                      const SizedBox(height: 40),
-                      Wrap(
-                        alignment: WrapAlignment.center,
-                        spacing: 24,
-                        runSpacing: 24,
-                        children: [
-                          RiveButton(
-                            riveAsset: 'assets/rive/menu_buttons.riv',
-                            artboardName: 'BTN_SUNETE',
-                            stateMachineName: 'State Machine 1',
-                            onTap: () => context.go('/sounds'),
-                            label: l10n.menuSounds,
-                          ),
-                           RiveButton(
-                            riveAsset: 'assets/rive/menu_buttons.riv',
-                            artboardName: 'BTN_INSTRUMENTE',
-                            stateMachineName: 'State Machine 1',
-                            onTap: () => context.go('/instruments'),
-                            label: l10n.menuInstruments,
-                          ),
-                          RiveButton(
-                            riveAsset: 'assets/rive/menu_buttons.riv',
-                            artboardName: 'BTN_CANTECE',
-                            stateMachineName: 'State Machine 1',
-                            onTap: () => context.go('/songs'),
-                            label: l10n.menuSongs,
-                          ),
-                          RiveButton(
-                            riveAsset: 'assets/rive/menu_buttons.riv',
-                            artboardName: 'BTN_POVESTI',
-                            stateMachineName: 'State Machine 1',
-                            onTap: () => context.go('/stories'),
-                            label: l10n.menuStories,
-                          ),
-                          RiveButton(
-                            riveAsset: 'assets/rive/menu_buttons.riv',
-                            artboardName: 'BTN_JOCURI',
-                            stateMachineName: 'State Machine 1',
-                            onTap: () => context.go('/games'),
-                            label: l10n.menuGames,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                const Spacer(),
+                SizedBox(
+                  height: 100,
+                  child: _titleArtboard != null
+                      ? Rive(artboard: _titleArtboard!)
+                      : const SizedBox.shrink(),
                 ),
+                const SizedBox(height: 20),
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 16,
+                  runSpacing: 16,
+                  children: [
+                    RiveButton(
+                      riveAsset: 'assets/rive/menu_buttons.riv',
+                      artboardName: 'BTN_SUNETE',
+                      stateMachineName: 'State Machine 1',
+                      onTap: () => context.go('/sounds'),
+                      label: l10n.menuSounds,
+                    ),
+                    RiveButton(
+                      riveAsset: 'assets/rive/menu_buttons.riv',
+                      artboardName: 'BTN_INSTRUMENTE',
+                      stateMachineName: 'State Machine 1',
+                      onTap: () => context.go('/instruments'),
+                      label: l10n.menuInstruments,
+                    ),
+                    RiveButton(
+                      riveAsset: 'assets/rive/menu_buttons.riv',
+                      artboardName: 'BTN_CANTECE',
+                      stateMachineName: 'State Machine 1',
+                      onTap: () => context.go('/songs'),
+                      label: l10n.menuSongs,
+                    ),
+                    RiveButton(
+                      riveAsset: 'assets/rive/menu_buttons.riv',
+                      artboardName: 'BTN_POVESTI',
+                      stateMachineName: 'State Machine 1',
+                      onTap: () => context.go('/stories'),
+                      label: l10n.menuStories,
+                    ),
+                    RiveButton(
+                      riveAsset: 'assets/rive/menu_buttons.riv',
+                      artboardName: 'BTN_JOCURI',
+                      stateMachineName: 'State Machine 1',
+                      onTap: () => context.go('/games'),
+                      label: l10n.menuGames,
+                    ),
+                  ],
+                ),
+                const Spacer(),
                 Align(
                   alignment: Alignment.bottomRight,
                   child: Padding(

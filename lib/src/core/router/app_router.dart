@@ -22,9 +22,8 @@ import '../../features/games/alphabet_game_screen.dart';
 import '../../features/games/numbers_game_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
-  // Define premium content IDs for demonstration
-  const premiumSongs = {'twinkle_twinkle'}; // Assuming this is now premium
-  const premiumStories = {'scufita_rosie'}; // Assuming this is now premium
+  const premiumSongs = {'twinkle_twinkle'};
+  const premiumStories = {'scufita_rosie'};
 
   return GoRouter(
     initialLocation: '/',
@@ -33,17 +32,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final subscriptionService = ref.read(subscriptionServiceProvider);
 
       final activeProfileId = await profileService.getActiveProfileId();
-      final isAtSplash = state.location == '/';
+      final isAtSplash = state.uri.toString() == '/';
 
       if (isAtSplash) {
         await Future.delayed(const Duration(seconds: 2));
         return activeProfileId == null ? '/profiles' : '/home';
       }
 
-      // Paywall logic
       final isSubscribed = subscriptionService.isSubscribed;
-      final goingToSong = state.location.startsWith('/songs/play/');
-      final goingToStory = state.location.startsWith('/stories/play/');
+      final goingToSong = state.uri.toString().startsWith('/songs/play/');
+      final goingToStory = state.uri.toString().startsWith('/stories/play/');
 
       if (!isSubscribed) {
         if (goingToSong) {
@@ -56,7 +54,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         }
       }
 
-      return null; // No redirect needed
+      return null;
     },
     routes: <RouteBase>[
       GoRoute(path: '/', name: 'splash', builder: (c, s) => const SplashScreen()),

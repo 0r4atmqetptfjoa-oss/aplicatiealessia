@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lumea_alessiei/l10n/app_localizations.dart';
 import '../../core/data_provider.dart';
 
 class SoundsMenuScreen extends ConsumerWidget {
@@ -9,10 +10,11 @@ class SoundsMenuScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final data = ref.watch(appDataProvider);
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sunete'),
+        title: Text(l10n.menuSounds),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go('/home'),
@@ -29,17 +31,13 @@ class SoundsMenuScreen extends ConsumerWidget {
         error: (err, stack) => Center(child: Text('Error: $err')),
         data: (appData) {
           final categories = appData.sounds['categories'] as List;
-          return GridView.builder(
+          return GridView.extent(
+            maxCrossAxisExtent: 250.0, // Max width for each item
             padding: const EdgeInsets.all(16),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              mainAxisSpacing: 16,
-              crossAxisSpacing: 16,
-              childAspectRatio: 1.0,
-            ),
-            itemCount: categories.length,
-            itemBuilder: (context, index) {
-              final category = categories[index];
+            mainAxisSpacing: 16,
+            crossAxisSpacing: 16,
+            childAspectRatio: 1.0,
+            children: categories.map((category) {
               return _CategoryCard(
                 category: _Category(
                   key: category['id'],
@@ -50,7 +48,7 @@ class SoundsMenuScreen extends ConsumerWidget {
                   context.go('/sounds/${category['id']}');
                 },
               );
-            },
+            }).toList(),
           );
         },
       ),
@@ -88,6 +86,9 @@ class _CategoryCard extends StatelessWidget {
                 child: Image.asset(
                   category.iconPath,
                   fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Icon(Icons.hide_image, size: 48, color: Colors.grey);
+                  },
                 ),
               ),
             ),

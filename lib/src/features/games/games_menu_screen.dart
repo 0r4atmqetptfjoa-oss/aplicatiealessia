@@ -8,14 +8,28 @@ import '../../core/data_provider.dart';
 class GamesMenuScreen extends ConsumerWidget {
   const GamesMenuScreen({super.key});
 
+  String _getGameTitle(AppLocalizations? l10n, String titleKey) {
+    if (l10n == null) return titleKey; // Fallback
+    switch (titleKey) {
+      case 'gameAlphabet':
+        return l10n.gameAlphabet;
+      case 'gameNumbers':
+        return l10n.gameNumbers;
+      case 'gamePuzzle':
+        return l10n.gamePuzzle;
+      default:
+        return titleKey;
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final data = ref.watch(appDataProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.menuGames),
+        title: Text(l10n?.menuGames ?? 'Games'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go('/home'),
@@ -39,24 +53,20 @@ class GamesMenuScreen extends ConsumerWidget {
                 fit: BoxFit.cover,
               ),
             ),
-            child: GridView.builder(
+            child: GridView.extent(
+              maxCrossAxisExtent: 300.0, // Max width for each item
               padding: const EdgeInsets.all(24),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                mainAxisSpacing: 24,
-                crossAxisSpacing: 24,
-              ),
-              itemCount: games.length,
-              itemBuilder: (context, index) {
-                final game = games[index];
+              mainAxisSpacing: 24,
+              crossAxisSpacing: 24,
+              children: games.map((game) {
                 return RiveButton(
                   riveAsset: 'assets/rive/game_buttons.riv',
-                  artboardName: game['artboard']!,
-                  stateMachineName: 'State Machine 1', // Assuming a consistent state machine name
+                  artboardName: game['artboard'] as String,
+                  stateMachineName: 'State Machine 1',
                   onTap: () => context.go('/games/${game['id']}'),
-                  label: l10n.lookup(game['title']!) ?? game['title']!,
+                  label: _getGameTitle(l10n, game['title'] as String),
                 );
-              },
+              }).toList(),
             ),
           );
         },

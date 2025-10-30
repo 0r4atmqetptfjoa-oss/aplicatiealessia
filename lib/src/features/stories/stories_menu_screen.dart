@@ -8,14 +8,24 @@ import '../../core/data_provider.dart';
 class StoriesMenuScreen extends ConsumerWidget {
   const StoriesMenuScreen({super.key});
 
+  String _getStoryTitle(AppLocalizations? l10n, String titleKey) {
+    if (l10n == null) return titleKey;
+    switch (titleKey) {
+      case 'storyRedRidingHood':
+        return l10n.storyRedRidingHood;
+      default:
+        return titleKey;
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final data = ref.watch(appDataProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.menuStories),
+        title: Text(l10n?.menuStories ?? 'Stories'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go('/home'),
@@ -33,30 +43,33 @@ class StoriesMenuScreen extends ConsumerWidget {
         data: (appData) {
           final stories = appData.stories['stories'] as List;
           return Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage("assets/images/stories_module/background.png"), // Placeholder
+                image: const AssetImage("assets/images/stories_module/background.png"),
                 fit: BoxFit.cover,
+                onError: (exception, stackTrace) {
+                  // Don't crash if the background is missing
+                },
               ),
             ),
-            child: GridView.builder(
+            child: GridView.extent(
+              maxCrossAxisExtent: 300.0,
               padding: const EdgeInsets.all(24),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                mainAxisSpacing: 24,
-                crossAxisSpacing: 24,
-              ),
-              itemCount: stories.length,
-              itemBuilder: (context, index) {
-                final story = stories[index];
+              mainAxisSpacing: 24,
+              crossAxisSpacing: 24,
+              children: stories.map((story) {
+                final artboard = story['artboard'] as String? ?? 'UNKNOWN';
+                final storyId = story['id'] as String? ?? '';
+                final titleKey = story['title'] as String? ?? '';
+
                 return RiveButton(
                   riveAsset: 'assets/rive/story_buttons.riv',
-                  artboardName: story['artboard']!,
-                  stateMachineName: 'State Machine 1', // Assuming a consistent state machine name
-                  onTap: () => context.go('/stories/play/${story['id']}'),
-                  label: l10n.lookup(story['title']!) ?? story['title']!,
+                  artboardName: artboard,
+                  stateMachineName: 'State Machine 1',
+                  onTap: () => context.go('/stories/play/$storyId'),
+                  label: _getStoryTitle(l10n, titleKey),
                 );
-              },
+              }).toList(),
             ),
           );
         },

@@ -148,15 +148,17 @@ class _PuzzleGameScreenState extends State<PuzzleGameScreen> {
 
           return Row(
             children: [
-              Container(
+              SizedBox(
                 width: boardSize,
                 height: boardSize,
                 child: Stack(
                   children: [
                     if (_showHint)
-                      Opacity(
-                        opacity: 0.2,
-                        child: Image.asset('assets/images/games_module/puzzle_1.png', fit: BoxFit.cover),
+                      Image.asset(
+                        'assets/images/games_module/puzzle_1.png',
+                        fit: BoxFit.cover,
+                        color: Colors.white.withAlpha(51), // 20% opacity
+                        colorBlendMode: BlendMode.dstATop,
                       ),
                     GridView.builder(
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -168,10 +170,10 @@ class _PuzzleGameScreenState extends State<PuzzleGameScreen> {
                       itemBuilder: (context, cellIndex) {
                         final pieceIndex = _board[cellIndex];
                         return DragTarget<int>(
-                          onAccept: (data) => _handleDrop(cellIndex, data),
+                          onAcceptWithDetails: (details) => _handleDrop(cellIndex, details.data),
                           builder: (context, candidateData, rejectedData) {
                             if (pieceIndex == null) {
-                              return Container(color: Colors.grey.withOpacity(0.1));
+                              return Container(color: Colors.grey.withAlpha(26));
                             } else {
                               return Draggable<int>(
                                 data: pieceIndex,
@@ -189,7 +191,7 @@ class _PuzzleGameScreenState extends State<PuzzleGameScreen> {
               ),
               Expanded(
                 child: DragTarget<int>(
-                  onAccept: (data) => _handlePaletteDrop(data),
+                  onAcceptWithDetails: (details) => _handlePaletteDrop(details.data),
                   builder: (context, candidateData, rejectedData) {
                     return SingleChildScrollView(
                       child: Wrap(

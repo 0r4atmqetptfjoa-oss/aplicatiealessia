@@ -57,11 +57,19 @@ final userProfileServiceProvider = Provider<UserProfileService>((ref) {
   return UserProfileService();
 });
 
+final profilesProvider = FutureProvider<List<UserProfile>>((ref) async {
+  return ref.watch(userProfileServiceProvider).getProfiles();
+});
+
 final activeProfileProvider = FutureProvider<UserProfile?>((ref) async {
   final service = ref.watch(userProfileServiceProvider);
   final activeId = await service.getActiveProfileId();
   if (activeId == null) return null;
 
   final profiles = await service.getProfiles();
-  return profiles.firstWhere((p) => p.id == activeId, orElse: () => null);
+  try {
+    return profiles.firstWhere((p) => p.id == activeId);
+  } catch (e) {
+    return null;
+  }
 });
