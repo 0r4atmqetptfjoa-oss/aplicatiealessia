@@ -41,15 +41,13 @@ class SongsMenuScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text('Error: $err')),
         data: (appData) {
-          final songs = appData.songs['songs'] as List;
+          final songs = appData.songs['songs'] as List? ?? [];
           return Container(
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: const AssetImage("assets/images/songs_module/background.png"),
                 fit: BoxFit.cover,
-                onError: (exception, stackTrace) {
-                  // Don't crash if the background is missing
-                },
+                onError: (exception, stackTrace) {},
               ),
             ),
             child: GridView.extent(
@@ -57,7 +55,7 @@ class SongsMenuScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(24),
               mainAxisSpacing: 24,
               crossAxisSpacing: 24,
-              children: songs.map((song) {
+              children: songs.map<Widget>((song) {
                 final artboard = song['artboard'] as String? ?? 'UNKNOWN';
                 final songId = song['id'] as String? ?? '';
                 final titleKey = song['title'] as String? ?? '';
@@ -68,6 +66,7 @@ class SongsMenuScreen extends ConsumerWidget {
                   stateMachineName: 'State Machine 1',
                   onTap: () => context.go('/songs/play/$songId'),
                   label: _getSongTitle(l10n, titleKey),
+                  placeHolder: const Icon(Icons.music_note, size: 48, color: Colors.grey),
                 );
               }).toList(),
             ),

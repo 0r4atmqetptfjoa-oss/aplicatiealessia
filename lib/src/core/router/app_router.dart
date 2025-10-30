@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:animations/animations.dart';
 import 'package:lumea_alessiei/src/features/paywall/paywall_screen.dart';
 import 'package:lumea_alessiei/src/features/profiles/profile_selection_screen.dart';
 import 'package:lumea_alessiei/src/services/subscription_service.dart';
 import 'package:lumea_alessiei/src/services/user_profile_service.dart';
 
+import '../app_animations.dart';
 import '../../features/splash/splash_screen.dart';
 import '../../features/main_menu/main_menu_screen.dart';
 import '../../features/parental_gate/parental_gate_screen.dart';
@@ -57,63 +59,120 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: <RouteBase>[
-      GoRoute(path: '/', name: 'splash', builder: (c, s) => const SplashScreen()),
-      GoRoute(path: '/profiles', name: 'profiles', builder: (c, s) => const ProfileSelectionScreen()),
-      GoRoute(path: '/home', name: 'home', builder: (c, s) => const MainMenuScreen()),
-      GoRoute(path: '/paywall', name: 'paywall', builder: (c, s) => const PaywallScreen()),
-      GoRoute(path: '/parental-gate', name: 'parentalGate', builder: (c, s) => const ParentalGateScreen()),
+      GoRoute(
+        path: '/',
+        name: 'splash',
+        pageBuilder: (context, state) => _buildPageWithTransition(key: state.pageKey, child: const SplashScreen()),
+      ),
+      GoRoute(
+        path: '/profiles',
+        name: 'profiles',
+        pageBuilder: (context, state) => _buildPageWithTransition(key: state.pageKey, child: const ProfileSelectionScreen()),
+      ),
+      GoRoute(
+        path: '/home',
+        name: 'home',
+        pageBuilder: (context, state) => _buildPageWithTransition(key: state.pageKey, child: const MainMenuScreen()),
+      ),
+      GoRoute(
+        path: '/paywall',
+        name: 'paywall',
+        pageBuilder: (context, state) => _buildPageWithTransition(key: state.pageKey, child: const PaywallScreen()),
+      ),
+      GoRoute(
+        path: '/parental-gate',
+        name: 'parentalGate',
+        pageBuilder: (context, state) => _buildPageWithTransition(key: state.pageKey, child: const ParentalGateScreen()),
+      ),
       GoRoute(
         path: '/sounds',
         name: 'sounds',
-        builder: (c, s) => const SoundsMenuScreen(),
+        pageBuilder: (context, state) => _buildPageWithTransition(key: state.pageKey, child: const SoundsMenuScreen()),
         routes: [
           GoRoute(
             path: ':category',
             name: 'soundsDetail',
-            builder: (c, s) => SoundCategoryScreen(category: s.pathParameters['category'] ?? ''),
+            pageBuilder: (context, state) => _buildPageWithTransition(
+              key: state.pageKey,
+              child: SoundCategoryScreen(category: state.pathParameters['category'] ?? ''),
+            ),
           ),
         ],
       ),
       GoRoute(
         path: '/instruments',
         name: 'instruments',
-        builder: (c, s) => const InstrumentsScreen(),
+        pageBuilder: (context, state) => _buildPageWithTransition(key: state.pageKey, child: const InstrumentsScreen()),
       ),
       GoRoute(
         path: '/songs',
         name: 'songs',
-        builder: (c, s) => const SongsMenuScreen(),
+        pageBuilder: (context, state) => _buildPageWithTransition(key: state.pageKey, child: const SongsMenuScreen()),
         routes: [
           GoRoute(
             path: 'play/:songId',
             name: 'songPlayer',
-            builder: (c, s) => SongPlayerScreen(songId: s.pathParameters['songId']!),
+            pageBuilder: (context, state) => _buildPageWithTransition(
+              key: state.pageKey,
+              child: SongPlayerScreen(songId: state.pathParameters['songId']!),
+            ),
           ),
         ],
       ),
       GoRoute(
         path: '/stories',
         name: 'stories',
-        builder: (c, s) => const StoriesMenuScreen(),
+        pageBuilder: (context, state) => _buildPageWithTransition(key: state.pageKey, child: const StoriesMenuScreen()),
         routes: [
           GoRoute(
             path: 'play/:storyId',
             name: 'storyPlayer',
-            builder: (c, s) => StoryPlayerScreen(storyId: s.pathParameters['storyId']!),
+            pageBuilder: (context, state) => _buildPageWithTransition(
+              key: state.pageKey,
+              child: StoryPlayerScreen(storyId: state.pathParameters['storyId']!),
+            ),
           ),
         ],
       ),
       GoRoute(
         path: '/games',
         name: 'games',
-        builder: (c, s) => const GamesMenuScreen(),
+        pageBuilder: (context, state) => _buildPageWithTransition(key: state.pageKey, child: const GamesMenuScreen()),
         routes: [
-          GoRoute(path: 'alphabet', name: 'alphabetGame', builder: (c, s) => const AlphabetGameScreen()),
-          GoRoute(path: 'numbers', name: 'numbersGame', builder: (c, s) => const NumbersGameScreen()),
-          GoRoute(path: 'puzzle', name: 'puzzleGame', builder: (c, s) => const PuzzleGameScreen()),
+          GoRoute(
+            path: 'alphabet',
+            name: 'alphabetGame',
+            pageBuilder: (context, state) => _buildPageWithTransition(key: state.pageKey, child: const AlphabetGameScreen()),
+          ),
+          GoRoute(
+            path: 'numbers',
+            name: 'numbersGame',
+            pageBuilder: (context, state) => _buildPageWithTransition(key: state.pageKey, child: const NumbersGameScreen()),
+          ),
+          GoRoute(
+            path: 'puzzle',
+            name: 'puzzleGame',
+            pageBuilder: (context, state) => _buildPageWithTransition(key: state.pageKey, child: const PuzzleGameScreen()),
+          ),
         ],
       ),
     ],
     errorBuilder: (c, s) => Scaffold(appBar: AppBar(title: const Text('Error')), body: Center(child: Text('Page not found: ${s.uri}'))),
   );
 });
+
+Page<dynamic> _buildPageWithTransition({required LocalKey key, required Widget child}) {
+  return CustomTransitionPage(
+    key: key,
+    child: child,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return SharedAxisTransition(
+        animation: animation,
+        secondaryAnimation: secondaryAnimation,
+        transitionType: SharedAxisTransitionType.scaled,
+        child: child,
+      );
+    },
+    transitionDuration: AppAnimations.mediumDuration,
+  );
+}

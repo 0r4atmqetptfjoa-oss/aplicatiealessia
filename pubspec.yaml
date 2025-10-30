@@ -22,21 +22,22 @@ dependencies:
   intl: 0.20.2
   shared_preferences: ^2.2.2
   in_app_purchase: ^3.1.13
+  animations: ^2.0.11
 
   # State management
-  flutter_riverpod: ^3.0.3  # Latest stable as of Oct 2025【203366105876355†L35-L40】
+  flutter_riverpod: ^3.0.3
 
   # Declarative routing
-  go_router: ^16.2.5       # Latest stable as of Oct 2025【518616366760646†L37-L41】
+  go_router: ^16.2.5
 
   # Animation runtime for Rive files
-  rive: ^0.13.20           # Latest stable release【677641478062624†L35-L41】
+  rive: ^0.13.20
 
   # Audio playback for music and sound effects
-  audioplayers: ^6.5.1    # Latest stable release【31693634839323†L35-L39】
+  audioplayers: ^6.5.1
 
   # Video playback for looping backgrounds and story videos
-  video_player: ^2.10.0   # Latest stable release【489316545003798†L37-L41】
+  video_player: ^2.10.0
 
   # Cupertino icons for iOS-style glyphs (optional but useful)
   cupertino_icons: ^1.0.6

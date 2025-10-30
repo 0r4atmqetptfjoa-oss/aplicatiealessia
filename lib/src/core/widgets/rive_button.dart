@@ -2,16 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:rive/rive.dart';
 
 /// A reusable, animated button powered by a Rive state machine.
-///
-/// This button is designed to be self-contained, managing its own hover
-/// and tap states to trigger animations within the Rive file. It expects
-/// a Rive state machine with boolean inputs named 'isHover' and 'isPressed'.
 class RiveButton extends StatefulWidget {
   final String riveAsset;
   final String artboardName;
   final String stateMachineName;
   final VoidCallback onTap;
   final String label;
+  final Widget? placeHolder;
 
   const RiveButton({
     super.key,
@@ -20,6 +17,7 @@ class RiveButton extends StatefulWidget {
     required this.stateMachineName,
     required this.onTap,
     required this.label,
+    this.placeHolder,
   });
 
   @override
@@ -34,7 +32,6 @@ class _RiveButtonState extends State<RiveButton> {
     final controller = StateMachineController.fromArtboard(artboard, widget.stateMachineName);
     if (controller != null) {
       artboard.addController(controller);
-      // Find the inputs for hover and tap states in the Rive state machine.
       _hoverInput = controller.findInput<bool>('isHover');
       _tapInput = controller.findInput<bool>('isPressed');
     }
@@ -45,9 +42,7 @@ class _RiveButtonState extends State<RiveButton> {
   }
 
   void _onTap() {
-    // Trigger the tap animation.
     _tapInput?.value = true;
-    // After a short delay, reset the tap animation and fire the callback.
     Future.delayed(const Duration(milliseconds: 250), () {
       _tapInput?.value = false;
       widget.onTap();
@@ -72,6 +67,7 @@ class _RiveButtonState extends State<RiveButton> {
                 artboard: widget.artboardName,
                 onInit: _onRiveInit,
                 fit: BoxFit.contain,
+                placeHolder: widget.placeHolder,
               ),
             ),
             const SizedBox(height: 8),

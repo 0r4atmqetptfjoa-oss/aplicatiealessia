@@ -41,15 +41,13 @@ class StoriesMenuScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text('Error: $err')),
         data: (appData) {
-          final stories = appData.stories['stories'] as List;
+          final stories = appData.stories['stories'] as List? ?? [];
           return Container(
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: const AssetImage("assets/images/stories_module/background.png"),
                 fit: BoxFit.cover,
-                onError: (exception, stackTrace) {
-                  // Don't crash if the background is missing
-                },
+                onError: (exception, stackTrace) {},
               ),
             ),
             child: GridView.extent(
@@ -68,6 +66,7 @@ class StoriesMenuScreen extends ConsumerWidget {
                   stateMachineName: 'State Machine 1',
                   onTap: () => context.go('/stories/play/$storyId'),
                   label: _getStoryTitle(l10n, titleKey),
+                  placeHolder: const Icon(Icons.book, size: 48, color: Colors.grey),
                 );
               }).toList(),
             ),
