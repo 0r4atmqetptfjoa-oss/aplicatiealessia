@@ -11,6 +11,11 @@ class PuzzleGameScreen extends StatefulWidget {
 }
 
 class _PuzzleGameScreenState extends State<PuzzleGameScreen> {
+  final List<String> _puzzleImages = [
+    'assets/images/games_module/puzzle_levels/puzzle_animale.png',
+    'assets/images/games_module/puzzle_levels/puzzle_spatiu.png',
+  ];
+  int _currentLevel = 0;
   int _gridSize = 3;
   late List<int?> _board;
   late List<int> _palette;
@@ -93,7 +98,8 @@ class _PuzzleGameScreenState extends State<PuzzleGameScreen> {
             onPressed: () {
               Navigator.of(context).pop();
               setState(() {
-                if (_gridSize < 5) _gridSize++; // Increase difficulty
+                if (_gridSize < 5) _gridSize++;
+                _currentLevel = (_currentLevel + 1) % _puzzleImages.length;
                 _initializeGame();
               });
             },
@@ -118,7 +124,7 @@ class _PuzzleGameScreenState extends State<PuzzleGameScreen> {
           alignment: Alignment(alignX, alignY),
           widthFactor: 1 / _gridSize,
           heightFactor: 1 / _gridSize,
-          child: Image.asset('assets/images/games_module/puzzle_1.png', fit: BoxFit.cover),
+          child: Image.asset(_puzzleImages[_currentLevel], fit: BoxFit.cover),
         ),
       ),
     );
@@ -155,7 +161,7 @@ class _PuzzleGameScreenState extends State<PuzzleGameScreen> {
                   children: [
                     if (_showHint)
                       Image.asset(
-                        'assets/images/games_module/puzzle_1.png',
+                        _puzzleImages[_currentLevel],
                         fit: BoxFit.cover,
                         color: Colors.white.withAlpha(51), // 20% opacity
                         colorBlendMode: BlendMode.dstATop,
