@@ -22,6 +22,16 @@ import '../../features/games/games_menu_screen.dart';
 import '../../features/games/puzzle_game_screen.dart';
 import '../../features/games/alphabet_game_screen.dart';
 import '../../features/games/numbers_game_screen.dart';
+import '../../features/games/memory_game_screen.dart';
+import '../../features/games/shapes_game_screen.dart';
+import '../../features/games/colors_game_screen.dart';
+import '../../features/games/math_quiz_screen.dart';
+import '../../features/games/puzzle_2_game_screen.dart';
+import '../../features/games/sorting_animals_game_screen.dart';
+import '../../features/games/cooking_game_screen.dart';
+import '../../features/games/maze_game_screen.dart';
+import '../../features/games/hidden_objects_game_screen.dart';
+import '../../features/games/blocks_game_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   const premiumSongs = {'twinkle_twinkle'};
@@ -47,115 +57,81 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
       if (!isSubscribed) {
         if (goingToSong) {
-          final songId = state.pathParameters['songId']!;
-          if (premiumSongs.contains(songId)) return '/paywall';
+          final songId = state.pathParameters['songId'];
+          if (songId != null && premiumSongs.contains(songId)) return '/paywall';
         }
         if (goingToStory) {
-          final storyId = state.pathParameters['storyId']!;
-          if (premiumStories.contains(storyId)) return '/paywall';
+          final storyId = state.pathParameters['storyId'];
+          if (storyId != null && premiumStories.contains(storyId)) return '/paywall';
         }
       }
 
       return null;
     },
     routes: <RouteBase>[
+      GoRoute(path: '/', name: 'splash', pageBuilder: (c, s) => _buildPageWithTransition(key: s.pageKey, child: const SplashScreen())),
+      GoRoute(path: '/profiles', name: 'profiles', pageBuilder: (c, s) => _buildPageWithTransition(key: s.pageKey, child: const ProfileSelectionScreen())),
+      GoRoute(path: '/home', name: 'home', pageBuilder: (c, s) => _buildPageWithTransition(key: s.pageKey, child: const MainMenuScreen())),
+      GoRoute(path: '/paywall', name: 'paywall', pageBuilder: (c, s) => _buildPageWithTransition(key: s.pageKey, child: const PaywallScreen())),
+      GoRoute(path: '/parental-gate', name: 'parentalGate', pageBuilder: (c, s) => _buildPageWithTransition(key: s.pageKey, child: const ParentalGateScreen())),
       GoRoute(
-        path: '/',
-        name: 'splash',
-        pageBuilder: (context, state) => _buildPageWithTransition(key: state.pageKey, child: const SplashScreen()),
-      ),
-      GoRoute(
-        path: '/profiles',
-        name: 'profiles',
-        pageBuilder: (context, state) => _buildPageWithTransition(key: state.pageKey, child: const ProfileSelectionScreen()),
-      ),
-      GoRoute(
-        path: '/home',
-        name: 'home',
-        pageBuilder: (context, state) => _buildPageWithTransition(key: state.pageKey, child: const MainMenuScreen()),
-      ),
-      GoRoute(
-        path: '/paywall',
-        name: 'paywall',
-        pageBuilder: (context, state) => _buildPageWithTransition(key: state.pageKey, child: const PaywallScreen()),
-      ),
-      GoRoute(
-        path: '/parental-gate',
-        name: 'parentalGate',
-        pageBuilder: (context, state) => _buildPageWithTransition(key: state.pageKey, child: const ParentalGateScreen()),
-      ),
-      GoRoute(
-        path: '/sounds',
-        name: 'sounds',
-        pageBuilder: (context, state) => _buildPageWithTransition(key: state.pageKey, child: const SoundsMenuScreen()),
-        routes: [
-          GoRoute(
-            path: ':category',
-            name: 'soundsDetail',
-            pageBuilder: (context, state) => _buildPageWithTransition(
-              key: state.pageKey,
-              child: SoundCategoryScreen(category: state.pathParameters['category'] ?? ''),
-            ),
-          ),
-        ],
-      ),
+          path: '/sounds',
+          name: 'sounds',
+          pageBuilder: (c, s) => _buildPageWithTransition(key: s.pageKey, child: const SoundsMenuScreen()),
+          routes: [
+            GoRoute(
+                path: ':category',
+                name: 'soundsDetail',
+                pageBuilder: (c, s) => _buildPageWithTransition(
+                    key: s.pageKey, child: SoundCategoryScreen(category: s.pathParameters['category'] ?? ''))),
+          ]),
       GoRoute(
         path: '/instruments',
         name: 'instruments',
-        pageBuilder: (context, state) => _buildPageWithTransition(key: state.pageKey, child: const InstrumentsScreen()),
+        pageBuilder: (c, s) => _buildPageWithTransition(key: s.pageKey, child: const InstrumentsScreen()),
       ),
       GoRoute(
-        path: '/songs',
-        name: 'songs',
-        pageBuilder: (context, state) => _buildPageWithTransition(key: state.pageKey, child: const SongsMenuScreen()),
-        routes: [
-          GoRoute(
-            path: 'play/:songId',
-            name: 'songPlayer',
-            pageBuilder: (context, state) => _buildPageWithTransition(
-              key: state.pageKey,
-              child: SongPlayerScreen(songId: state.pathParameters['songId']!),
-            ),
-          ),
-        ],
-      ),
+          path: '/songs',
+          name: 'songs',
+          pageBuilder: (c, s) => _buildPageWithTransition(key: s.pageKey, child: const SongsMenuScreen()),
+          routes: [
+            GoRoute(
+                path: 'play/:songId',
+                name: 'songPlayer',
+                pageBuilder: (c, s) => _buildPageWithTransition(
+                    key: s.pageKey, child: SongPlayerScreen(songId: s.pathParameters['songId'] ?? ''))),
+          ]),
       GoRoute(
-        path: '/stories',
-        name: 'stories',
-        pageBuilder: (context, state) => _buildPageWithTransition(key: state.pageKey, child: const StoriesMenuScreen()),
-        routes: [
-          GoRoute(
-            path: 'play/:storyId',
-            name: 'storyPlayer',
-            pageBuilder: (context, state) => _buildPageWithTransition(
-              key: state.pageKey,
-              child: StoryPlayerScreen(storyId: state.pathParameters['storyId']!),
-            ),
-          ),
-        ],
-      ),
+          path: '/stories',
+          name: 'stories',
+          pageBuilder: (c, s) => _buildPageWithTransition(key: s.pageKey, child: const StoriesMenuScreen()),
+          routes: [
+            GoRoute(
+                path: 'play/:storyId',
+                name: 'storyPlayer',
+                pageBuilder: (c, s) => _buildPageWithTransition(
+                    key: s.pageKey, child: StoryPlayerScreen(storyId: s.pathParameters['storyId'] ?? ''))),
+          ]),
       GoRoute(
-        path: '/games',
-        name: 'games',
-        pageBuilder: (context, state) => _buildPageWithTransition(key: state.pageKey, child: const GamesMenuScreen()),
-        routes: [
-          GoRoute(
-            path: 'alphabet',
-            name: 'alphabetGame',
-            pageBuilder: (context, state) => _buildPageWithTransition(key: state.pageKey, child: const AlphabetGameScreen()),
-          ),
-          GoRoute(
-            path: 'numbers',
-            name: 'numbersGame',
-            pageBuilder: (context, state) => _buildPageWithTransition(key: state.pageKey, child: const NumbersGameScreen()),
-          ),
-          GoRoute(
-            path: 'puzzle',
-            name: 'puzzleGame',
-            pageBuilder: (context, state) => _buildPageWithTransition(key: state.pageKey, child: const PuzzleGameScreen()),
-          ),
-        ],
-      ),
+          path: '/games',
+          name: 'games',
+          pageBuilder: (c, s) => _buildPageWithTransition(key: s.pageKey, child: const GamesMenuScreen()),
+          routes: [
+            GoRoute(path: 'alphabet', name: 'alphabetGame', pageBuilder: (c, s) => _buildPageWithTransition(key: s.pageKey, child: const AlphabetGameScreen())),
+            GoRoute(path: 'numbers', name: 'numbersGame', pageBuilder: (c, s) => _buildPageWithTransition(key: s.pageKey, child: const NumbersGameScreen())),
+            GoRoute(path: 'puzzle', name: 'puzzleGame', pageBuilder: (c, s) => _buildPageWithTransition(key: s.pageKey, child: const PuzzleGameScreen())),
+            GoRoute(path: 'memory', name: 'memoryGame', pageBuilder: (c, s) => _buildPageWithTransition(key: s.pageKey, child: const MemoryGameScreen())),
+            GoRoute(path: 'shapes', name: 'shapesGame', pageBuilder: (c, s) => _buildPageWithTransition(key: s.pageKey, child: const ShapesGameScreen())),
+            GoRoute(path: 'colors', name: 'colorsGame', pageBuilder: (c, s) => _buildPageWithTransition(key: s.pageKey, child: const ColorsGameScreen())),
+            GoRoute(path: 'math_quiz', name: 'mathQuizGame', pageBuilder: (c, s) => _buildPageWithTransition(key: s.pageKey, child: const MathQuizScreen())),
+            GoRoute(path: 'puzzle_2', name: 'puzzle2Game', pageBuilder: (c, s) => _buildPageWithTransition(key: s.pageKey, child: const Puzzle2GameScreen())),
+            GoRoute(path: 'instruments_game', name: 'instrumentsGame', pageBuilder: (c, s) => _buildPageWithTransition(key: s.pageKey, child: const InstrumentsScreen())),
+            GoRoute(path: 'sorting_animals', name: 'sortingAnimalsGame', pageBuilder: (c, s) => _buildPageWithTransition(key: s.pageKey, child: const SortingAnimalsGameScreen())),
+            GoRoute(path: 'cooking', name: 'cookingGame', pageBuilder: (c, s) => _buildPageWithTransition(key: s.pageKey, child: const CookingGameScreen())),
+            GoRoute(path: 'maze', name: 'mazeGame', pageBuilder: (c, s) => _buildPageWithTransition(key: s.pageKey, child: const MazeGameScreen())),
+            GoRoute(path: 'hidden_objects', name: 'hiddenObjectsGame', pageBuilder: (c, s) => _buildPageWithTransition(key: s.pageKey, child: const HiddenObjectsGameScreen())),
+            GoRoute(path: 'blocks', name: 'blocksGame', pageBuilder: (c, s) => _buildPageWithTransition(key: s.pageKey, child: const BlocksGameScreen())),
+          ]),
     ],
     errorBuilder: (c, s) => Scaffold(appBar: AppBar(title: const Text('Error')), body: Center(child: Text('Page not found: ${s.uri}'))),
   );
