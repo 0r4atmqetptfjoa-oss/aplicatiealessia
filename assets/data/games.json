@@ -1,74 +1,18 @@
 {
   "games": [
-    {
-      "id": "alphabet",
-      "title": "gameAlphabet",
-      "artboard": "BTN_ALPHABET"
-    },
-    {
-      "id": "numbers",
-      "title": "gameNumbers",
-      "artboard": "BTN_NUMBERS"
-    },
-    {
-      "id": "puzzle",
-      "title": "gamePuzzle",
-      "artboard": "BTN_PUZZLE"
-    },
-    {
-      "id": "memory",
-      "title": "gameMemory",
-      "artboard": "BTN_MEMORY"
-    },
-    {
-      "id": "shapes",
-      "title": "gameShapes",
-      "artboard": "BTN_SHAPES"
-    },
-    {
-      "id": "colors",
-      "title": "gameColors",
-      "artboard": "BTN_COLORS"
-    },
-    {
-      "id": "math_quiz",
-      "title": "gameMathQuiz",
-      "artboard": "BTN_MATH"
-    },
-    {
-      "id": "puzzle_2",
-      "title": "gamePuzzle2",
-      "artboard": "BTN_PUZZLE2"
-    },
-    {
-      "id": "instruments_game",
-      "title": "gameInstruments",
-      "artboard": "BTN_INSTRUMENTS_GAME"
-    },
-    {
-      "id": "sorting_animals",
-      "title": "gameSortingAnimals",
-      "artboard": "BTN_SORTING"
-    },
-    {
-      "id": "cooking",
-      "title": "gameCooking",
-      "artboard": "BTN_COOKING"
-    },
-    {
-      "id": "maze",
-      "title": "gameMaze",
-      "artboard": "BTN_MAZE"
-    },
-    {
-      "id": "hidden_objects",
-      "title": "gameHiddenObjects",
-      "artboard": "BTN_HIDDEN"
-    },
-    {
-      "id": "blocks",
-      "title": "gameBlocks",
-      "artboard": "BTN_BLOCKS"
-    }
+    { "id": "alphabet", "title": "gameAlphabet", "artboard": "BTN_ALPHABET" },
+    { "id": "numbers", "title": "gameNumbers", "artboard": "BTN_NUMBERS" },
+    { "id": "puzzle", "title": "gamePuzzle", "artboard": "BTN_PUZZLE" },
+    { "id": "memory", "title": "gameMemory", "artboard": "BTN_MEMORY" },
+    { "id": "shapes", "title": "gameShapes", "artboard": "BTN_SHAPES" },
+    { "id": "colors", "title": "gameColors", "artboard": "BTN_COLORS" },
+    { "id": "math_quiz", "title": "gameMathQuiz", "artboard": "BTN_MATH" },
+    { "id": "puzzle_2", "title": "gamePuzzle2", "artboard": "BTN_PUZZLE2" },
+    { "id": "instruments_game", "title": "gameInstruments", "artboard": "BTN_INSTRUMENTS_GAME" },
+    { "id": "sorting_animals", "title": "gameSortingAnimals", "artboard": "BTN_SORTING" },
+    { "id": "cooking", "title": "gameCooking", "artboard": "BTN_COOKING" },
+    { "id": "maze", "title": "gameMaze", "artboard": "BTN_MAZE" },
+    { "id": "hidden_objects", "title": "gameHiddenObjects", "artboard": "BTN_HIDDEN" },
+    { "id": "blocks", "title": "gameBlocks", "artboard": "BTN_BLOCKS" }
   ]
 }

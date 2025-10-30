@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 /// Screen that plays a selected story video.
 ///
 /// This widget uses a [VideoPlayerController] to play a full narrated
-/// video stored in the `assets/video/povesti` folder.  The video loops
+/// video stored in the `assets/video/stories` folder.  The video loops
 /// by default, and the user can control playback with a play/pause
 /// button.  Story IDs correspond to the file names without extension.
 class StoryPlayerScreen extends StatefulWidget {
@@ -28,8 +28,9 @@ class _StoryPlayerScreenState extends State<StoryPlayerScreen> {
   }
 
   Future<void> _initVideo() async {
-    final videoPath = 'assets/video/povesti/${widget.storyId}.mp4';
-    _videoController = VideoPlayerController.asset(videoPath)
+    // Try to load from new stories directory; fallback to old 'povesti'
+    final newPath = 'assets/video/stories/${widget.storyId}.mp4';
+    _videoController = VideoPlayerController.asset(newPath)
       ..setLooping(true)
       ..initialize().then((_) {
         setState(() {

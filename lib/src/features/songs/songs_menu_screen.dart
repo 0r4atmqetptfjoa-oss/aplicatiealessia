@@ -8,14 +8,9 @@ import '../../core/data_provider.dart';
 class SongsMenuScreen extends ConsumerWidget {
   const SongsMenuScreen({super.key});
 
+  // Return title as is; localization keys can be added later
   String _getSongTitle(AppLocalizations? l10n, String titleKey) {
-    if (l10n == null) return titleKey;
-    switch (titleKey) {
-      case 'songTwinkleTwinkle':
-        return l10n.songTwinkleTwinkle;
-      default:
-        return titleKey;
-    }
+    return titleKey;
   }
 
   @override

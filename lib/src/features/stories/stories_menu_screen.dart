@@ -8,14 +8,9 @@ import '../../core/data_provider.dart';
 class StoriesMenuScreen extends ConsumerWidget {
   const StoriesMenuScreen({super.key});
 
+  // Return title as is; localization keys can be added later
   String _getStoryTitle(AppLocalizations? l10n, String titleKey) {
-    if (l10n == null) return titleKey;
-    switch (titleKey) {
-      case 'storyRedRidingHood':
-        return l10n.storyRedRidingHood;
-      default:
-        return titleKey;
-    }
+    return titleKey;
   }
 
   @override
