@@ -1,9 +1,60 @@
 {
   "categories": [
-    { "id": "ferma", "name": "Animale de fermă", "items": [ {"id":"vaca","name":"Vacă"} ] },
-    { "id": "pasari", "name": "Păsări", "items": [ {"id":"macaleandru","name":"Măcăleandru"} ] },
-    { "id": "marine", "name": "Animale marine", "items": [ {"id":"delfin","name":"Delfin"} ] },
-    { "id": "vehicule", "name": "Vehicule", "items": [ {"id":"masina","name":"Mașină"} ] },
-    { "id": "salbatice", "name": "Animale sălbatice", "items": [ {"id":"leu","name":"Leu"} ] }
+    {
+      "id": "ferma",
+      "name": "Animale de fermă",
+      "items": [
+        {"id": "vaca", "name": "Vacă"},
+        {"id": "cal", "name": "Cal"},
+        {"id": "oaie", "name": "Oaie"},
+        {"id": "capra", "name": "Capră"},
+        {"id": "porc", "name": "Porc"},
+        {"id": "gaina", "name": "Găină"}
+      ]
+    },
+    {
+      "id": "pasari",
+      "name": "Păsări",
+      "items": [
+        {"id": "macaleandru", "name": "Măcăleandru"},
+        {"id": "vrabie", "name": "Vrabie"},
+        {"id": "canar", "name": "Canar"},
+        {"id": "ciocanitoare", "name": "Ciocănitoare"},
+        {"id": "randunica", "name": "Rândunică"}
+      ]
+    },
+    {
+      "id": "marine",
+      "name": "Animale marine",
+      "items": [
+        {"id": "delfin", "name": "Delfin"},
+        {"id": "balena", "name": "Balenă"},
+        {"id": "caracatita", "name": "Caracatiță"},
+        {"id": "rechin", "name": "Rechin"},
+        {"id": "peste", "name": "Pește"}
+      ]
+    },
+    {
+      "id": "salbatice",
+      "name": "Animale sălbatice",
+      "items": [
+        {"id": "leu", "name": "Leu"},
+        {"id": "elefant", "name": "Elefant"},
+        {"id": "tigru", "name": "Tigru"},
+        {"id": "girafa", "name": "Girafă"},
+        {"id": "urs", "name": "Urs"}
+      ]
+    },
+    {
+      "id": "vehicule",
+      "name": "Vehicule",
+      "items": [
+        {"id": "masina", "name": "Mașină"},
+        {"id": "avion", "name": "Avion"},
+        {"id": "tren", "name": "Tren"},
+        {"id": "barca", "name": "Barcă"},
+        {"id": "bicicleta", "name": "Bicicletă"}
+      ]
+    }
   ]
 }
