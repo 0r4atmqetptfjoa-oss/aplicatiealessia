@@ -12,14 +12,21 @@ class MainMenuScreen extends ConsumerStatefulWidget {
   ConsumerState<MainMenuScreen> createState() => _MainMenuScreenState();
 }
 
-class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
+class _MainMenuScreenState extends ConsumerState<MainMenuScreen> with TickerProviderStateMixin {
   Artboard? _titleArtboard;
   Artboard? _backgroundArtboard;
   StateMachineController? _backgroundController;
+  late AnimationController _fadeAnimationController;
+  late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
+    _fadeAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(_fadeAnimationController);
     _initializeAssets();
   }
 
@@ -41,6 +48,7 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
           _titleArtboard = titleArtboard;
           _backgroundArtboard = backgroundArtboard;
         });
+        _fadeAnimationController.forward();
       }
     } catch (e) {
       // Errors are logged visually in debug mode, no need for print.
@@ -50,13 +58,14 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
   @override
   void dispose() {
     _backgroundController?.dispose();
+    _fadeAnimationController.dispose();
     super.dispose();
   }
 
   void _onPointerMove(PointerMoveEvent event) {
     if (_backgroundController != null) {
-      final SMMIInput<double>? xInput = _backgroundController!.findInput<double>('x');
-      final SMMIInput<double>? yInput = _backgroundController!.findInput<double>('y');
+      final SMINumber? xInput = _backgroundController!.findInput<double>('x') as SMINumber?;
+      final SMINumber? yInput = _backgroundController!.findInput<double>('y') as SMINumber?;
       if (xInput != null && yInput != null) {
         final RenderBox renderBox = context.findRenderObject() as RenderBox;
         final localPosition = renderBox.globalToLocal(event.position);
@@ -77,7 +86,10 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
           fit: StackFit.expand,
           children: [
             if (_backgroundArtboard != null)
-              Rive(artboard: _backgroundArtboard!, fit: BoxFit.cover)
+              FadeTransition(
+                opacity: _fadeAnimation,
+                child: Rive(artboard: _backgroundArtboard!, fit: BoxFit.cover),
+              )
             else
               Container(color: Colors.black),
             Container(color: Colors.black.withAlpha(77)),

@@ -50,3 +50,6 @@ flutter:
     - assets/video/menu/
     - assets/video/cantece/
     - assets/video/stories/
+    # New instrument resources
+    - assets/audio/sounds/instruments/
+    - assets/images/games_module/instruments_game/

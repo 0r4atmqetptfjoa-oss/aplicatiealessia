@@ -29,7 +29,6 @@ class _ColorsGameScreenState extends State<ColorsGameScreen> with TickerProvider
     'Black': Colors.black,
     'White': Colors.white,
     'Cyan': Colors.cyan,
-    'Magenta': Colors.magenta,
   };
 
   @override
