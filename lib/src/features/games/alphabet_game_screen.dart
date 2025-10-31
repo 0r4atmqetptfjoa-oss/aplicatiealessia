@@ -1,5 +1,8 @@
-import 'package:flutter/material.dart';
 import 'dart:math';
+import 'package:flutter/material.dart';
+import 'package:audioplayers/audioplayers.dart';
+
+enum Difficulty { easy, medium, hard }
 
 class AlphabetGameScreen extends StatefulWidget {
   const AlphabetGameScreen({super.key});
@@ -8,150 +11,204 @@ class AlphabetGameScreen extends StatefulWidget {
   State<AlphabetGameScreen> createState() => _AlphabetGameScreenState();
 }
 
-class _AlphabetGameScreenState extends State<AlphabetGameScreen> {
-  late List<String> _letters;
-  late Map<String, String> _targets;
-  late String _currentTargetLetter;
+class _AlphabetGameScreenState extends State<AlphabetGameScreen> with TickerProviderStateMixin {
+  final Random _random = Random();
+  late String _targetLetter;
+  late List<String> _options;
   int _score = 0;
+  String _message = '';
+  Difficulty _difficulty = Difficulty.easy;
+  late AnimationController _animationController;
+  late Animation<double> _animation;
+  late AudioPlayer _audioPlayer;
+
+  final Map<String, String> _imageMap = {
+    'A': 'apple',
+    'B': 'ball',
+    'C': 'cat',
+    'D': 'dog',
+    'E': 'elephant',
+    'F': 'fish',
+    'G': 'goat',
+    'H': 'hat',
+    'I': 'ice_cream',
+    'J': 'jet',
+    'K': 'key',
+    'L': 'lion',
+  };
 
   @override
   void initState() {
     super.initState();
-    _initializeGame();
+    _audioPlayer = AudioPlayer();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+    _animation = Tween<double>(begin: 1.0, end: 1.2).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
+    );
+    _generateNewRound();
   }
 
-  void _initializeGame() {
-    final allLetters = List.generate(26, (index) => String.fromCharCode('A'.codeUnitAt(0) + index));
-    final random = Random();
-    _letters = (allLetters..shuffle(random)).take(4).toList();
-    
-    // Simple mapping for demo purposes
-    final allTargets = {
-      'A': 'Apple', 'B': 'Ball', 'C': 'Cat', 'D': 'Dog',
-      'E': 'Elephant', 'F': 'Fish', 'G': 'Goat', /* ... add more */
-    };
-    
-    _targets = { for (var letter in _letters) letter: allTargets[letter] ?? 'Object' };
-    _currentTargetLetter = _letters[random.nextInt(_letters.length)];
+  @override
+  void dispose() {
+    _animationController.dispose();
+    _audioPlayer.dispose();
+    super.dispose();
   }
 
-  void _onLetterDropped(String letter, String target) {
-    if (letter == target) {
+  void _generateNewRound() {
+    int numOptions;
+    switch (_difficulty) {
+      case Difficulty.easy:
+        numOptions = 2;
+        break;
+      case Difficulty.medium:
+        numOptions = 3;
+        break;
+      case Difficulty.hard:
+        numOptions = 4;
+        break;
+    }
+
+    int index = _random.nextInt(_imageMap.length);
+    String letter = _imageMap.keys.elementAt(index);
+    _targetLetter = letter;
+
+    _options = [letter];
+    while (_options.length < numOptions) {
+      int randomIndex = _random.nextInt(_imageMap.length);
+      String randomLetter = _imageMap.keys.elementAt(randomIndex);
+      if (!_options.contains(randomLetter)) {
+        _options.add(randomLetter);
+      }
+    }
+    _options.shuffle();
+
+    setState(() {
+      _message = '';
+    });
+  }
+
+  void _onLetterDropped(String letter) {
+    if (letter == _targetLetter) {
       setState(() {
         _score++;
-        _letters.remove(letter);
-        if (_letters.isEmpty) {
-          // Game over or next level
-          _showGameOverDialog();
-        } else {
-          _currentTargetLetter = _letters[Random().nextInt(_letters.length)];
-        }
+        _message = 'Correct!';
+      });
+      _audioPlayer.play(AssetSource('audio/correct.mp3'));
+      _animationController.forward().then((_) {
+        _animationController.reverse();
+        Future.delayed(const Duration(seconds: 1), () {
+          _generateNewRound();
+        });
       });
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Try again!'), duration: Duration(seconds: 1)),
-      );
+      setState(() {
+        _message = 'Try again!';
+      });
     }
   }
 
-  void _showGameOverDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Congratulations!'),
-        content: Text('You finished the level with a score of $_score'),
+  @override
+  Widget build(BuildContext context) {
+    String targetImage = _imageMap[_targetLetter] ?? '';
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Alphabet Game'),
         actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
+          PopupMenuButton<Difficulty>(
+            onSelected: (Difficulty result) {
               setState(() {
+                _difficulty = result;
                 _score = 0;
-                _initializeGame();
+                _generateNewRound();
               });
             },
-            child: const Text('Play Again'),
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<Difficulty>>[
+              const PopupMenuItem<Difficulty>(
+                value: Difficulty.easy,
+                child: Text('Easy'),
+              ),
+              const PopupMenuItem<Difficulty>(
+                value: Difficulty.medium,
+                child: Text('Medium'),
+              ),
+              const PopupMenuItem<Difficulty>(
+                value: Difficulty.hard,
+                child: Text('Hard'),
+              ),
+            ],
           ),
         ],
       ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Alphabet Game')),
-      body: Column(
-        children: [
-          Expanded(
-            flex: 2,
-            child: Center(
-              child: Text('Find the object for: $_currentTargetLetter', style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Score: $_score',
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-          ),
-          Expanded(
-            flex: 3,
-            child: Row(
+            const SizedBox(height: 20),
+            Text(
+              'Drag the correct letter to the image',
+              style: const TextStyle(fontSize: 18),
+            ),
+            const SizedBox(height: 20),
+            ScaleTransition(
+              scale: _animation,
+              child: DragTarget<String>(
+                builder: (context, candidateData, rejectedData) {
+                  return Image.asset(
+                    'assets/images/games_module/alphabet_game/$targetImage.png',
+                    height: 150,
+                    width: 150,
+                    errorBuilder: (context, error, stackTrace) => const Icon(Icons.image, size: 150),
+                  );
+                },
+                onAccept: _onLetterDropped,
+              ),
+            ),
+            const SizedBox(height: 40),
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: _targets.entries.map((entry) {
-                return DragTarget<String>(
-                  builder: (context, candidateData, rejectedData) {
-                    return _TargetObject(objectName: entry.value);
-                  },
-                  onAcceptWithDetails: (details) => _onLetterDropped(details.data, entry.key),
+              children: _options.map((letter) {
+                return Draggable<String>(
+                  data: letter,
+                  feedback: _buildDraggableLetter(letter, 60),
+                  childWhenDragging: _buildDraggableLetter(letter, 50, color: Colors.grey.withOpacity(0.5)),
+                  child: _buildDraggableLetter(letter, 50),
                 );
               }).toList(),
             ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: _letters.map((letter) => _DraggableLetter(letter: letter)).toList(),
+            const SizedBox(height: 20),
+            Text(
+              _message,
+              style: const TextStyle(fontSize: 24, color: Colors.red),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
-}
 
-class _DraggableLetter extends StatelessWidget {
-  final String letter;
-  const _DraggableLetter({required this.letter});
-
-  @override
-  Widget build(BuildContext context) {
-    return Draggable<String>(
-      data: letter,
-      feedback: Material(
-        color: Colors.transparent,
-        child: Text(letter, style: const TextStyle(fontSize: 48, color: Colors.blue, fontWeight: FontWeight.bold)),
-      ),
-      childWhenDragging: Container(width: 60, height: 60, color: Colors.grey.shade300),
-      child: Container(
-        width: 60,
-        height: 60,
-        color: Colors.blue.shade100,
-        child: Center(child: Text(letter, style: const TextStyle(fontSize: 32))),
-      ),
-    );
-  }
-}
-
-class _TargetObject extends StatelessWidget {
-  final String objectName;
-  const _TargetObject({required this.objectName});
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildDraggableLetter(String letter, double size, {Color? color}) {
     return Container(
-      width: 100,
-      height: 100,
+      width: size,
+      height: size,
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.blue, width: 2),
-        borderRadius: BorderRadius.circular(12),
+        color: color ?? Colors.blue.shade100,
+        shape: BoxShape.circle,
       ),
-      child: Center(child: Text(objectName, style: const TextStyle(fontSize: 18))),
+      child: Center(
+        child: Text(
+          letter,
+          style: TextStyle(fontSize: size * 0.6, fontWeight: FontWeight.bold),
+        ),
+      ),
     );
   }
 }

@@ -1,7 +1,6 @@
 import 'dart:async';
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter/services.dart';
 
 class PuzzleGameScreen extends StatefulWidget {
   const PuzzleGameScreen({super.key});
@@ -10,122 +9,101 @@ class PuzzleGameScreen extends StatefulWidget {
   State<PuzzleGameScreen> createState() => _PuzzleGameScreenState();
 }
 
-class _PuzzleGameScreenState extends State<PuzzleGameScreen> {
-  final List<String> _puzzleImages = [
-    'assets/images/games_module/puzzle_levels/puzzle_animale.png',
-    'assets/images/games_module/puzzle_levels/puzzle_spatiu.png',
-  ];
-  int _currentLevel = 0;
-  int _gridSize = 3;
-  late List<int?> _board;
-  late List<int> _palette;
-  bool _showHint = false;
-  Timer? _timer;
-  int _secondsElapsed = 0;
+class _PuzzleGameScreenState extends State<PuzzleGameScreen> with TickerProviderStateMixin {
+  late List<int> _pieces;
+  int _emptyIndex = 8;
+  bool _isGameWon = false;
+  int _moves = 0;
+  late Image _image;
+  late AnimationController _winAnimationController;
+  late Animation<double> _winAnimation;
 
   @override
   void initState() {
     super.initState();
-    _initializeGame();
-  }
-
-  void _initializeGame() {
-    final totalPieces = _gridSize * _gridSize;
-    _board = List<int?>.filled(totalPieces, null);
-    _palette = List<int>.generate(totalPieces, (i) => i)..shuffle();
-    _secondsElapsed = 0;
-    _startTimer();
-  }
-
-  void _startTimer() {
-    _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (mounted) {
-        setState(() {
-          _secondsElapsed++;
-        });
-      }
-    });
+    _image = Image.asset('assets/images/games_module/puzzle_game/puzzle.png',
+        errorBuilder: (context, error, stackTrace) => const Icon(Icons.image, size: 150));
+    _pieces = List.generate(9, (index) => index);
+    _winAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 1000),
+      vsync: this,
+    );
+    _winAnimation = CurvedAnimation(parent: _winAnimationController, curve: Curves.bounceOut);
+    _shuffle();
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
+    _winAnimationController.dispose();
     super.dispose();
   }
 
-  bool _isSolved() {
-    for (int i = 0; i < _board.length; i++) {
-      if (_board[i] != i) return false;
-    }
-    return true;
-  }
-
-  void _handleDrop(int cellIndex, int pieceIndex) {
+  void _shuffle() {
     setState(() {
-      _palette.remove(pieceIndex);
-      final oldIndex = _board.indexOf(pieceIndex);
-      if (oldIndex != -1) _board[oldIndex] = null;
-
-      final existing = _board[cellIndex];
-      if (existing != null) _palette.add(existing);
-
-      _board[cellIndex] = pieceIndex;
-    });
-
-    if (_isSolved()) {
-      _timer?.cancel();
-      _showSuccessDialog();
-    }
-  }
-
-  void _handlePaletteDrop(int pieceIndex) {
-    setState(() {
-      final oldIndex = _board.indexOf(pieceIndex);
-      if (oldIndex != -1) _board[oldIndex] = null;
-      if (!_palette.contains(pieceIndex)) _palette.add(pieceIndex);
+      _pieces.shuffle();
+      _emptyIndex = _pieces.indexOf(8);
+      _isGameWon = false;
+      _moves = 0;
+      _winAnimationController.reset();
     });
   }
 
-  void _showSuccessDialog() {
+  void _movePiece(int index) {
+    if (_isGameWon) return;
+
+    if (_canMove(index)) {
+      HapticFeedback.lightImpact();
+      setState(() {
+        _pieces[_emptyIndex] = _pieces[index];
+        _pieces[index] = 8;
+        _emptyIndex = index;
+        _moves++;
+      });
+      _checkWin();
+    }
+  }
+
+  bool _canMove(int index) {
+    int row = index ~/ 3;
+    int col = index % 3;
+    int emptyRow = _emptyIndex ~/ 3;
+    int emptyCol = _emptyIndex % 3;
+
+    return (row == emptyRow && (col - emptyCol).abs() == 1) || (col == emptyCol && (row - emptyRow).abs() == 1);
+  }
+
+  void _checkWin() {
+    bool isSorted = true;
+    for (int i = 0; i < _pieces.length; i++) {
+      if (_pieces[i] != i) {
+        isSorted = false;
+        break;
+      }
+    }
+    if (isSorted) {
+      setState(() {
+        _isGameWon = true;
+      });
+      _winAnimationController.forward();
+      _showWinDialog();
+    }
+  }
+
+  void _showWinDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Congratulations!'),
-        content: Text('You solved the puzzle in $_secondsElapsed seconds!'),
+      builder: (_) => AlertDialog(
+        title: const Text('You Won!'),
+        content: Text('You solved the puzzle in $_moves moves!'),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
-              setState(() {
-                if (_gridSize < 5) _gridSize++;
-                _currentLevel = (_currentLevel + 1) % _puzzleImages.length;
-                _initializeGame();
-              });
+              _shuffle();
             },
-            child: const Text('Next Level'),
+            child: const Text('Play Again'),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildTile(int pieceIndex, double tileSize) {
-    final row = pieceIndex ~/ _gridSize;
-    final col = pieceIndex % _gridSize;
-    final alignX = -1.0 + (col * 2.0 / (_gridSize - 1));
-    final alignY = -1.0 + (row * 2.0 / (_gridSize - 1));
-
-    return SizedBox(
-      width: tileSize,
-      height: tileSize,
-      child: ClipRect(
-        child: Align(
-          alignment: Alignment(alignX, alignY),
-          widthFactor: 1 / _gridSize,
-          heightFactor: 1 / _gridSize,
-          child: Image.asset(_puzzleImages[_currentLevel], fit: BoxFit.cover),
-        ),
       ),
     );
   }
@@ -134,91 +112,63 @@ class _PuzzleGameScreenState extends State<PuzzleGameScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Puzzle Game ($_gridSize x $_gridSize)'),
+        title: const Text('Puzzle Game'),
         actions: [
           IconButton(
-            icon: Icon(_showHint ? Icons.visibility_off : Icons.visibility),
-            onPressed: () => setState(() => _showHint = !_showHint),
-          ),
-          IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () => setState(() => _initializeGame()),
-          ),
-          GoRouter.of(context).canPop() ? IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.pop()) : const SizedBox.shrink(),
+            onPressed: _shuffle,
+          )
         ],
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final boardSize = math.min(constraints.maxWidth * 0.7, constraints.maxHeight * 0.9);
-          final tileSize = boardSize / _gridSize;
-
-          return Row(
-            children: [
-              SizedBox(
-                width: boardSize,
-                height: boardSize,
-                child: Stack(
-                  children: [
-                    if (_showHint)
-                      Image.asset(
-                        _puzzleImages[_currentLevel],
-                        fit: BoxFit.cover,
-                        color: Colors.white.withAlpha(51), // 20% opacity
-                        colorBlendMode: BlendMode.dstATop,
-                      ),
-                    GridView.builder(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: _gridSize,
-                        crossAxisSpacing: 2,
-                        mainAxisSpacing: 2,
-                      ),
-                      itemCount: _gridSize * _gridSize,
-                      itemBuilder: (context, cellIndex) {
-                        final pieceIndex = _board[cellIndex];
-                        return DragTarget<int>(
-                          onAcceptWithDetails: (details) => _handleDrop(cellIndex, details.data),
-                          builder: (context, candidateData, rejectedData) {
-                            if (pieceIndex == null) {
-                              return Container(color: Colors.grey.withAlpha(26));
-                            } else {
-                              return Draggable<int>(
-                                data: pieceIndex,
-                                feedback: _buildTile(pieceIndex, tileSize),
-                                childWhenDragging: const SizedBox.shrink(),
-                                child: _buildTile(pieceIndex, tileSize),
-                              );
-                            }
-                          },
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: DragTarget<int>(
-                  onAcceptWithDetails: (details) => _handlePaletteDrop(details.data),
-                  builder: (context, candidateData, rejectedData) {
-                    return SingleChildScrollView(
-                      child: Wrap(
-                        spacing: 4,
-                        runSpacing: 4,
-                        children: _palette.map((pieceIndex) {
-                          return Draggable<int>(
-                            data: pieceIndex,
-                            feedback: _buildTile(pieceIndex, tileSize),
-                            childWhenDragging: const SizedBox.shrink(),
-                            child: _buildTile(pieceIndex, tileSize),
-                          );
-                        }).toList(),
-                      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('Moves: $_moves', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 20),
+          Center(
+            child: AspectRatio(
+              aspectRatio: 1.0,
+              child: Stack(
+                children: List.generate(9, (index) {
+                  int piece = _pieces[index];
+                  if (piece == 8 && !_isGameWon) {
+                    return Positioned(
+                      left: (index % 3) * (MediaQuery.of(context).size.width / 3),
+                      top: (index ~/ 3) * (MediaQuery.of(context).size.width / 3),
+                      width: MediaQuery.of(context).size.width / 3,
+                      height: MediaQuery.of(context).size.width / 3,
+                      child: Container(color: Colors.grey[300]),
                     );
-                  },
-                ),
+                  }
+                  return AnimatedPositioned(
+                    duration: const Duration(milliseconds: 200),
+                    left: (_pieces.indexOf(piece) % 3) * (MediaQuery.of(context).size.width / 3),
+                    top: (_pieces.indexOf(piece) ~/ 3) * (MediaQuery.of(context).size.width / 3),
+                    width: MediaQuery.of(context).size.width / 3,
+                    height: MediaQuery.of(context).size.width / 3,
+                    child: GestureDetector(
+                      onTap: () => _movePiece(_pieces.indexOf(piece)),
+                      child: ScaleTransition(
+                        scale: _isGameWon ? _winAnimation : const AlwaysStoppedAnimation(1.0),
+                        child: FittedBox(
+                          fit: BoxFit.fill,
+                          child: ClipRect(
+                            child: Align(
+                              alignment: FractionalOffset((piece % 3) / 2.0, (piece ~/ 3) / 2.0),
+                              widthFactor: 1 / 3,
+                              heightFactor: 1 / 3,
+                              child: _image,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }),
               ),
-            ],
-          );
-        },
+            ),
+          ),
+        ],
       ),
     );
   }

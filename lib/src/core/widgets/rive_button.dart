@@ -26,14 +26,14 @@ class RiveButton extends StatefulWidget {
 
 class _RiveButtonState extends State<RiveButton> {
   SMIInput<bool>? _hoverInput;
-  SMIInput<bool>? _tapInput;
+  SMIInput<bool>? _pressInput;
 
   void _onRiveInit(Artboard artboard) {
     final controller = StateMachineController.fromArtboard(artboard, widget.stateMachineName);
     if (controller != null) {
       artboard.addController(controller);
       _hoverInput = controller.findInput<bool>('isHover');
-      _tapInput = controller.findInput<bool>('isPressed');
+      _pressInput = controller.findInput<bool>('isPressed');
     }
   }
 
@@ -41,12 +41,13 @@ class _RiveButtonState extends State<RiveButton> {
     _hoverInput?.value = isHovering;
   }
 
-  void _onTap() {
-    _tapInput?.value = true;
-    Future.delayed(const Duration(milliseconds: 250), () {
-      _tapInput?.value = false;
-      widget.onTap();
-    });
+  void _onTapDown() {
+    _pressInput?.value = true;
+  }
+
+  void _onTapUp() {
+    _pressInput?.value = false;
+    widget.onTap();
   }
 
   @override
@@ -55,7 +56,9 @@ class _RiveButtonState extends State<RiveButton> {
       onEnter: (_) => _onHover(true),
       onExit: (_) => _onHover(false),
       child: GestureDetector(
-        onTap: _onTap,
+        onTapDown: (_) => _onTapDown(),
+        onTapUp: (_) => _onTapUp(),
+        onTapCancel: () => _pressInput?.value = false,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
