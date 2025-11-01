@@ -1,56 +1,6 @@
-name: lumea_alessiei
-environment:
-  sdk: '^3.9.0'
-dependencies:
-  flutter:
-    sdk: flutter
-  flutter_localizations:
-    sdk: flutter
-  flutter_riverpod: ^2.5.1
-  go_router: ^14.1.4
-  animations: ^2.0.11
-  rive: ^0.13.20
-  video_player: ^2.9.1
-  audioplayers: ^6.0.0
-  shared_preferences: ^2.2.3
-  intl: ^0.20.2
-
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_lints: ^4.0.0
-
 flutter:
-  uses-material-design: true
-  generate: true
   assets:
-    - assets/data/
-    - assets/audio/
-    - assets/audio/sounds/
-    - assets/audio/sounds/ferma/
-    - assets/audio/sounds/marine/
-    - assets/audio/sounds/pasari/
-    - assets/audio/sounds/salbatice/
-    - assets/audio/sounds/vehicule/
-    - assets/audio/songs/
-    - assets/images/
-    - assets/images/games_module/
-    - assets/images/menu/
-    - assets/images/songs_module/
-    - assets/images/sounds_module/
-    - assets/images/sounds_module/categories/
-    - assets/images/sounds_module/ferma/
-    - assets/images/sounds_module/marine/
-    - assets/images/sounds_module/pasari/
-    - assets/images/sounds_module/salbatice/
-    - assets/images/sounds_module/vehicule/
-    - assets/images/stories_module/
-    - assets/rive/
-    - assets/video/
-    - assets/video/menu/
-    - assets/video/cantece/
-    - assets/video/stories/
-    - assets/audio/correct.mp3
-    # New instrument resources
-    - assets/audio/sounds/instruments/
+    - assets/images/games_module/puzzle_game/
+    - assets/images/games_module/sorting_animals_game/
     - assets/images/games_module/instruments_game/
+    - assets/audio/sounds/instruments/
