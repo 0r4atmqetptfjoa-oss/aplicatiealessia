@@ -1,29 +1,9 @@
+
 {
   "songs": [
     {
-      "id": "baa_baa_black_sheep",
-      "title": "Baa Baa Black Sheep",
-      "artboard": "BTN_BAA_BAA_BLACK_SHEEP"
-    },
-    {
-      "id": "old_macdonald",
-      "title": "Old MacDonald",
-      "artboard": "BTN_OLD_MACDONALD"
-    },
-    {
-      "id": "itsy_bitsy_spider",
-      "title": "Itsy Bitsy Spider",
-      "artboard": "BTN_ITSY_BITSY_SPIDER"
-    },
-    {
-      "id": "baby_shark",
-      "title": "Baby Shark",
-      "artboard": "BTN_BABY_SHARK"
-    },
-    {
-      "id": "row_row_row_your_boat",
-      "title": "Row Row Row Your Boat",
-      "artboard": "BTN_ROW_ROW_ROW_YOUR_BOAT"
+      "id": "twinkle_twinkle",
+      "title": "Twinkle Twinkle Little Star"
     }
   ]
 }

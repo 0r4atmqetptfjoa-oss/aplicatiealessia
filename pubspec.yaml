@@ -1,6 +1,47 @@
+name: lumea_alessiei
+description: A new Flutter project.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '^3.9.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  animations: ^2.0.11
+  audioplayers: ^6.0.0
+  flutter_riverpod: ^2.5.1
+  go_router: ^14.2.0
+  intl: 0.20.2
+  rive: ^0.13.20
+  shared_preferences: ^2.2.3
+  video_player: ^2.8.6
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
 flutter:
+  uses-material-design: true
+  generate: true
   assets:
     - assets/images/games_module/puzzle_game/
     - assets/images/games_module/sorting_animals_game/
     - assets/images/games_module/instruments_game/
+    - assets/images/sounds_module/categories/
     - assets/audio/sounds/instruments/
+    - assets/audio/sounds/ferma/
+    - assets/audio/sounds/salbatice/
+    - assets/audio/sounds/pasari/
+    - assets/audio/sounds/marine/
+    - assets/audio/sounds/vehicule/
+    - assets/audio/songs/
+    - assets/video/stories/
+    - assets/video/cantece/
+    - assets/rive/
+    - assets/data/

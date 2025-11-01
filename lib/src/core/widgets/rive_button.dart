@@ -1,4 +1,7 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:rive/rive.dart';
 
 /// A reusable, animated button powered by a Rive state machine.
