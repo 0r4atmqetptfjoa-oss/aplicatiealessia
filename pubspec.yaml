@@ -34,14 +34,40 @@ flutter:
     - assets/images/games_module/sorting_animals_game/
     - assets/images/games_module/instruments_game/
     - assets/images/sounds_module/categories/
-    - assets/audio/sounds/instruments/
-    - assets/audio/sounds/ferma/
-    - assets/audio/sounds/salbatice/
-    - assets/audio/sounds/pasari/
-    - assets/audio/sounds/marine/
-    - assets/audio/sounds/vehicule/
-    - assets/audio/songs/
-    - assets/video/stories/
-    - assets/video/cantece/
-    - assets/rive/
+    - assets/audio/sunete/
+    - assets/audio/sunete/ferma/
+    - assets/audio/sunete/salbatice/
+    - assets/audio/sunete/pasari/
+    - assets/audio/sunete/marine/
+    - assets/audio/sunete/vehicule/
+    - assets/audio/cantece/
+    - assets/video/povesti/
     - assets/data/
+    - assets/privacy/
+    - assets/rive_3d/
+    - assets/images/menu/
+    - assets/images/sounds/
+    - assets/images/songs_module/
+    - assets/images/stories_module/
+    - assets/images/games_module/memory_cards/
+    - assets/images/games_module/puzzle_levels/
+    - assets/images/sounds_module/ferma/
+    - assets/images/sounds_module/marine/
+    - assets/images/sounds_module/pasari/
+    - assets/images/sounds_module/vehicule/
+    - assets/images/sounds_module/salbatice/
+    - assets/audio/instrumente/
+    - assets/video/menu/
+    - assets/video/sounds/
+    # Rive assets
+    - assets/rive/birds.riv
+    - assets/rive/ferma.riv
+    - assets/rive/title.riv
+    - assets/rive/marine.riv
+    - assets/rive/pasari.riv
+    - assets/rive/vehicule.riv
+    - assets/rive/salbatice.riv
+    - assets/rive/game_buttons.riv
+    - assets/rive/menu_buttons.riv
+    - assets/rive/song_buttons.riv
+    - assets/rive/story_buttons.riv

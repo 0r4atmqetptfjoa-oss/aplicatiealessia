@@ -79,7 +79,7 @@ class _RiveButtonState extends State<RiveButton> {
             const SizedBox(height: 8),
             Text(
               widget.label,
-              style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ],
         ),

@@ -1,60 +1,66 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'l10n/app_localizations.dart';
 import 'src/core/router/app_router.dart';
-import 'src/services/precache_service.dart';
+
+// 1. Provider pentru a gestiona starea limbii
+final localeProvider = StateNotifierProvider<LocaleNotifier, Locale>((ref) {
+  return LocaleNotifier();
+});
+
+class LocaleNotifier extends StateNotifier<Locale> {
+  LocaleNotifier() : super(const Locale('ro')) { // Limba implicită este româna
+    _loadLocale();
+  }
+
+  void _loadLocale() async {
+    final prefs = await SharedPreferences.getInstance();
+    final languageCode = prefs.getString('languageCode') ?? 'ro';
+    state = Locale(languageCode);
+  }
+
+  void setLocale(Locale newLocale) async {
+    if (state == newLocale) return;
+    state = newLocale;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('languageCode', newLocale.languageCode);
+  }
+}
+
 
 /// The main entry point of the application.
 Future<void> main() async {
-  // Ensure that the Flutter binding is initialized before any other code is executed.
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Lock the screen orientation to landscape mode.
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.landscapeLeft,
     DeviceOrientation.landscapeRight,
   ]);
-
-  // Run the app within a ProviderScope to enable Riverpod for state management.
   runApp(const ProviderScope(child: LumeaAlessieiApp()));
 }
 
 /// The root widget of the application.
-class LumeaAlessieiApp extends ConsumerStatefulWidget {
+class LumeaAlessieiApp extends ConsumerWidget {
   const LumeaAlessieiApp({super.key});
 
   @override
-  ConsumerState<LumeaAlessieiApp> createState() => _LumeaAlessieiAppState();
-}
-
-class _LumeaAlessieiAppState extends ConsumerState<LumeaAlessieiApp> {
-  @override
-  void initState() {
-    super.initState();
-    // After the first frame is rendered, start pre-caching critical assets.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(precacheServiceProvider).precacheCriticalAssets(context, ref);
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // Watch the app router provider to get the router configuration.
+  Widget build(BuildContext context, WidgetRef ref) {
+    // 2. Ascultă provider-ul de limbă
+    final locale = ref.watch(localeProvider);
     final router = ref.watch(appRouterProvider);
 
     return MaterialApp.router(
-      // Disable the debug banner in the top-right corner.
       debugShowCheckedModeBanner: false,
-      // Set the title of the application.
-      title: 'Lumea Alessiei',
-      // Configure localization delegates for internationalization.
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      // Set the router configuration for the app.
+      
+      // 3. Setează limba din provider
+      locale: locale,
+
+      onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       routerConfig: router,
-      // Define the theme of the application.
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
         useMaterial3: true,
