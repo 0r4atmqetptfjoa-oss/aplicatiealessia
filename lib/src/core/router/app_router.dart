@@ -13,7 +13,12 @@ import '../../features/main_menu/main_menu_screen.dart';
 import '../../features/parental_gate/parental_gate_screen.dart';
 import '../../features/sounds/sounds_menu_screen.dart';
 import '../../features/sounds/sound_category_screen.dart';
-import '../../features/instruments/instruments_screen.dart';
+// Importuri noi
+import '../../features/instruments/instruments_menu_screen.dart'; 
+import '../../features/instruments/piano_play_screen.dart';
+import '../../features/instruments/drums_play_screen.dart';
+import '../../features/instruments/xylophone_play_screen.dart';
+
 import '../../features/songs/songs_menu_screen.dart';
 import '../../features/songs/song_player_screen.dart';
 import '../../features/stories/stories_menu_screen.dart';
@@ -46,7 +51,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         await Future.delayed(const Duration(seconds: 2));
         return activeProfileId == null ? '/profiles' : '/home';
       }
-      // Add premium content check here if needed
       return null;
     },
     routes: <RouteBase>[
@@ -58,7 +62,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       _buildRoute('/sounds', 'sounds', const SoundsMenuScreen(), routes: [
         _buildRoute(':category', 'soundsDetail', (state) => SoundCategoryScreen(category: state.pathParameters['category']!)),
       ]),
-      _buildRoute('/instruments', 'instruments', const InstrumentsScreen()),
+      // Ruta pentru instrumente actualizată
+      _buildRoute('/instruments', 'instruments', const InstrumentsMenuScreen(), routes: [
+        _buildRoute('piano', 'pianoPlay', const PianoPlayScreen()),
+        _buildRoute('drums', 'drumsPlay', const DrumsPlayScreen()),
+        _buildRoute('xylophone', 'xylophonePlay', const XylophonePlayScreen()),
+      ]),
       _buildRoute('/songs', 'songs', const SongsMenuScreen(), routes: [
         _buildRoute('play/:songId', 'songPlayer', (state) => SongPlayerScreen(songId: state.pathParameters['songId']!)),
       ]),

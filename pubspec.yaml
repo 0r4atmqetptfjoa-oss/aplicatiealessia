@@ -19,7 +19,8 @@ dependencies:
   rive: ^0.13.20
   shared_preferences: ^2.2.3
   video_player: ^2.8.6
-
+  flutter_midi: ^1.1.0
+  piano: 1.0.4
 
 dev_dependencies:
   flutter_test:
@@ -57,6 +58,8 @@ flutter:
     - assets/images/sounds_module/vehicule/
     - assets/images/sounds_module/salbatice/
     - assets/audio/instrumente/
+    - assets/audio/instrumente/xilofon/
+    - assets/audio/instrumente/tobe/
     - assets/video/menu/
     - assets/video/sounds/
     # Rive assets
@@ -71,3 +74,5 @@ flutter:
     - assets/rive/menu_buttons.riv
     - assets/rive/song_buttons.riv
     - assets/rive/story_buttons.riv
+    # Soundfont for MIDI
+    - assets/sf2/
