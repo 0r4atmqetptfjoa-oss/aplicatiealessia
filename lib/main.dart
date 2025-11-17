@@ -1,69 +1,52 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:provider/provider.dart';
+import 'services/subscription_service.dart';
+import 'services/settings_service.dart';
+import 'app_router.dart';
 import 'l10n/app_localizations.dart';
-import 'src/core/router/app_router.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
-// 1. Provider pentru a gestiona starea limbii
-final localeProvider = StateNotifierProvider<LocaleNotifier, Locale>((ref) {
-  return LocaleNotifier();
-});
-
-class LocaleNotifier extends StateNotifier<Locale> {
-  LocaleNotifier() : super(const Locale('ro')) { // Limba implicită este româna
-    _loadLocale();
-  }
-
-  void _loadLocale() async {
-    final prefs = await SharedPreferences.getInstance();
-    final languageCode = prefs.getString('languageCode') ?? 'ro';
-    state = Locale(languageCode);
-  }
-
-  void setLocale(Locale newLocale) async {
-    if (state == newLocale) return;
-    state = newLocale;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('languageCode', newLocale.languageCode);
-  }
+void main() {
+  runApp(const NumvpApp());
 }
 
-
-/// The main entry point of the application.
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.landscapeLeft,
-    DeviceOrientation.landscapeRight,
-  ]);
-  runApp(const ProviderScope(child: LumeaAlessieiApp()));
-}
-
-/// The root widget of the application.
-class LumeaAlessieiApp extends ConsumerWidget {
-  const LumeaAlessieiApp({super.key});
+/// The root widget of the NumVP application.
+///
+/// This widget sets up the [MaterialApp.router] and provides localization
+/// delegates and supported locales. It also wraps the application with
+/// [MultiProvider] so that additional services can be injected later.
+class NumvpApp extends StatelessWidget {
+  const NumvpApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // 2. Ascultă provider-ul de limbă
-    final locale = ref.watch(localeProvider);
-    final router = ref.watch(appRouterProvider);
-
-    return MaterialApp.router(
-      debugShowCheckedModeBanner: false,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      
-      // 3. Setează limba din provider
-      locale: locale,
-
-      onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
-      routerConfig: router,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
-        useMaterial3: true,
+  Widget build(BuildContext context) {
+    final router = AppRouter().router;
+    return MultiProvider(
+      providers: [
+        // Provide the subscription service so we can gate content based on
+        // premium status.
+        ChangeNotifierProvider(create: (_) => SubscriptionService()),
+        // Provide the settings service so the settings screen can modify
+        // preferences like sound and music.
+        ChangeNotifierProvider(create: (_) => SettingsService()),
+      ],
+      child: MaterialApp.router(
+        title: 'NumVP',
+        debugShowCheckedModeBanner: false,
+        routerConfig: router,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('en'),
+          Locale('ro'),
+        ],
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
       ),
     );
   }

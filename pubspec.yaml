@@ -1,78 +1,63 @@
-name: lumea_alessiei
-description: A new Flutter project.
-publish_to: 'none'
+name: numvp
+description: >
+  NumVP is a simple educational and entertainment Flutter application for Android.
+  It contains multiple modules such as games, instruments, songs, sounds and
+  stories. The project demonstrates the use of the three_dart package to render
+  simple 3D scenes and uses go_router and provider for navigation and state
+  management.
+
+publish_to: "none"
+
 version: 1.0.0+1
 
 environment:
-  sdk: '^3.9.0'
+  sdk: ">=3.10.0 <4.0.0"
+  flutter: ">=3.38.0"
 
 dependencies:
   flutter:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  animations: ^2.0.11
-  audioplayers: ^6.0.0
-  flutter_riverpod: ^2.5.1
-  go_router: ^14.2.0
-  intl: 0.20.2
-  rive: ^0.13.20
-  shared_preferences: ^2.2.3
-  video_player: ^2.8.6
-  flutter_midi: ^1.1.0
-  piano: 1.0.4
+  provider: ^6.1.5+1
+  go_router: ^17.0.0
+  three_dart: ^0.0.16
+  vector_math: any
+
+  # Plugin to render interactive 3D models (glTF/GLB). This widget embeds Google's
+  # <model-viewer> web component, enabling us to display 3D models and play
+  # their animations directly in Flutter. It supports glTF/GLB formats, animated
+  # models, auto‑rotation and AR modes【210132009004240†L174-L185】.
+  model_viewer_plus: ^1.9.3
+
+  # Audio playback for stories and interactive games. This package supports
+  # playing local and remote audio files and is widely used in Flutter apps.
+  # Upgrade audioplayers to a recent version that declares the Android namespace
+  # See https://pub.dev/packages/audioplayers for latest releases. Version 6.x
+  # depends on audioplayers_android >=5.x which defines the required
+  # `namespace` property in its build.gradle, avoiding AGP 8 errors.
+  audioplayers: ^6.5.1
+
+dependency_overrides:
+  # Ensure the Android implementation is at least version 5.2.1, which
+  # specifies a namespace. Without this override, a transitive older
+  # audioplayers_android (e.g., 1.1.3) may be pulled in by other packages,
+  # leading to build failures【279751166207276†L144-L162】.
+  audioplayers_android: ^5.2.1
+
+  # Animated text kit to display animated headings and labels. We'll use this
+  # package to animate game titles and menu buttons.
+  animated_text_kit: ^4.2.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^4.0.0
+  flutter_lints: ^3.0.0
 
 flutter:
   uses-material-design: true
-  generate: true
   assets:
-    - assets/images/games_module/puzzle_game/
-    - assets/images/games_module/sorting_animals_game/
-    - assets/images/games_module/instruments_game/
-    - assets/images/sounds_module/categories/
-    - assets/audio/sunete/
-    - assets/audio/sunete/ferma/
-    - assets/audio/sunete/salbatice/
-    - assets/audio/sunete/pasari/
-    - assets/audio/sunete/marine/
-    - assets/audio/sunete/vehicule/
-    - assets/audio/cantece/
-    - assets/video/povesti/
-    - assets/data/
-    - assets/privacy/
-    - assets/rive_3d/
-    - assets/images/menu/
-    - assets/images/sounds/
-    - assets/images/songs_module/
-    - assets/images/stories_module/
-    - assets/images/games_module/memory_cards/
-    - assets/images/games_module/puzzle_levels/
-    - assets/images/sounds_module/ferma/
-    - assets/images/sounds_module/marine/
-    - assets/images/sounds_module/pasari/
-    - assets/images/sounds_module/vehicule/
-    - assets/images/sounds_module/salbatice/
-    - assets/audio/instrumente/
-    - assets/audio/instrumente/xilofon/
-    - assets/audio/instrumente/tobe/
-    - assets/video/menu/
-    - assets/video/sounds/
-    # Rive assets
-    - assets/rive/birds.riv
-    - assets/rive/ferma.riv
-    - assets/rive/title.riv
-    - assets/rive/marine.riv
-    - assets/rive/pasari.riv
-    - assets/rive/vehicule.riv
-    - assets/rive/salbatice.riv
-    - assets/rive/game_buttons.riv
-    - assets/rive/menu_buttons.riv
-    - assets/rive/song_buttons.riv
-    - assets/rive/story_buttons.riv
-    # Soundfont for MIDI
-    - assets/sf2/
+    - assets/images/
+    - assets/models/
+    - assets/audio/
+    - assets/stories/
