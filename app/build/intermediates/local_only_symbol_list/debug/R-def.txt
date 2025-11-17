@@ -1,0 +1,10 @@
+R_DEF: Internal format may change without notice
+local
+raw sound_cat
+raw sound_cow
+raw sound_dog
+raw sound_elephant
+raw sound_frog
+raw sound_horse
+raw sound_lion
+raw sound_sheep

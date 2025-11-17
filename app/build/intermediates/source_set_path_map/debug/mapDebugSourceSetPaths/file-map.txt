@@ -1,0 +1,67 @@
+com.example.educationalapp-jetified-customview-poolingcontainer-1.0.0-0 C:\Users\razva\.gradle\caches\8.13\transforms\04ca5c2bb119f3cc496ea5225aee1001\transformed\jetified-customview-poolingcontainer-1.0.0\res
+com.example.educationalapp-jetified-material-icons-core-release-1 C:\Users\razva\.gradle\caches\8.13\transforms\0b9c549bfbd186dd0c33aeba7b4dfcc1\transformed\jetified-material-icons-core-release\res
+com.example.educationalapp-core-1.12.0-2 C:\Users\razva\.gradle\caches\8.13\transforms\15438b7d010b76a210ca37d4156fe1dd\transformed\core-1.12.0\res
+com.example.educationalapp-jetified-ui-tooling-preview-release-3 C:\Users\razva\.gradle\caches\8.13\transforms\168b1f5cfab6e18a6b0c958643a93175\transformed\jetified-ui-tooling-preview-release\res
+com.example.educationalapp-jetified-lifecycle-viewmodel-ktx-2.7.0-4 C:\Users\razva\.gradle\caches\8.13\transforms\1c01ab82c6ac5c1b955d79ea3b8a6e7b\transformed\jetified-lifecycle-viewmodel-ktx-2.7.0\res
+com.example.educationalapp-navigation-common-2.7.7-5 C:\Users\razva\.gradle\caches\8.13\transforms\1f58cb28d953623a8b3551d0da6f0d07\transformed\navigation-common-2.7.7\res
+com.example.educationalapp-jetified-ui-unit-release-6 C:\Users\razva\.gradle\caches\8.13\transforms\22034a04f075b6294e4e2904859c34b9\transformed\jetified-ui-unit-release\res
+com.example.educationalapp-jetified-savedstate-1.2.1-7 C:\Users\razva\.gradle\caches\8.13\transforms\224d25d0f1414d579dcfa64d26fff97a\transformed\jetified-savedstate-1.2.1\res
+com.example.educationalapp-jetified-animation-release-8 C:\Users\razva\.gradle\caches\8.13\transforms\28d74bcc593bc87667fb9a174be9f47c\transformed\jetified-animation-release\res
+com.example.educationalapp-jetified-runtime-saveable-release-9 C:\Users\razva\.gradle\caches\8.13\transforms\291157d4e115116364176079529f5402\transformed\jetified-runtime-saveable-release\res
+com.example.educationalapp-jetified-ui-graphics-release-10 C:\Users\razva\.gradle\caches\8.13\transforms\2b295627a77d8da174ee163edce7533a\transformed\jetified-ui-graphics-release\res
+com.example.educationalapp-jetified-activity-ktx-1.8.2-11 C:\Users\razva\.gradle\caches\8.13\transforms\2e0e30a160d4ff19ab561d60f3b613eb\transformed\jetified-activity-ktx-1.8.2\res
+com.example.educationalapp-jetified-core-ktx-1.12.0-12 C:\Users\razva\.gradle\caches\8.13\transforms\32307d9e04dba91cdbc11a48a46f3895\transformed\jetified-core-ktx-1.12.0\res
+com.example.educationalapp-jetified-appcompat-resources-1.6.1-13 C:\Users\razva\.gradle\caches\8.13\transforms\3580f5b28a798bf5ca315a526492a328\transformed\jetified-appcompat-resources-1.6.1\res
+com.example.educationalapp-jetified-ui-util-release-14 C:\Users\razva\.gradle\caches\8.13\transforms\3d4d04336ff48f20ef0ccdef572d3c66\transformed\jetified-ui-util-release\res
+com.example.educationalapp-drawerlayout-1.1.1-15 C:\Users\razva\.gradle\caches\8.13\transforms\3f4bf4684684657fe7be9a8163668fd2\transformed\drawerlayout-1.1.1\res
+com.example.educationalapp-jetified-material-ripple-release-16 C:\Users\razva\.gradle\caches\8.13\transforms\4008bafaf3caa291cd73d5ee484196b3\transformed\jetified-material-ripple-release\res
+com.example.educationalapp-jetified-savedstate-ktx-1.2.1-17 C:\Users\razva\.gradle\caches\8.13\transforms\40451db68893dfe686887f10f9e8b6df\transformed\jetified-savedstate-ktx-1.2.1\res
+com.example.educationalapp-navigation-runtime-2.7.7-18 C:\Users\razva\.gradle\caches\8.13\transforms\4b0dd3119d9ee6e79147d88add7f50aa\transformed\navigation-runtime-2.7.7\res
+com.example.educationalapp-jetified-ui-geometry-release-19 C:\Users\razva\.gradle\caches\8.13\transforms\559153ac68f74b58ae4d005d8f6a3882\transformed\jetified-ui-geometry-release\res
+com.example.educationalapp-jetified-material3-release-20 C:\Users\razva\.gradle\caches\8.13\transforms\55a153a5d0e0954925091220a50796d3\transformed\jetified-material3-release\res
+com.example.educationalapp-jetified-animation-core-release-21 C:\Users\razva\.gradle\caches\8.13\transforms\57197f89a6e8004c2dcb7b43259e7c10\transformed\jetified-animation-core-release\res
+com.example.educationalapp-jetified-lifecycle-viewmodel-savedstate-2.7.0-22 C:\Users\razva\.gradle\caches\8.13\transforms\5d6daef2c09b890dca2d9b534f81615f\transformed\jetified-lifecycle-viewmodel-savedstate-2.7.0\res
+com.example.educationalapp-fragment-1.3.6-23 C:\Users\razva\.gradle\caches\8.13\transforms\65a52d78b48d33619a1c4e858a91ff4b\transformed\fragment-1.3.6\res
+com.example.educationalapp-jetified-activity-compose-1.8.2-24 C:\Users\razva\.gradle\caches\8.13\transforms\78814453841b4626ab673f99555ffbfe\transformed\jetified-activity-compose-1.8.2\res
+com.example.educationalapp-jetified-lifecycle-process-2.7.0-25 C:\Users\razva\.gradle\caches\8.13\transforms\7bbcbbc0bdf379634aea6cf41bc404c6\transformed\jetified-lifecycle-process-2.7.0\res
+com.example.educationalapp-jetified-annotation-experimental-1.4.0-26 C:\Users\razva\.gradle\caches\8.13\transforms\7e3d8aa86804c30a8f050988535dd2e7\transformed\jetified-annotation-experimental-1.4.0\res
+com.example.educationalapp-jetified-ui-release-27 C:\Users\razva\.gradle\caches\8.13\transforms\849594d2283445eef84593f199feb1f5\transformed\jetified-ui-release\res
+com.example.educationalapp-navigation-common-ktx-2.7.7-28 C:\Users\razva\.gradle\caches\8.13\transforms\86a2931e143bed2b395af343b97d2dbb\transformed\navigation-common-ktx-2.7.7\res
+com.example.educationalapp-jetified-viewpager2-1.0.0-29 C:\Users\razva\.gradle\caches\8.13\transforms\8bb9f8cc959d69bc7bbc8dc3eff69a0c\transformed\jetified-viewpager2-1.0.0\res
+com.example.educationalapp-recyclerview-1.1.0-30 C:\Users\razva\.gradle\caches\8.13\transforms\9296f168dfa318a1897aab5133b1965c\transformed\recyclerview-1.1.0\res
+com.example.educationalapp-navigation-runtime-ktx-2.7.7-31 C:\Users\razva\.gradle\caches\8.13\transforms\930de7517773f109c8c561173b9e740e\transformed\navigation-runtime-ktx-2.7.7\res
+com.example.educationalapp-jetified-foundation-release-32 C:\Users\razva\.gradle\caches\8.13\transforms\97d6561c315372a15e43374685d324db\transformed\jetified-foundation-release\res
+com.example.educationalapp-lifecycle-runtime-2.7.0-33 C:\Users\razva\.gradle\caches\8.13\transforms\9e59fc4cd388cdd11f091835e632f9a9\transformed\lifecycle-runtime-2.7.0\res
+com.example.educationalapp-transition-1.2.0-34 C:\Users\razva\.gradle\caches\8.13\transforms\a4fa434d582613b275786dafd3efa5e3\transformed\transition-1.2.0\res
+com.example.educationalapp-cardview-1.0.0-35 C:\Users\razva\.gradle\caches\8.13\transforms\a8eefe16246b8ec819957c3ea636a6d8\transformed\cardview-1.0.0\res
+com.example.educationalapp-jetified-runtime-release-36 C:\Users\razva\.gradle\caches\8.13\transforms\a90f19d49a70bf998552e0f7ca376ab3\transformed\jetified-runtime-release\res
+com.example.educationalapp-appcompat-1.6.1-37 C:\Users\razva\.gradle\caches\8.13\transforms\b87b8315ec7a305dfb371eb752901671\transformed\appcompat-1.6.1\res
+com.example.educationalapp-coordinatorlayout-1.1.0-38 C:\Users\razva\.gradle\caches\8.13\transforms\b9c002221bdb60d684e7f6f887d7df76\transformed\coordinatorlayout-1.1.0\res
+com.example.educationalapp-jetified-activity-1.8.2-39 C:\Users\razva\.gradle\caches\8.13\transforms\c6450e39906012667cc8a977015ac199\transformed\jetified-activity-1.8.2\res
+com.example.educationalapp-jetified-material-release-40 C:\Users\razva\.gradle\caches\8.13\transforms\c705b0ba719fa2dc709fdaf7f036f884\transformed\jetified-material-release\res
+com.example.educationalapp-material-1.11.0-41 C:\Users\razva\.gradle\caches\8.13\transforms\c7ef81c960fb7c955e2f177e95cd0561\transformed\material-1.11.0\res
+com.example.educationalapp-jetified-profileinstaller-1.3.0-42 C:\Users\razva\.gradle\caches\8.13\transforms\c8ed85792e44a9d6f46beb3cbfd74a5c\transformed\jetified-profileinstaller-1.3.0\res
+com.example.educationalapp-jetified-ui-test-manifest-1.6.2-43 C:\Users\razva\.gradle\caches\8.13\transforms\cd7069550cfd22719601122b846fb30a\transformed\jetified-ui-test-manifest-1.6.2\res
+com.example.educationalapp-jetified-emoji2-1.3.0-44 C:\Users\razva\.gradle\caches\8.13\transforms\d099f6cb2c32a7c4c7348ddffbad5a03\transformed\jetified-emoji2-1.3.0\res
+com.example.educationalapp-jetified-ui-text-release-45 C:\Users\razva\.gradle\caches\8.13\transforms\d9b51b082286906d25821f9fe31deb0b\transformed\jetified-ui-text-release\res
+com.example.educationalapp-jetified-foundation-layout-release-46 C:\Users\razva\.gradle\caches\8.13\transforms\dac6b5093a551d39273668d3821e07c9\transformed\jetified-foundation-layout-release\res
+com.example.educationalapp-jetified-ui-tooling-release-47 C:\Users\razva\.gradle\caches\8.13\transforms\dc06db90cbf1ef04e57becb1c99141a8\transformed\jetified-ui-tooling-release\res
+com.example.educationalapp-jetified-lifecycle-viewmodel-compose-2.7.0-48 C:\Users\razva\.gradle\caches\8.13\transforms\e08a292defd0706c79e93a0a55a2f265\transformed\jetified-lifecycle-viewmodel-compose-2.7.0\res
+com.example.educationalapp-lifecycle-livedata-2.7.0-49 C:\Users\razva\.gradle\caches\8.13\transforms\e7b71d298d14462ed4ccf4f88c87d3b5\transformed\lifecycle-livedata-2.7.0\res
+com.example.educationalapp-jetified-lifecycle-livedata-core-ktx-2.7.0-50 C:\Users\razva\.gradle\caches\8.13\transforms\e93280222964f9803803d6b667701150\transformed\jetified-lifecycle-livedata-core-ktx-2.7.0\res
+com.example.educationalapp-jetified-navigation-compose-2.7.7-51 C:\Users\razva\.gradle\caches\8.13\transforms\e9672e4a1322ea26a6c582398fefb9a8\transformed\jetified-navigation-compose-2.7.7\res
+com.example.educationalapp-lifecycle-livedata-core-2.7.0-52 C:\Users\razva\.gradle\caches\8.13\transforms\e9d88f6c83f9b60d61e4b10c33db1ef3\transformed\lifecycle-livedata-core-2.7.0\res
+com.example.educationalapp-jetified-emoji2-views-helper-1.3.0-53 C:\Users\razva\.gradle\caches\8.13\transforms\ee52e10e301e9c603bf2dc53dea1bf16\transformed\jetified-emoji2-views-helper-1.3.0\res
+com.example.educationalapp-core-runtime-2.2.0-54 C:\Users\razva\.gradle\caches\8.13\transforms\ee9c862d84a5fa2e85f44ceef07e49e7\transformed\core-runtime-2.2.0\res
+com.example.educationalapp-jetified-ui-tooling-data-release-55 C:\Users\razva\.gradle\caches\8.13\transforms\efeee63f5defa12c3d2ca31848f0ddfd\transformed\jetified-ui-tooling-data-release\res
+com.example.educationalapp-jetified-lifecycle-runtime-ktx-2.7.0-56 C:\Users\razva\.gradle\caches\8.13\transforms\f044f18f5ab721fbc420394f0563e7c4\transformed\jetified-lifecycle-runtime-ktx-2.7.0\res
+com.example.educationalapp-lifecycle-viewmodel-2.7.0-57 C:\Users\razva\.gradle\caches\8.13\transforms\f6ccc8d051cfd0d82fb4a2b00e1d0547\transformed\lifecycle-viewmodel-2.7.0\res
+com.example.educationalapp-constraintlayout-2.1.4-58 C:\Users\razva\.gradle\caches\8.13\transforms\f7f2d04394ee7e73b2c987d844c09622\transformed\constraintlayout-2.1.4\res
+com.example.educationalapp-jetified-startup-runtime-1.1.1-59 C:\Users\razva\.gradle\caches\8.13\transforms\fc1c85d5f338f7073559b989295f18a8\transformed\jetified-startup-runtime-1.1.1\res
+com.example.educationalapp-resValues-60 E:\educational_android (1)\app\build\generated\res\resValues\debug
+com.example.educationalapp-updated_navigation_xml-61 E:\educational_android (1)\app\build\generated\updated_navigation_xml\debug
+com.example.educationalapp-packageDebugResources-62 E:\educational_android (1)\app\build\intermediates\incremental\debug\packageDebugResources\merged.dir
+com.example.educationalapp-packageDebugResources-63 E:\educational_android (1)\app\build\intermediates\incremental\debug\packageDebugResources\stripped.dir
+com.example.educationalapp-debug-64 E:\educational_android (1)\app\build\intermediates\merged_res\debug\mergeDebugResources
+com.example.educationalapp-debug-65 E:\educational_android (1)\app\src\debug\res
+com.example.educationalapp-main-66 E:\educational_android (1)\app\src\main\res

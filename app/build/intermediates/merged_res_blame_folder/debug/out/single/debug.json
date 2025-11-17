@@ -1,0 +1,34 @@
+[
+    {
+        "merged": "com.example.educationalapp-merged_res-31:/raw_sound_cat.wav.flat",
+        "source": "com.example.educationalapp-main-33:/raw/sound_cat.wav"
+    },
+    {
+        "merged": "com.example.educationalapp-merged_res-31:/raw_sound_horse.wav.flat",
+        "source": "com.example.educationalapp-main-33:/raw/sound_horse.wav"
+    },
+    {
+        "merged": "com.example.educationalapp-merged_res-31:/raw_sound_sheep.wav.flat",
+        "source": "com.example.educationalapp-main-33:/raw/sound_sheep.wav"
+    },
+    {
+        "merged": "com.example.educationalapp-merged_res-31:/raw_sound_frog.wav.flat",
+        "source": "com.example.educationalapp-main-33:/raw/sound_frog.wav"
+    },
+    {
+        "merged": "com.example.educationalapp-merged_res-31:/raw_sound_lion.wav.flat",
+        "source": "com.example.educationalapp-main-33:/raw/sound_lion.wav"
+    },
+    {
+        "merged": "com.example.educationalapp-merged_res-31:/raw_sound_dog.wav.flat",
+        "source": "com.example.educationalapp-main-33:/raw/sound_dog.wav"
+    },
+    {
+        "merged": "com.example.educationalapp-merged_res-31:/raw_sound_elephant.wav.flat",
+        "source": "com.example.educationalapp-main-33:/raw/sound_elephant.wav"
+    },
+    {
+        "merged": "com.example.educationalapp-merged_res-31:/raw_sound_cow.wav.flat",
+        "source": "com.example.educationalapp-main-33:/raw/sound_cow.wav"
+    }
+]
