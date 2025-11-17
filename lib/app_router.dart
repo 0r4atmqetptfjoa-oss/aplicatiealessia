@@ -27,7 +27,6 @@ import 'features/songs/song_player_screen.dart';
 import 'features/sounds/sounds_menu_screen.dart';
 import 'features/sounds/sound_category_screen.dart';
 import 'features/sounds/sounds_detail_screen.dart';
-import 'features/sounds/birds_screen.dart';
 import 'features/stories/stories_menu_screen.dart';
 import 'features/stories/story_player_screen.dart';
 
@@ -166,26 +165,46 @@ class AppRouter {
                 ),
               ],
             ),
-            // Sounds section with nested categories
+            // Sounds section with nested dynamic routes. The menu lists the
+            // available categories. When a category tile is tapped the user
+            // navigates to `/sounds/<category>` where `<category>` is a path
+            // parameter. This allows us to show different sounds for each
+            // category without defining a separate route for every one. A
+            // further nested route `/sounds/<category>/<sound>` shows
+            // details (and plays the audio) for a particular sound.
             GoRoute(
               path: '/sounds',
               name: 'sounds-menu',
               builder: (context, state) => const SoundsMenuScreen(),
               routes: [
+                // Dynamic category route. The `category` path parameter is
+                // extracted by GoRouter and passed to the builder. We supply
+                // it to the [SoundCategoryScreen] to load the appropriate
+                // sounds.
                 GoRoute(
-                  path: 'category',
+                  path: ':category',
                   name: 'sound-category',
-                  builder: (context, state) => const SoundCategoryScreen(),
-                ),
-                GoRoute(
-                  path: 'detail',
-                  name: 'sounds-detail',
-                  builder: (context, state) => const SoundsDetailScreen(),
-                ),
-                GoRoute(
-                  path: 'birds',
-                  name: 'birds-sounds',
-                  builder: (context, state) => const BirdsScreen(),
+                  builder: (context, state) {
+                    final category = state.params['category']!;
+                    return SoundCategoryScreen(category: category);
+                  },
+                  routes: [
+                    // Dynamic sound detail route. This matches
+                    // `/sounds/<category>/<sound>` and passes both the
+                    // category and sound names to the [SoundsDetailScreen].
+                    GoRoute(
+                      path: ':sound',
+                      name: 'sound-detail',
+                      builder: (context, state) {
+                        final category = state.params['category']!;
+                        final sound = state.params['sound']!;
+                        return SoundsDetailScreen(
+                          category: category,
+                          sound: sound,
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ],
             ),

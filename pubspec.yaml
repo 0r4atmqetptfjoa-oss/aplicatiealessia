@@ -2,9 +2,9 @@ name: numvp
 description: >
   NumVP is a simple educational and entertainment Flutter application for Android.
   It contains multiple modules such as games, instruments, songs, sounds and
-  stories. The project demonstrates the use of the three_dart package to render
-  simple 3D scenes and uses go_router and provider for navigation and state
-  management.
+  stories. The project demonstrates the use of the model_viewer_plus package to
+  render 3D glTF/GLB models (instead of the deprecated three_dart), and uses
+  go_router and provider for navigation and state management.
 
 publish_to: "none"
 
@@ -21,8 +21,9 @@ dependencies:
     sdk: flutter
   provider: ^6.1.5+1
   go_router: ^17.0.0
-  three_dart: ^0.0.16
-  vector_math: any
+  # Removed three_dart and vector_math because they depend on flutter_gl, which
+  # is not compatible with the latest Android Gradle Plugin. We use
+  # model_viewer_plus for 3D models instead.
 
   # Plugin to render interactive 3D models (glTF/GLB). This widget embeds Google's
   # <model-viewer> web component, enabling us to display 3D models and play
@@ -37,6 +38,10 @@ dependencies:
   # depends on audioplayers_android >=5.x which defines the required
   # `namespace` property in its build.gradle, avoiding AGP 8 errors.
   audioplayers: ^6.5.1
+  # Animated text kit provides animated text widgets used throughout
+  # the games. It must be listed under dependencies (not just
+  # dependency_overrides) because we import it directly in our code.
+  animated_text_kit: ^4.2.2
 
 dependency_overrides:
   # Ensure the Android implementation is at least version 5.2.1, which
@@ -44,10 +49,6 @@ dependency_overrides:
   # audioplayers_android (e.g., 1.1.3) may be pulled in by other packages,
   # leading to build failures【279751166207276†L144-L162】.
   audioplayers_android: ^5.2.1
-
-  # Animated text kit to display animated headings and labels. We'll use this
-  # package to animate game titles and menu buttons.
-  animated_text_kit: ^4.2.2
 
 dev_dependencies:
   flutter_test:
