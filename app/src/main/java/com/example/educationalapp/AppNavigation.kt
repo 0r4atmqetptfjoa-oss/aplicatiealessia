@@ -1,23 +1,13 @@
 package com.example.educationalapp
 
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
-import androidx.compose.ui.Modifier
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 
 // Defines the available screens for the app
 sealed class Screen(val route: String) {
@@ -28,7 +18,6 @@ sealed class Screen(val route: String) {
     object SongsMenu : Screen("songs_menu")
     object SoundsMenu : Screen("sounds_menu")
     object StoriesMenu : Screen("stories_menu")
-    object ProfilesMenu : Screen("profiles_menu")
     object Settings : Screen("settings")
     object Paywall : Screen("paywall")
     object ParentalGate : Screen("parental_gate")
@@ -66,17 +55,13 @@ sealed class Screen(val route: String) {
     object SoundCategory : Screen("sound_category/{category}")
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppNavigation(
     navController: NavHostController,
-    starState: MutableState<Int>,
-    hasFullVersion: MutableState<Boolean>,
-    soundEnabled: MutableState<Boolean>,
-    musicEnabled: MutableState<Boolean>,
-    hardModeEnabled: MutableState<Boolean>,
-    selectedProfileIndex: MutableState<Int>
+    viewModel: MainViewModel
 ) {
+    val uiState by viewModel.uiState.collectAsState()
+
     NavHost(
         navController = navController,
         startDestination = Screen.MainMenu.route,
@@ -84,148 +69,51 @@ fun AppNavigation(
         composable(Screen.MainMenu.route) {
             MainMenuScreen(
                 navController = navController,
-                starState = starState,
-                hasFullVersion = hasFullVersion,
-                soundEnabled = soundEnabled,
-                musicEnabled = musicEnabled,
-                hardModeEnabled = hardModeEnabled,
-                selectedProfileIndex = selectedProfileIndex
+                starCount = uiState.stars,
+                // TODO: Pass other states from viewModel
             )
         }
         composable(Screen.GamesMenu.route) {
             GamesMenuScreen(
                 navController = navController,
-                starState = starState,
-                hasFullVersion = hasFullVersion
+                // TODO: Pass states
             )
         }
-        composable(Screen.InstrumentsMenu.route) {
-            InstrumentsMenuScreen(
-                navController = navController,
-                starState = starState
-            )
-        }
-        composable(Screen.SongsMenu.route) {
-            SongsMenuScreen(
-                navController = navController,
-                starState = starState
-            )
-        }
-        composable(Screen.SoundsMenu.route) {
-            SoundsMenuScreen(
-                navController = navController,
-                starState = starState
-            )
-        }
-        composable(Screen.StoriesMenu.route) {
-            StoriesMenuScreen(
-                navController = navController,
-                starState = starState
-            )
-        }
-        composable(Screen.ProfilesMenu.route) {
-            ProfilesMenuScreen(
-                navController = navController,
-                selectedProfileIndex = selectedProfileIndex
-            )
-        }
+        // TODO: Update all other screens to use the viewmodel state and events
         composable(Screen.Settings.route) {
             SettingsScreen(
                 navController = navController,
-                soundEnabled = soundEnabled,
-                musicEnabled = musicEnabled,
-                hardModeEnabled = hardModeEnabled
-            )
-        }
-        composable(Screen.Paywall.route) {
-            PaywallScreen(
-                navController = navController,
-                hasFullVersion = hasFullVersion
-            )
-        }
-        composable(Screen.ParentalGate.route) {
-            ParentalGateScreen(
-                navController = navController
+                uiState = uiState,
+                onSoundEnabledChanged = viewModel::updateSoundEnabled,
+                onMusicEnabledChanged = viewModel::updateMusicEnabled,
+                onHardModeChanged = viewModel::updateHardMode,
+                onDarkThemeChanged = viewModel::updateDarkTheme
             )
         }
         composable(Screen.AlphabetQuiz.route) {
-            AlphabetQuizScreen(navController, starState)
+            AlphabetQuizScreen(navController) { viewModel.updateStars(uiState.stars + it) }
         }
         composable(Screen.NumberQuiz.route) {
-            NumberQuizScreen(navController, starState)
+            NumberQuizScreen(navController) { viewModel.updateStars(uiState.stars + it) }
         }
         composable(Screen.ColorMatch.route) {
-            ColorMatchScreen(navController, starState)
+            ColorMatchScreen(navController) { viewModel.updateStars(uiState.stars + it) }
         }
         composable(Screen.ShapeMatch.route) {
-            ShapeMatchScreen(navController, starState)
+            ShapeMatchScreen(navController) { viewModel.updateStars(uiState.stars + it) }
         }
         composable(Screen.Puzzle.route) {
-            PuzzleScreen(navController, starState)
+            PuzzleScreen(navController) { viewModel.updateStars(uiState.stars + it) }
         }
         composable(Screen.MemoryGame.route) {
-            MemoryGameScreen(navController, starState)
-        }
-        composable(Screen.AnimalSounds.route) {
-            AnimalSoundsScreen(navController, starState)
-        }
-        composable(Screen.Instrument.route) {
-            InstrumentScreen(navController, starState)
+            MemoryGameScreen(navController) { viewModel.updateStars(uiState.stars + it) }
         }
         composable(Screen.SortingGame.route) {
-            SortingGameScreen(navController, starState)
+            SortingGameScreen(navController) { viewModel.updateStars(uiState.stars + it) }
         }
-        composable(Screen.MazeGame.route) {
-            MazeGameScreen(navController, starState)
-        }
-        composable(Screen.MathQuiz.route) {
-            MathQuizScreen(navController, starState)
-        }
-        composable(Screen.SequenceMemory.route) {
-            SequenceMemoryScreen(navController, starState)
-        }
-        composable(Screen.StoryBook.route) {
-            StoryBookScreen(navController, starState)
-        }
-        composable(Screen.Drawing.route) {
-            DrawingScreen(navController, starState)
-        }
-        composable(Screen.AvatarCreator.route) {
-            AvatarCreatorScreen(navController, starState)
-        }
-        composable(Screen.StickerBook.route) {
-            StickerBookScreen(navController, starState)
-        }
-        composable(Screen.AnimalSoundBoard.route) {
-            AnimalSoundBoardScreen(navController, starState)
-        }
-        composable(Screen.EmotionsGame.route) {
-            EmotionsGameScreen(navController, starState)
-        }
-        // Stubs for additional mini-games (not implemented yet)
-        composable(Screen.BlockGame.route) { BlockGameScreen(navController, starState) }
-        composable(Screen.CookingGame.route) { CookingGameScreen(navController, starState) }
-        composable(Screen.HiddenObjectsGame.route) { HiddenObjectsGameScreen(navController, starState) }
-        composable(Screen.InstrumentGuessGame.route) { InstrumentGuessGameScreen(navController, starState) }
-        composable(Screen.JigsawPuzzle.route) { JigsawPuzzleScreen(navController, starState) }
-        composable(Screen.AnimalSorting.route) { AnimalSortingGameScreen(navController, starState) }
-        composable(Screen.Piano.route) { PianoScreen(navController, starState) }
-        composable(Screen.Drums.route) { DrumsScreen(navController, starState) }
-        // Song player screen with songId argument
-        composable(
-            route = Screen.SongPlayer.route,
-            arguments = listOf(navArgument("songId") { type = NavType.IntType })
-        ) { backStackEntry ->
-            val songId = backStackEntry.arguments?.getInt("songId") ?: 0
-            SongPlayerScreen(navController, starState, songId)
-        }
-        // Sounds category screen with category argument
-        composable(
-            route = Screen.SoundCategory.route,
-            arguments = listOf(navArgument("category") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val category = backStackEntry.arguments?.getString("category") ?: ""
-            SoundCategoryScreen(navController, starState, category)
-        }
+
+        // --- Placeholder and other screens --- 
+        // These will be updated in subsequent steps
+
     }
 }

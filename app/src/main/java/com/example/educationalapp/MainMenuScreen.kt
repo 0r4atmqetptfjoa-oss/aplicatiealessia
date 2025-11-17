@@ -1,69 +1,102 @@
 package com.example.educationalapp
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateIntAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.*
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.educationalapp.designsystem.Spacing
+import kotlinx.coroutines.delay
 
+// Custom shimmer modifier
+fun Modifier.shimmerEffect(durationMillis: Int = 2000): Modifier = composed {
+    val infiniteTransition = rememberInfiniteTransition(label = "shimmer")
+
+    val offset by infiniteTransition.animateFloat(
+        initialValue = -2f,
+        targetValue = 2f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "shimmer_offset"
+    )
+
+    drawWithCache {
+        onDrawWithContent {
+            drawContent()
+            val shimmerBrush = Brush.linearGradient(
+                colors = listOf(
+                    Color.White.copy(alpha = 0.0f),
+                    Color.White.copy(alpha = 0.8f),
+                    Color.White.copy(alpha = 0.0f),
+                ),
+                start = androidx.compose.ui.geometry.Offset(size.width * (offset - 1), 0f),
+                end = androidx.compose.ui.geometry.Offset(size.width * offset, size.height)
+            )
+            drawRect(
+                brush = shimmerBrush,
+                blendMode = BlendMode.SrcAtop
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainMenuScreen(
     navController: NavController,
-    starState: MutableState<Int>,
-    hasFullVersion: MutableState<Boolean>,
-    soundEnabled: MutableState<Boolean>,
-    musicEnabled: MutableState<Boolean>,
-    hardModeEnabled: MutableState<Boolean>,
-    selectedProfileIndex: MutableState<Int>
+    starCount: Int,
 ) {
-    val animatedStars by animateIntAsState(targetValue = starState.value, label = "")
-    val profiles = listOf("Profil 1", "Profil 2", "Profil 3")
-    val currentProfile = profiles.getOrElse(selectedProfileIndex.value) { profiles[0] }
-    val titleColors = listOf(
-        Color(0xFFFFC1E3), // pastel pink
-        Color(0xFFB3E5FC), // pastel blue
-        Color(0xFFFFF9C4), // pastel yellow
-        Color(0xFFE1BEE7)  // pastel lavender
-    )
-    val infiniteTransition = rememberInfiniteTransition(label = "")
-    val animatedColor by animateColorAsState(
-        targetValue = titleColors.random(),
+    val animatedStars by animateIntAsState(targetValue = starCount, label = "animatedStars")
+
+    // Title pulse animation
+    val infiniteTransition = rememberInfiniteTransition(label = "titlePulse")
+    val titleScale by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.05f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 4000, easing = LinearEasing),
+            animation = tween(2000, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
-        ), label = ""
+        ), label = "titleScale"
     )
 
     val modules = listOf(
@@ -72,9 +105,6 @@ fun MainMenuScreen(
         Triple(Screen.SongsMenu.route, R.drawable.ic_songs, "Melodii"),
         Triple(Screen.SoundsMenu.route, R.drawable.ic_sounds, "Sunete"),
         Triple(Screen.StoriesMenu.route, R.drawable.ic_stories, "Povești"),
-        Triple(Screen.ProfilesMenu.route, R.drawable.ic_profiles, "Profiluri"),
-        Triple(Screen.ParentalGate.route, R.drawable.ic_parental, "Poarta Părinte"),
-        Triple(Screen.Paywall.route, R.drawable.ic_upgrade, "Upgrade")
     )
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -88,7 +118,7 @@ fun MainMenuScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(vertical = Spacing.large),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Title
@@ -96,49 +126,59 @@ fun MainMenuScreen(
                 text = "LUMEA ALESSIEI",
                 style = MaterialTheme.typography.displayLarge.copy(
                     fontFamily = FontFamily.Cursive,
-                    fontSize = 48.sp,
-                    color = animatedColor
+                    fontSize = 52.sp,
+                    color = Color(0xFFE1BEE7) // Pastel Lavender
                 ),
-                modifier = Modifier.padding(top = 32.dp)
+                modifier = Modifier
+                    .padding(top = Spacing.extraLarge)
+                    .graphicsLayer {
+                        scaleX = titleScale
+                        scaleY = titleScale
+                    }
+                    .shimmerEffect(),
+                textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(Spacing.extraLarge))
 
             // Modules
-            LazyRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                items(modules) { module ->
-                    Button(
-                        onClick = { navController.navigate(module.first) },
-                        modifier = Modifier.size(120.dp, 100.dp)
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Image(
-                                painter = painterResource(id = module.second),
-                                contentDescription = null,
-                                modifier = Modifier.size(48.dp)
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(text = module.third, fontFamily = FontFamily.Cursive)
-                        }
-                    }
-                }
+            AnimatedLazyRow(modules, navController)
+        }
+
+        // Top Right buttons (Upgrade and Stars)
+        Row(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(Spacing.large),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(imageVector = Icons.Default.Star, contentDescription = "Stele", modifier = Modifier.size(32.dp))
+                Spacer(modifier = Modifier.width(Spacing.small))
+                Text(text = "$animatedStars", style = MaterialTheme.typography.titleLarge)
+            }
+            Spacer(modifier = Modifier.width(Spacing.medium))
+            IconButton(onClick = { navController.navigate(Screen.Paywall.route) }) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_upgrade),
+                    contentDescription = "Upgrade",
+                    modifier = Modifier.size(40.dp)
+                )
             }
         }
 
+
         // Settings button
-        Button(
+        IconButton(
             onClick = { navController.navigate(Screen.Settings.route) },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(16.dp)
+                .padding(Spacing.large)
         ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_settings),
                 contentDescription = "Setări",
-                modifier = Modifier.size(32.dp)
+                modifier = Modifier.size(40.dp)
             )
         }
 
@@ -146,17 +186,77 @@ fun MainMenuScreen(
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
         if (currentRoute != Screen.MainMenu.route) {
-            Button(
+            IconButton(
                 onClick = { navController.navigate(Screen.MainMenu.route) },
                 modifier = Modifier
                     .align(Alignment.TopStart)
-                    .padding(16.dp)
+                    .padding(Spacing.large)
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_home),
+                    imageVector = Icons.Default.Home,
                     contentDescription = "Acasă",
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier.size(40.dp)
                 )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AnimatedLazyRow(modules: List<Triple<String, Int, String>>, navController: NavController) {
+    var isVisible by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        isVisible = true
+    }
+
+    LazyRow(
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(horizontal = Spacing.large),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.large),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        itemsIndexed(modules) { index, module ->
+            val interactionSource = remember { MutableInteractionSource() }
+            val isPressed by interactionSource.collectIsPressedAsState()
+            val scale by animateFloatAsState(if (isPressed) 0.95f else 1f, label = "scale")
+
+            var itemVisible by remember { mutableStateOf(false) }
+            LaunchedEffect(Unit) {
+                delay(index * 100L) // Staggered delay
+                itemVisible = true
+            }
+
+            AnimatedVisibility(
+                visible = itemVisible,
+                enter = slideInVertically { it } + fadeIn(),
+                exit = slideOutVertically() + fadeOut()
+            ) {
+                 Card(
+                    onClick = { navController.navigate(module.first) },
+                    modifier = Modifier
+                        .size(130.dp, 110.dp)
+                        .graphicsLayer { 
+                            scaleX = scale
+                            scaleY = scale
+                        },
+                    elevation = CardDefaults.cardElevation(defaultElevation = Spacing.medium),
+                    interactionSource = interactionSource
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Image(
+                            painter = painterResource(id = module.second),
+                            contentDescription = null,
+                            modifier = Modifier.size(52.dp)
+                        )
+                        Spacer(modifier = Modifier.height(Spacing.medium))
+                        Text(text = module.third, fontFamily = FontFamily.Cursive, style = MaterialTheme.typography.labelLarge, textAlign = TextAlign.Center)
+                    }
+                }
             }
         }
     }

@@ -3,6 +3,7 @@
     package="com.example.educationalapp">
 
     <application
+        android:name=".EducationalAppApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="LUMEA ALESSIEI"
