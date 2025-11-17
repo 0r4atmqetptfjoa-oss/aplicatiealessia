@@ -5,7 +5,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material.icons.Icons
@@ -17,6 +16,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
 
 // Defines the available screens for the app
 sealed class Screen(val route: String) {
@@ -65,6 +66,7 @@ sealed class Screen(val route: String) {
     object SoundCategory : Screen("sound_category/{category}")
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppNavigation(
     navController: NavHostController,
@@ -75,36 +77,10 @@ fun AppNavigation(
     hardModeEnabled: MutableState<Boolean>,
     selectedProfileIndex: MutableState<Int>
 ) {
-    // Wrap the NavHost in a Scaffold so we can provide a consistent top bar with a home button
-    Scaffold(
-        topBar = {
-            // Determine the current route. When on the main menu we hide the home button.
-            val navBackStackEntry by navController.currentBackStackEntryAsState()
-            val currentRoute = navBackStackEntry?.destination?.route
-            if (currentRoute != Screen.MainMenu.route) {
-                TopAppBar(
-                    title = {},
-                    navigationIcon = {
-                        IconButton(onClick = {
-                            // Navigate back to the main menu. We pop up to avoid building up the stack.
-                            navController.navigate(Screen.MainMenu.route) {
-                                popUpTo(Screen.MainMenu.route) { inclusive = false }
-                            }
-                        }) {
-                            Icon(Icons.Filled.Home, contentDescription = "Acasă")
-                        }
-                    }
-                )
-            }
-        }
-    ) { innerPadding ->
-        // The NavHost itself handles navigation between screens. Use padding from Scaffold to avoid
-        // overlapping the top bar.
-        NavHost(
-            navController = navController,
-            startDestination = Screen.MainMenu.route,
-            modifier = Modifier.padding(innerPadding)
-        ) {
+    NavHost(
+        navController = navController,
+        startDestination = Screen.MainMenu.route,
+    ) {
         composable(Screen.MainMenu.route) {
             MainMenuScreen(
                 navController = navController,
@@ -238,7 +214,7 @@ fun AppNavigation(
         // Song player screen with songId argument
         composable(
             route = Screen.SongPlayer.route,
-            arguments = listOf(androidx.navigation.navArgument("songId") { type = androidx.navigation.NavType.IntType })
+            arguments = listOf(navArgument("songId") { type = NavType.IntType })
         ) { backStackEntry ->
             val songId = backStackEntry.arguments?.getInt("songId") ?: 0
             SongPlayerScreen(navController, starState, songId)
@@ -246,11 +222,10 @@ fun AppNavigation(
         // Sounds category screen with category argument
         composable(
             route = Screen.SoundCategory.route,
-            arguments = listOf(androidx.navigation.navArgument("category") { type = androidx.navigation.NavType.StringType })
+            arguments = listOf(navArgument("category") { type = NavType.StringType })
         ) { backStackEntry ->
             val category = backStackEntry.arguments?.getString("category") ?: ""
             SoundCategoryScreen(navController, starState, category)
-        }
         }
     }
 }
