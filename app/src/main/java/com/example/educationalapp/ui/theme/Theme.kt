@@ -5,17 +5,28 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import com.example.educationalapp.ui.theme.PastelPink
+import com.example.educationalapp.ui.theme.PastelBlue
+import com.example.educationalapp.ui.theme.PastelYellow
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = PastelPink,
+    secondary = PastelBlue,
+    tertiary = PastelYellow
 )
 
+// Use a light pastel palette to create a soft, child‑friendly appearance.
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+    primary = PastelPink,
+    onPrimary = Color.Black,
+    secondary = PastelBlue,
+    onSecondary = Color.Black,
+    tertiary = PastelYellow,
+    onTertiary = Color.Black,
+    background = Color(0xFFFFFBFE),
+    onBackground = Color.Black,
+    surface = Color.White,
+    onSurface = Color.Black
 )
 
 @Composable

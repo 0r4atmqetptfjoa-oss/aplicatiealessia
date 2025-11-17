@@ -2,6 +2,8 @@
 
 This repository contains a complete **Android** educational game application built from scratch using **Kotlin** and **Jetpack Compose**.  The project draws inspiration from the original Flutter app you referenced, but it has been redesigned to be lightweight, easy to understand and extend, and to run natively on Android devices.
 
+> **Important upgrade**: The latest version of the app is now called **LUMEA ALESSIEI**.  The main menu features a vertical animated title that cycles through pastel colours.  Each main section button displays a hand‑painted icon (generated to evoke a 2‑year‑old’s fairy‑tale world) alongside its label.  A home button appears in the top bar on every screen except the main menu, allowing children to quickly return to the start.
+
 ## Features
 
 The app includes a main menu and **sixteen** mini‑games and creative activities designed to entertain and educate children while keeping the codebase approachable.  Each mini‑game awards stars for correct answers, and the star count is displayed in the main menu.  In this upgraded version the star counter animates smoothly whenever your total increases, and many screens include animations (scaling, colour transitions, page turns) to provide positive feedback.  Several new modules go beyond quizzes and puzzles into expressive play and social‑emotional learning.

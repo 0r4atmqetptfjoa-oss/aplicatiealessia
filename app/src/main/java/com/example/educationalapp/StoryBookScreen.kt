@@ -2,28 +2,12 @@ package com.example.educationalapp
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.with
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -44,9 +28,9 @@ fun StoryBookScreen(navController: NavController, starState: MutableState<Int>) 
         Text(text = "Poveste Interactivă", modifier = Modifier.padding(bottom = 16.dp))
         Box(modifier = Modifier.weight(1f).padding(16.dp)) {
             AnimatedContent(targetState = pageIndex, transitionSpec = {
-                slideInHorizontally(initialOffsetX = { it }, animationSpec = tween(400)) with
-                    slideOutHorizontally(targetOffsetX = { -it }, animationSpec = tween(400))
-            }, label = "") { targetPage ->
+                // Slide animation for page change
+                tween(durationMillis = 400) with tween(durationMillis = 400)
+            }) { targetPage ->
                 Text(text = pages[targetPage])
             }
         }
@@ -70,6 +54,7 @@ fun StoryBookScreen(navController: NavController, starState: MutableState<Int>) 
             Text(text = "Înapoi la Meniu")
         }
         if (finished) {
+            // Award star once when finishing story
             LaunchedEffect(Unit) {
                 starState.value += 3
                 finished = false

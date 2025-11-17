@@ -1,10 +1,11 @@
 plugins {
     id 'com.android.application'
-    id 'kotlin-android'
+    id 'org.jetbrains.kotlin.android'
 }
 
 android {
     namespace 'com.example.educationalapp'
+    // Target the latest stable SDK; update as needed for new releases
     compileSdk 34
 
     defaultConfig {
@@ -13,11 +14,6 @@ android {
         targetSdk 34
         versionCode 1
         versionName "1.0"
-
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        vectorDrawables {
-            useSupportLibrary true
-        }
     }
 
     buildTypes {
@@ -26,43 +22,52 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
+
     kotlinOptions {
-        jvmTarget = '17'
+        jvmTarget = '1.8'
     }
+
     buildFeatures {
         compose true
     }
+
     composeOptions {
-        kotlinCompilerExtensionVersion '1.5.8'
+        // Align the Kotlin compiler extension with the Compose BOM version.  Update this
+        // when upgrading Compose; see https://developer.android.com/jetpack/compose/releases
+        kotlinCompilerExtensionVersion = '1.9.0'
     }
+
     packagingOptions {
-        resources.excludes.add("/META-INF/{AL2.0,LGPL2.1}")
+        resources {
+            excludes += ['/META-INF/{AL2.0,LGPL2.1}']
+        }
     }
 }
 
 dependencies {
-
     implementation 'androidx.core:core-ktx:1.12.0'
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.11.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.7.0'
-    implementation 'androidx.activity:activity-compose:1.8.2'
-    implementation platform('androidx.compose:compose-bom:2024.02.01')
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
+    implementation 'androidx.activity:activity-compose:1.7.2'
+    // Use the Compose Bill of Materials (BOM) to align Compose library versions to the latest stable release.
+    // Use a stable Compose BOM version to avoid resolution errors.  See
+    // https://developer.android.com/jetpack/compose/bom for available versions.
+    implementation platform('androidx.compose:compose-bom:2024.05.01')
     implementation 'androidx.compose.ui:ui'
-    implementation 'androidx.compose.ui:ui-graphics'
     implementation 'androidx.compose.ui:ui-tooling-preview'
     implementation 'androidx.compose.material3:material3'
-    implementation 'androidx.navigation:navigation-compose:2.7.7'
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-    androidTestImplementation platform('androidx.compose:compose-bom:2024.02.01')
-    androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
+    implementation 'androidx.navigation:navigation-compose:2.6.0'
+    // Compose animation library for transitions and animated content; version managed by BOM
+    implementation 'androidx.compose.animation:animation'
+    // Optional: for icons (core and extended). Versions managed by BOM.
+    implementation 'androidx.compose.material:material-icons-core'
+    implementation 'androidx.compose.material:material-icons-extended'
+    // Foundation includes LazyVerticalGrid and other layout primitives. Version managed by BOM.
+    implementation 'androidx.compose.foundation:foundation'
     debugImplementation 'androidx.compose.ui:ui-tooling'
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
 }
