@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 @Composable
-fun PuzzleScreen(navController: NavController, starState: MutableState<Int>) {
+fun PuzzleScreen(navController: NavController, onGameWon: (stars: Int) -> Unit) {
     var tiles by remember { mutableStateOf(generateSolvablePuzzle()) }
     var moves by remember { mutableStateOf(0) }
     var isSolved by remember { mutableStateOf(false) }
@@ -44,7 +44,7 @@ fun PuzzleScreen(navController: NavController, starState: MutableState<Int>) {
 
             if (checkIfSolved(newTiles)) {
                 isSolved = true
-                starState.value += 5 // Award stars for solving
+                onGameWon(5) // Award stars for solving
                 coroutineScope.launch {
                     delay(2000) // Show solved state before dialog
                 }

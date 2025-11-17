@@ -37,7 +37,7 @@ private const val TOTAL_COLOR_QUESTIONS = 10
 data class ColorQuizQuestion(val color: NamedColor, val options: List<NamedColor>)
 
 @Composable
-fun ColorMatchScreen(navController: NavController, starState: MutableState<Int>) {
+fun ColorMatchScreen(navController: NavController, onGameWon: (stars: Int) -> Unit) {
     val colors = remember {
         listOf(
             NamedColor("Roșu", Color(0xFFE74C3C)),
@@ -65,6 +65,7 @@ fun ColorMatchScreen(navController: NavController, starState: MutableState<Int>)
             selectedOption = null
         } else {
             questionIndex++ // To trigger the dialog
+            onGameWon(score / 10) // Award stars
         }
     }
 
@@ -75,7 +76,6 @@ fun ColorMatchScreen(navController: NavController, starState: MutableState<Int>)
         if (option.name == currentQuestion.color.name) {
             answerState = AnswerState.CORRECT
             score += 10
-            starState.value += 1
         } else {
             answerState = AnswerState.INCORRECT
             score = (score - 5).coerceAtLeast(0)

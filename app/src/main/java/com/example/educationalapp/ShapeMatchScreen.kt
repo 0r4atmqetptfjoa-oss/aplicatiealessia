@@ -38,7 +38,7 @@ private const val TOTAL_SHAPE_QUESTIONS = 10
 data class ShapeQuizQuestion(val shape: NamedShape, val options: List<NamedShape>)
 
 @Composable
-fun ShapeMatchScreen(navController: NavController, starState: MutableState<Int>) {
+fun ShapeMatchScreen(navController: NavController, onGameWon: (stars: Int) -> Unit) {
     val shapes = remember {
         listOf(
             NamedShape("Inimă", Icons.Default.Favorite, Color(0xFFE74C3C)),
@@ -62,6 +62,7 @@ fun ShapeMatchScreen(navController: NavController, starState: MutableState<Int>)
             selectedOption = null
         } else {
             questionIndex++ // To trigger the dialog
+            onGameWon(score / 10) // Award stars
         }
     }
 
@@ -72,7 +73,6 @@ fun ShapeMatchScreen(navController: NavController, starState: MutableState<Int>)
         if (option.name == currentQuestion.shape.name) {
             answerState = AnswerState.CORRECT
             score += 10
-            starState.value += 1
         } else {
             answerState = AnswerState.INCORRECT
             score = (score - 5).coerceAtLeast(0)
