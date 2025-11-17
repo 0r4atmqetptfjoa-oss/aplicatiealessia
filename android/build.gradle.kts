@@ -15,16 +15,19 @@ subprojects {
     val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
     project.layout.buildDirectory.value(newSubprojectBuildDir)
 
-    // Fix for flutter_gl dependency resolution
+    // Defer the repository configuration for the 'app' project to ensure that the 'flutter_gl' project
+    // has been resolved and its directory is available.
     if (project.name == "app") {
-        project.repositories {
-            flatDir {
-                dirs(rootProject.project(":flutter_gl").projectDir.resolve("libs"))
+        afterEvaluate {
+            project.repositories {
+                flatDir {
+                    dirs(rootProject.project(":flutter_gl").projectDir.resolve("libs"))
+                }
             }
         }
     }
 
-    // Fix for flutter_gl namespace
+    // Defer the namespace configuration for 'flutter_gl' until after it has been evaluated.
     if (project.name == "flutter_gl") {
         afterEvaluate {
             project.extensions.configure<com.android.build.gradle.LibraryExtension>("android") {
