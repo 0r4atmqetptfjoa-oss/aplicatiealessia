@@ -34,7 +34,7 @@ private const val TOTAL_QUESTIONS = 10
 data class QuizQuestion(val letter: Char, val options: List<Char>)
 
 @Composable
-fun AlphabetQuizScreen(navController: NavController, onGameWon: (stars: Int) -> Unit) {
+fun AlphabetQuizScreen(navController: NavController, starState: MutableState<Int>) {
     var score by remember { mutableStateOf(0) }
     var questionIndex by remember { mutableStateOf(0) }
     var currentQuestion by remember { mutableStateOf(generateQuestion()) }
@@ -50,7 +50,6 @@ fun AlphabetQuizScreen(navController: NavController, onGameWon: (stars: Int) -> 
             selectedOption = null
         } else {
             questionIndex++ // To trigger the dialog
-            onGameWon(score / 10) // Award stars
         }
     }
 
@@ -61,6 +60,7 @@ fun AlphabetQuizScreen(navController: NavController, onGameWon: (stars: Int) -> 
         if (option == currentQuestion.letter) {
             answerState = AnswerState.CORRECT
             score += 10
+            starState.value += 1
         } else {
             answerState = AnswerState.INCORRECT
             score = (score - 5).coerceAtLeast(0)

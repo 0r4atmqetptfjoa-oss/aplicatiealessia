@@ -1,5 +1,15 @@
 package com.example.educationalapp;
 
+import android.media.MediaPlayer;
+import androidx.compose.foundation.layout.*;
+import androidx.compose.foundation.ExperimentalFoundationApi;
+import androidx.compose.foundation.lazy.grid.GridCells;
+import androidx.compose.runtime.*;
+import androidx.compose.ui.Alignment;
+import androidx.compose.ui.Modifier;
+import androidx.navigation.NavController;
+import com.example.educationalapp.R;
+
 /**
  * A simple sound board that plays animal sounds when tapped.  Children receive
  * a star after playing a number of different sounds.  Audio files must be

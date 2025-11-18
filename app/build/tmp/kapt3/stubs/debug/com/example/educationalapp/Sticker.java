@@ -1,5 +1,15 @@
 package com.example.educationalapp;
 
+import androidx.compose.foundation.layout.*;
+import androidx.compose.foundation.ExperimentalFoundationApi;
+import androidx.compose.foundation.lazy.grid.GridCells;
+import androidx.compose.runtime.Composable;
+import androidx.compose.runtime.MutableState;
+import androidx.compose.ui.Alignment;
+import androidx.compose.ui.Modifier;
+import androidx.compose.ui.text.style.TextAlign;
+import androidx.navigation.NavController;
+
 /**
  * Displays a grid of stickers which unlock as the player earns more stars.
  * Each sticker requires a certain number of stars to unlock.  Unlocked

@@ -47,22 +47,6 @@ fun GamesMenuScreen(
         GameItem("Puzzle Simplu", Screen.Puzzle.route, true),
         GameItem("Joc Memorie", Screen.MemoryGame.route, true),
         GameItem("Joc Sortare", Screen.SortingGame.route, true),
-        GameItem("Joc Labirint", Screen.MazeGame.route, true),
-        // Premium games
-        GameItem("Quiz Matematic", Screen.MathQuiz.route, false),
-        GameItem("Memorie Secvențe", Screen.SequenceMemory.route, false),
-        GameItem("Carte Interactivă", Screen.StoryBook.route, false),
-        GameItem("Desen și Colorează", Screen.Drawing.route, false),
-        GameItem("Creează Avatar", Screen.AvatarCreator.route, false),
-        GameItem("Album de Stickere", Screen.StickerBook.route, false),
-        GameItem("Panou Sunete Animale", Screen.AnimalSoundBoard.route, false),
-        GameItem("Joc Emoții", Screen.EmotionsGame.route, false),
-        GameItem("Blocuri", Screen.BlockGame.route, false),
-        GameItem("Gătit", Screen.CookingGame.route, false),
-        GameItem("Obiecte ascunse", Screen.HiddenObjectsGame.route, false),
-        GameItem("Joc Instrumente", Screen.InstrumentGuessGame.route, false),
-        GameItem("Puzzle Jigsaw", Screen.JigsawPuzzle.route, false),
-        GameItem("Sortarea Animalelor", Screen.AnimalSorting.route, false)
     )
     Box(modifier = Modifier.fillMaxSize()) {
         Image(

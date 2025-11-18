@@ -31,7 +31,7 @@ import kotlinx.coroutines.launch
 data class MemoryCard(val id: Int, val icon: ImageVector, var isFaceUp: Boolean = false, var isMatched: Boolean = false)
 
 @Composable
-fun MemoryGameScreen(navController: NavController, starState: MutableState<Int>) {
+fun MemoryGameScreen(navController: NavController, onGameWon: (stars: Int) -> Unit) {
     val icons = remember {
         listOf(
             Icons.Default.Favorite,
@@ -76,9 +76,9 @@ fun MemoryGameScreen(navController: NavController, starState: MutableState<Int>)
                 }
                 cards = matchedCards
                 selectedCards = emptyList()
-                starState.value += 2
 
                 if (cards.all { it.isMatched }) {
+                    onGameWon(cards.size / 2) // Award stars
                     isGameOver = true
                 }
             } else {

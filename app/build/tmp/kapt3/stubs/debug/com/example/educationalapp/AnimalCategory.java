@@ -1,5 +1,10 @@
 package com.example.educationalapp;
 
+import androidx.compose.foundation.layout.*;
+import androidx.compose.runtime.*;
+import androidx.compose.ui.Modifier;
+import androidx.navigation.NavController;
+
 /**
  * A sorting game where animals must be categorized into their habitats
  * (fermă, junglă, marină).  The child chooses the correct category from

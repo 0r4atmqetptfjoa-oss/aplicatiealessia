@@ -1,106 +1,106 @@
 [
     {
-        "merged": "com.example.educationalapp-merged_res-67:/raw_sound_cow.wav.flat",
-        "source": "com.example.educationalapp-main-69:/raw/sound_cow.wav"
+        "merged": "com.example.educationalapp-merged_res-65:/raw_song_2.mp3.flat",
+        "source": "com.example.educationalapp-main-67:/raw/song_2.mp3"
     },
     {
-        "merged": "com.example.educationalapp-merged_res-67:/drawable_ic_profiles.png.flat",
-        "source": "com.example.educationalapp-main-69:/drawable/ic_profiles.png"
+        "merged": "com.example.educationalapp-merged_res-65:/raw_sound_sheep.wav.flat",
+        "source": "com.example.educationalapp-main-67:/raw/sound_sheep.wav"
     },
     {
-        "merged": "com.example.educationalapp-merged_res-67:/raw_sound_dog.wav.flat",
-        "source": "com.example.educationalapp-main-69:/raw/sound_dog.wav"
+        "merged": "com.example.educationalapp-merged_res-65:/raw_song_0.mp3.flat",
+        "source": "com.example.educationalapp-main-67:/raw/song_0.mp3"
     },
     {
-        "merged": "com.example.educationalapp-merged_res-67:/raw_sound_elephant.wav.flat",
-        "source": "com.example.educationalapp-main-69:/raw/sound_elephant.wav"
+        "merged": "com.example.educationalapp-merged_res-65:/drawable_ic_launcher_background.xml.flat",
+        "source": "com.example.educationalapp-main-67:/drawable/ic_launcher_background.xml"
     },
     {
-        "merged": "com.example.educationalapp-merged_res-67:/raw_song_3.mp3.flat",
-        "source": "com.example.educationalapp-main-69:/raw/song_3.mp3"
+        "merged": "com.example.educationalapp-merged_res-65:/drawable_lumea_background.png.flat",
+        "source": "com.example.educationalapp-main-67:/drawable/lumea_background.png"
     },
     {
-        "merged": "com.example.educationalapp-merged_res-67:/drawable_ic_parental.png.flat",
-        "source": "com.example.educationalapp-main-69:/drawable/ic_parental.png"
+        "merged": "com.example.educationalapp-merged_res-65:/raw_sound_frog.wav.flat",
+        "source": "com.example.educationalapp-main-67:/raw/sound_frog.wav"
     },
     {
-        "merged": "com.example.educationalapp-merged_res-67:/raw_sound_lion.wav.flat",
-        "source": "com.example.educationalapp-main-69:/raw/sound_lion.wav"
+        "merged": "com.example.educationalapp-merged_res-65:/raw_sound_elephant.wav.flat",
+        "source": "com.example.educationalapp-main-67:/raw/sound_elephant.wav"
     },
     {
-        "merged": "com.example.educationalapp-merged_res-67:/drawable_ic_launcher_foreground.xml.flat",
-        "source": "com.example.educationalapp-main-69:/drawable/ic_launcher_foreground.xml"
+        "merged": "com.example.educationalapp-merged_res-65:/drawable_ic_profiles.png.flat",
+        "source": "com.example.educationalapp-main-67:/drawable/ic_profiles.png"
     },
     {
-        "merged": "com.example.educationalapp-merged_res-67:/drawable_ic_upgrade.png.flat",
-        "source": "com.example.educationalapp-main-69:/drawable/ic_upgrade.png"
+        "merged": "com.example.educationalapp-merged_res-65:/raw_sound_dog.wav.flat",
+        "source": "com.example.educationalapp-main-67:/raw/sound_dog.wav"
     },
     {
-        "merged": "com.example.educationalapp-merged_res-67:/raw_sound_horse.wav.flat",
-        "source": "com.example.educationalapp-main-69:/raw/sound_horse.wav"
+        "merged": "com.example.educationalapp-merged_res-65:/raw_song_1.mp3.flat",
+        "source": "com.example.educationalapp-main-67:/raw/song_1.mp3"
     },
     {
-        "merged": "com.example.educationalapp-merged_res-67:/drawable_ic_stories.png.flat",
-        "source": "com.example.educationalapp-main-69:/drawable/ic_stories.png"
+        "merged": "com.example.educationalapp-merged_res-65:/drawable_ic_games.png.flat",
+        "source": "com.example.educationalapp-main-67:/drawable/ic_games.png"
     },
     {
-        "merged": "com.example.educationalapp-merged_res-67:/raw_song_0.mp3.flat",
-        "source": "com.example.educationalapp-main-69:/raw/song_0.mp3"
+        "merged": "com.example.educationalapp-merged_res-65:/raw_sound_cat.wav.flat",
+        "source": "com.example.educationalapp-main-67:/raw/sound_cat.wav"
     },
     {
-        "merged": "com.example.educationalapp-merged_res-67:/drawable_ic_settings.png.flat",
-        "source": "com.example.educationalapp-main-69:/drawable/ic_settings.png"
+        "merged": "com.example.educationalapp-merged_res-65:/drawable_ic_sounds.png.flat",
+        "source": "com.example.educationalapp-main-67:/drawable/ic_sounds.png"
     },
     {
-        "merged": "com.example.educationalapp-merged_res-67:/drawable_ic_games.png.flat",
-        "source": "com.example.educationalapp-main-69:/drawable/ic_games.png"
+        "merged": "com.example.educationalapp-merged_res-65:/raw_song_3.mp3.flat",
+        "source": "com.example.educationalapp-main-67:/raw/song_3.mp3"
     },
     {
-        "merged": "com.example.educationalapp-merged_res-67:/raw_sound_sheep.wav.flat",
-        "source": "com.example.educationalapp-main-69:/raw/sound_sheep.wav"
+        "merged": "com.example.educationalapp-merged_res-65:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.example.educationalapp-main-67:/mipmap-anydpi-v26/ic_launcher.xml"
     },
     {
-        "merged": "com.example.educationalapp-merged_res-67:/drawable_ic_launcher_background.xml.flat",
-        "source": "com.example.educationalapp-main-69:/drawable/ic_launcher_background.xml"
+        "merged": "com.example.educationalapp-merged_res-65:/drawable_ic_settings.png.flat",
+        "source": "com.example.educationalapp-main-67:/drawable/ic_settings.png"
     },
     {
-        "merged": "com.example.educationalapp-merged_res-67:/raw_song_2.mp3.flat",
-        "source": "com.example.educationalapp-main-69:/raw/song_2.mp3"
+        "merged": "com.example.educationalapp-merged_res-65:/drawable_ic_songs.png.flat",
+        "source": "com.example.educationalapp-main-67:/drawable/ic_songs.png"
     },
     {
-        "merged": "com.example.educationalapp-merged_res-67:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
-        "source": "com.example.educationalapp-main-69:/mipmap-anydpi-v26/ic_launcher_round.xml"
+        "merged": "com.example.educationalapp-merged_res-65:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.example.educationalapp-main-67:/drawable/ic_launcher_foreground.xml"
     },
     {
-        "merged": "com.example.educationalapp-merged_res-67:/drawable_ic_sounds.png.flat",
-        "source": "com.example.educationalapp-main-69:/drawable/ic_sounds.png"
+        "merged": "com.example.educationalapp-merged_res-65:/raw_sound_lion.wav.flat",
+        "source": "com.example.educationalapp-main-67:/raw/sound_lion.wav"
     },
     {
-        "merged": "com.example.educationalapp-merged_res-67:/drawable_lumea_background.png.flat",
-        "source": "com.example.educationalapp-main-69:/drawable/lumea_background.png"
+        "merged": "com.example.educationalapp-merged_res-65:/raw_sound_cow.wav.flat",
+        "source": "com.example.educationalapp-main-67:/raw/sound_cow.wav"
     },
     {
-        "merged": "com.example.educationalapp-merged_res-67:/raw_sound_cat.wav.flat",
-        "source": "com.example.educationalapp-main-69:/raw/sound_cat.wav"
+        "merged": "com.example.educationalapp-merged_res-65:/drawable_ic_instruments.png.flat",
+        "source": "com.example.educationalapp-main-67:/drawable/ic_instruments.png"
     },
     {
-        "merged": "com.example.educationalapp-merged_res-67:/raw_sound_frog.wav.flat",
-        "source": "com.example.educationalapp-main-69:/raw/sound_frog.wav"
+        "merged": "com.example.educationalapp-merged_res-65:/drawable_ic_stories.png.flat",
+        "source": "com.example.educationalapp-main-67:/drawable/ic_stories.png"
     },
     {
-        "merged": "com.example.educationalapp-merged_res-67:/drawable_ic_instruments.png.flat",
-        "source": "com.example.educationalapp-main-69:/drawable/ic_instruments.png"
+        "merged": "com.example.educationalapp-merged_res-65:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "com.example.educationalapp-main-67:/mipmap-anydpi-v26/ic_launcher_round.xml"
     },
     {
-        "merged": "com.example.educationalapp-merged_res-67:/drawable_ic_songs.png.flat",
-        "source": "com.example.educationalapp-main-69:/drawable/ic_songs.png"
+        "merged": "com.example.educationalapp-merged_res-65:/drawable_ic_upgrade.png.flat",
+        "source": "com.example.educationalapp-main-67:/drawable/ic_upgrade.png"
     },
     {
-        "merged": "com.example.educationalapp-merged_res-67:/raw_song_1.mp3.flat",
-        "source": "com.example.educationalapp-main-69:/raw/song_1.mp3"
+        "merged": "com.example.educationalapp-merged_res-65:/raw_sound_horse.wav.flat",
+        "source": "com.example.educationalapp-main-67:/raw/sound_horse.wav"
     },
     {
-        "merged": "com.example.educationalapp-merged_res-67:/mipmap-anydpi-v26_ic_launcher.xml.flat",
-        "source": "com.example.educationalapp-main-69:/mipmap-anydpi-v26/ic_launcher.xml"
+        "merged": "com.example.educationalapp-merged_res-65:/drawable_ic_parental.png.flat",
+        "source": "com.example.educationalapp-main-67:/drawable/ic_parental.png"
     }
 ]

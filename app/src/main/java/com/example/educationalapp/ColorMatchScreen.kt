@@ -28,6 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.educationalapp.data.NamedColor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
@@ -37,7 +38,7 @@ private const val TOTAL_COLOR_QUESTIONS = 10
 data class ColorQuizQuestion(val color: NamedColor, val options: List<NamedColor>)
 
 @Composable
-fun ColorMatchScreen(navController: NavController, onGameWon: (stars: Int) -> Unit) {
+fun ColorMatchScreen(navController: NavController, starState: MutableState<Int>) {
     val colors = remember {
         listOf(
             NamedColor("Roșu", Color(0xFFE74C3C)),
@@ -65,7 +66,6 @@ fun ColorMatchScreen(navController: NavController, onGameWon: (stars: Int) -> Un
             selectedOption = null
         } else {
             questionIndex++ // To trigger the dialog
-            onGameWon(score / 10) // Award stars
         }
     }
 
@@ -76,6 +76,7 @@ fun ColorMatchScreen(navController: NavController, onGameWon: (stars: Int) -> Un
         if (option.name == currentQuestion.color.name) {
             answerState = AnswerState.CORRECT
             score += 10
+            starState.value += 1
         } else {
             answerState = AnswerState.INCORRECT
             score = (score - 5).coerceAtLeast(0)

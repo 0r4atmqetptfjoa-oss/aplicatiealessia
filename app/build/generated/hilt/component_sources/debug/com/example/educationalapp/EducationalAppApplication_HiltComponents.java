@@ -153,7 +153,8 @@ public final class EducationalAppApplication_HiltComponents {
           ActivityCBuilderModule.class,
           ViewModelCBuilderModule.class,
           HiltWrapper_ActivityRetainedComponentManager_LifecycleModule.class,
-          HiltWrapper_SavedStateHandleModule.class
+          HiltWrapper_SavedStateHandleModule.class,
+          MainViewModel_HiltModules.KeyModule.class
       }
   )
   @ActivityRetainedScoped
@@ -188,7 +189,10 @@ public final class EducationalAppApplication_HiltComponents {
   }
 
   @Subcomponent(
-      modules = HiltWrapper_HiltViewModelFactory_ViewModelModule.class
+      modules = {
+          HiltWrapper_HiltViewModelFactory_ViewModelModule.class,
+          MainViewModel_HiltModules.BindsModule.class
+      }
   )
   @ViewModelScoped
   public abstract static class ViewModelC implements ViewModelComponent,

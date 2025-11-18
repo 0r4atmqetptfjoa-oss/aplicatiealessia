@@ -1,5 +1,10 @@
 package com.example.educationalapp;
 
+import androidx.compose.foundation.layout.*;
+import androidx.compose.runtime.*;
+import androidx.compose.ui.Modifier;
+import androidx.navigation.NavController;
+
 /**
  * A simple block matching game.  A target colour is shown as a square and the
  * child must select the matching coloured block from three options.  Stars

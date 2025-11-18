@@ -1,5 +1,10 @@
 package com.example.educationalapp;
 
+import androidx.compose.foundation.layout.*;
+import androidx.compose.runtime.*;
+import androidx.compose.ui.Modifier;
+import androidx.navigation.NavController;
+
 /**
  * A simple cooking game where children add ingredients to a pot by tapping
  * buttons.  When all ingredients have been added a star is awarded and a

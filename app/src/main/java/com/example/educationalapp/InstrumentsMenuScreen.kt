@@ -26,9 +26,9 @@ import androidx.navigation.NavController
 @Composable
 fun InstrumentsMenuScreen(navController: NavController, starState: MutableState<Int>) {
     val instruments = listOf(
-        "Pian" to Screen.Piano.route,
-        "Tobe" to Screen.Drums.route,
-        "Xilofon" to Screen.Instrument.route
+        "Pian" to "piano",
+        "Tobe" to "drums",
+        "Xilofon" to "instrument"
     )
 
     Box(modifier = Modifier.fillMaxSize()) {

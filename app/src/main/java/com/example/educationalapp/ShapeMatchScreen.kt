@@ -29,6 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.educationalapp.data.NamedShape
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
@@ -38,7 +39,7 @@ private const val TOTAL_SHAPE_QUESTIONS = 10
 data class ShapeQuizQuestion(val shape: NamedShape, val options: List<NamedShape>)
 
 @Composable
-fun ShapeMatchScreen(navController: NavController, onGameWon: (stars: Int) -> Unit) {
+fun ShapeMatchScreen(navController: NavController, starState: MutableState<Int>) {
     val shapes = remember {
         listOf(
             NamedShape("Inimă", Icons.Default.Favorite, Color(0xFFE74C3C)),
@@ -62,7 +63,6 @@ fun ShapeMatchScreen(navController: NavController, onGameWon: (stars: Int) -> Un
             selectedOption = null
         } else {
             questionIndex++ // To trigger the dialog
-            onGameWon(score / 10) // Award stars
         }
     }
 
@@ -73,6 +73,7 @@ fun ShapeMatchScreen(navController: NavController, onGameWon: (stars: Int) -> Un
         if (option.name == currentQuestion.shape.name) {
             answerState = AnswerState.CORRECT
             score += 10
+            starState.value += 1
         } else {
             answerState = AnswerState.INCORRECT
             score = (score - 5).coerceAtLeast(0)

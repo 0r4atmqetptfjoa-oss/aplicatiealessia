@@ -1,5 +1,15 @@
 package com.example.educationalapp;
 
+import androidx.compose.foundation.layout.*;
+import androidx.compose.material.icons.Icons;
+import androidx.compose.material3.CardDefaults;
+import androidx.compose.material3.ExperimentalMaterial3Api;
+import androidx.compose.runtime.Composable;
+import androidx.compose.ui.Alignment;
+import androidx.compose.ui.Modifier;
+import androidx.compose.ui.layout.ContentScale;
+import androidx.navigation.NavController;
+
 /**
  * Lists all available mini‑games.  Games marked as free are always accessible,
  * while premium games require purchasing the full version.  When the user

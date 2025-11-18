@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.educationalapp-mergeDebugResources-65:/values-port/values-port.xml",
+            "outputFile": "com.example.educationalapp-mergeDebugResources-63:/values-port/values-port.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\razva\\.gradle\\caches\\transforms-3\\47494bae0d5af340ce384dde3add152e\\transformed\\appcompat-1.6.1\\res\\values-port\\values-port.xml",
+                    "source": "C:\\Users\\razva\\.gradle\\caches\\transforms-3\\1390ed0e93696117e0bd1340aa2458d6\\transformed\\appcompat-1.6.1\\res\\values-port\\values-port.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",

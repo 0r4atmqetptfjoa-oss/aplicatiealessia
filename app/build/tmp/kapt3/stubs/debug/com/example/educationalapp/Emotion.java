@@ -1,5 +1,10 @@
 package com.example.educationalapp;
 
+import androidx.compose.foundation.layout.*;
+import androidx.compose.runtime.*;
+import androidx.compose.ui.Modifier;
+import androidx.navigation.NavController;
+
 /**
  * A simple game that teaches children to recognise basic emotions.  A target
  * emotion is shown by name and the player must select the matching face.

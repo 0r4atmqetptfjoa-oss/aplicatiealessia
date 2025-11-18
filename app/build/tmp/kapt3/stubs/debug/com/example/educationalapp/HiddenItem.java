@@ -1,5 +1,13 @@
 package com.example.educationalapp;
 
+import androidx.compose.foundation.ExperimentalFoundationApi;
+import androidx.compose.foundation.layout.*;
+import androidx.compose.foundation.lazy.grid.GridCells;
+import androidx.compose.runtime.*;
+import androidx.compose.ui.Alignment;
+import androidx.compose.ui.Modifier;
+import androidx.navigation.NavController;
+
 /**
  * A hidden objects game that displays a grid of emojis.  The player is
  * instructed to find a specific object.  Correct selections yield points

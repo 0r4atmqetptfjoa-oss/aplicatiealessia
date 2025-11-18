@@ -47,7 +47,7 @@ fun StoriesMenuScreen(navController: NavController, starState: MutableState<Int>
             LazyColumn(modifier = Modifier.weight(1f)) {
                 items(stories) { title ->
                     Card(
-                        onClick = { navController.navigate(Screen.StoryBook.route) },
+                        onClick = { /* navController.navigate(Screen.StoryBook.route) */ },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp),

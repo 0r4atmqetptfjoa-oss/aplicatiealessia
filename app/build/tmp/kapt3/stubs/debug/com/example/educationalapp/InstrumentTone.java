@@ -1,5 +1,12 @@
 package com.example.educationalapp;
 
+import android.media.ToneGenerator;
+import android.media.AudioManager;
+import androidx.compose.foundation.layout.*;
+import androidx.compose.runtime.*;
+import androidx.compose.ui.Modifier;
+import androidx.navigation.NavController;
+
 /**
  * A game where a tone representing a musical instrument is played and the
  * child must guess which instrument it is.  Since we do not include real

@@ -1,5 +1,15 @@
 package com.example.educationalapp;
 
+import android.media.ToneGenerator;
+import android.media.AudioManager;
+import androidx.compose.foundation.ExperimentalFoundationApi;
+import androidx.compose.foundation.layout.*;
+import androidx.compose.foundation.lazy.grid.GridCells;
+import androidx.compose.runtime.*;
+import androidx.compose.ui.Alignment;
+import androidx.compose.ui.Modifier;
+import androidx.navigation.NavController;
+
 /**
  * Displays a grid of sound items for a given category.  When an item is
  * selected its corresponding tone is played using ToneGenerator.  After

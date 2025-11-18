@@ -5,19 +5,18 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.educationalapp.data.UserPreferences
 import com.example.educationalapp.designsystem.Spacing
 
 @Composable
 fun SettingsScreen(
     navController: NavController,
-    uiState: UserPreferences,
-    onSoundEnabledChanged: (Boolean) -> Unit,
-    onMusicEnabledChanged: (Boolean) -> Unit,
-    onHardModeChanged: (Boolean) -> Unit,
-    onDarkThemeChanged: (Boolean) -> Unit
+    soundEnabled: MutableState<Boolean>,
+    musicEnabled: MutableState<Boolean>,
+    hardModeEnabled: MutableState<Boolean>
 ) {
     Column(modifier = Modifier.fillMaxSize().padding(Spacing.large)) {
         Text(text = "Setări", modifier = Modifier.padding(bottom = Spacing.large))
@@ -26,28 +25,21 @@ fun SettingsScreen(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(text = "Sunete activat")
-            Switch(checked = uiState.soundEnabled, onCheckedChange = onSoundEnabledChanged)
+            Switch(checked = soundEnabled.value, onCheckedChange = { soundEnabled.value = it })
         }
         Row(
             modifier = Modifier.fillMaxWidth().padding(vertical = Spacing.medium),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(text = "Muzică activată")
-            Switch(checked = uiState.musicEnabled, onCheckedChange = onMusicEnabledChanged)
+            Switch(checked = musicEnabled.value, onCheckedChange = { musicEnabled.value = it })
         }
         Row(
             modifier = Modifier.fillMaxWidth().padding(vertical = Spacing.medium),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(text = "Mod greu")
-            Switch(checked = uiState.hardModeEnabled, onCheckedChange = onHardModeChanged)
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(vertical = Spacing.medium),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(text = "Temă întunecată")
-            Switch(checked = uiState.darkTheme, onCheckedChange = onDarkThemeChanged)
+            Switch(checked = hardModeEnabled.value, onCheckedChange = { hardModeEnabled.value = it })
         }
         Spacer(modifier = Modifier.height(Spacing.large))
         Button(onClick = { navController.navigate(Screen.ParentalGate.route) }) {
