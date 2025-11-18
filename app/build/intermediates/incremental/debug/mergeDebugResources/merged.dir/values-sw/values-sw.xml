@@ -4,6 +4,11 @@
     <item quantity="one">Arifa %d mpya</item>
     <item quantity="other">Arifa %d mpya</item>
   </plurals>
+    <string name="__arcore_cancel">Ghairi</string>
+    <string name="__arcore_continue">Endelea</string>
+    <string name="__arcore_install_app">Programu hii inahitaji toleo jipya zaidi la programu ya Huduma za Google Play za AR.</string>
+    <string name="__arcore_install_feature">Kipengele hiki kinahitaji toleo jipya zaidi la programu ya Huduma za Google Play za AR.</string>
+    <string name="__arcore_installing">Inasakinisha programu ya Huduma za Google Play za AR…</string>
     <string msgid="5976598919945601918" name="abc_action_bar_home_description">"Nenda mwanzo"</string>
     <string msgid="8388173803310557296" name="abc_action_bar_up_description">"Sogeza juu"</string>
     <string msgid="3937310113216875497" name="abc_action_menu_overflow_description">"Chaguo zaidi"</string>
@@ -31,6 +36,9 @@
     <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"Shiriki na"</string>
     <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"Shiriki ukitumia <ns1:g id="APPLICATION_NAME">%s</ns1:g>"</string>
     <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"Kunja"</string>
+    <string msgid="8397015543330865059" name="android.credentials.TYPE_PASSWORD_CREDENTIAL">"Nenosiri"</string>
+    <string msgid="3929015085059320822" name="androidx.credentials.TYPE_PUBLIC_KEY_CREDENTIAL">"Ufunguo wa siri"</string>
+    <string msgid="389117264260014992" name="autofill">"Jaza kiotomatiki"</string>
     <string name="bottomsheet_action_collapse">Kunja safu ya chini</string>
     <string name="bottomsheet_action_expand">Panua safu ya chini</string>
     <string name="bottomsheet_action_expand_halfway">Panua nusu</string>
@@ -48,11 +56,41 @@
     <string name="clear_text_end_icon_content_description">Futa maandishi</string>
     <string msgid="406453423630273620" name="close_drawer">"Funga menyu ya kusogeza"</string>
     <string msgid="7573152094250666567" name="close_sheet">"Funga laha"</string>
+    <string msgid="2523291102206661146" name="common_google_play_services_enable_button">Washa</string>
+    <string msgid="227660514972886228" name="common_google_play_services_enable_text">%1$s haitafanya kazi isipokuwa uwashe huduma za Google Play.</string>
+    <string msgid="5122002158466380389" name="common_google_play_services_enable_title">Washa huduma za Google Play</string>
+    <string msgid="7153882981874058840" name="common_google_play_services_install_button">Sakinisha</string>
+    <string name="common_google_play_services_install_text">%1$s haitafanya kazi bila huduma za Google Play. Huduma hizi hazipatikani kwenye kifaa chako.</string>
+    <string msgid="7215213145546190223" name="common_google_play_services_install_title">Pata huduma za Google Play</string>
+    <string name="common_google_play_services_notification_channel_name">Upatikanaji wa huduma za Google Play</string>
+    <string name="common_google_play_services_notification_ticker">Hitilafu kwenye huduma za Google Play</string>
+    <string name="common_google_play_services_unknown_issue">%1$s inakumbwa na hitilafu ya huduma za Google Play. Tafadhali jaribu tena.</string>
+    <string name="common_google_play_services_unsupported_text">%1$s haitafanya kazi bila huduma za Google Play. Huduma hizi hazitumiki kwenye kifaa chako.</string>
+    <string msgid="6556509956452265614" name="common_google_play_services_update_button">Sasisha</string>
+    <string msgid="9053896323427875356" name="common_google_play_services_update_text">%1$s haitafanya kazi hadi usasishe huduma za Google Play.</string>
+    <string msgid="6006316683626838685" name="common_google_play_services_update_title">Sasisha huduma za Google Play</string>
+    <string name="common_google_play_services_updating_text">%1$s haitafanya kazi bila huduma za Google Play. Huduma hizi zinasasishwa sasa.</string>
+    <string name="common_google_play_services_wear_update_text">Toleo jipya la huduma za Google Play linahitajika. Litajisasisha baada ya muda mfupi.</string>
+    <string name="common_open_on_phone">Fungua kwenye simu</string>
+    <string name="common_signin_button_text">Ingia katika akaunti</string>
+    <string name="common_signin_button_text_long">Ingia katika akaunti ukitumia Google</string>
+    <string msgid="5912733858573823945" name="confirm_device_credential_password">"Tumia nenosiri"</string>
     <string msgid="8038256446254964252" name="default_error_message">"Ulichoweka si sahihi"</string>
+    <string msgid="4776854077120974966" name="default_error_msg">"Hitilafu isiyojulikana"</string>
     <string msgid="6312721426453364202" name="default_popup_window_title">"Dirisha Ibukizi"</string>
     <string msgid="1890207353314751437" name="dropdown_menu">"Menyu kunjuzi"</string>
     <string name="error_icon_content_description">Hitilafu</string>
     <string name="exposed_dropdown_menu_content_description">Onyesha menyu kunjuzi</string>
+    <string msgid="1072308044213194243" name="fingerprint_dialog_touch_sensor">"Gusa kitambua alama ya kidole"</string>
+    <string msgid="8216738333501875566" name="fingerprint_error_hw_not_available">"Maunzi ya alama ya kidole hayapatikani."</string>
+    <string msgid="6306988885793029438" name="fingerprint_error_hw_not_present">"Kifaa hiki hakina kitambua alama ya kidole"</string>
+    <string msgid="7291787166416782245" name="fingerprint_error_lockout">"Umejaribu mara nyingi mno. Tafadhali jaribu tena baadaye."</string>
+    <string msgid="7520712796891883488" name="fingerprint_error_no_fingerprints">"Hakuna alama za vidole zilizojumuishwa."</string>
+    <string msgid="7627716295344353987" name="fingerprint_error_user_canceled">"Mtumiaji ameghairi uthibitishaji wa alama ya kidole."</string>
+    <string msgid="3873359464293253009" name="fingerprint_not_recognized">"Haitambuliwi"</string>
+    <string msgid="3791785319221634505" name="generic_error_no_device_credential">"Hujaweka PIN, mchoro au nenosiri."</string>
+    <string msgid="1807436368654974044" name="generic_error_no_keyguard">"Kifaa hiki hakitumii PIN, mchoro au nenosiri."</string>
+    <string msgid="7309881387583143581" name="generic_error_user_canceled">"Uthibitishaji umeghairiwa na mtumiaji."</string>
     <string name="icon_content_description">Aikoni ya Kidirisha</string>
     <string msgid="6827826412747255547" name="in_progress">"Inaendelea"</string>
     <string msgid="7933458017204019916" name="indeterminate">"Imekaguliwa kwa kiasi fulani"</string>
@@ -96,6 +134,7 @@
     <string msgid="7617233117134790350" name="m3c_dialog">"Kidirisha"</string>
     <string msgid="3177828188723359358" name="m3c_dropdown_menu_collapsed">"Imekunjwa"</string>
     <string msgid="2360841780724299882" name="m3c_dropdown_menu_expanded">"Imepanuliwa"</string>
+    <string msgid="8687821690726149911" name="m3c_dropdown_menu_toggle">"Badilisha hali ya menyu kunjuzi"</string>
     <string msgid="6152806324422087846" name="m3c_search_bar_search">"Tafuta"</string>
     <string msgid="6152755701819882931" name="m3c_snackbar_dismiss">"Ondoa"</string>
     <string msgid="7655536806087401899" name="m3c_suggestions_available">"Mapendekezo yaliyo hapa chini"</string>
@@ -126,6 +165,7 @@
     <string name="material_timepicker_pm">PM</string>
     <string name="material_timepicker_select_time">Chagua wakati</string>
     <string name="material_timepicker_text_input_mode_description">Badilisha iwe katika hali ya maandishi wakati wa kuweka muda.</string>
+    <string msgid="8471891128988107974" name="mc2_snackbar_pane_title">"Arifa"</string>
     <string name="mtrl_badge_numberless_content_description">Arifa mpya</string>
     <string name="mtrl_chip_close_icon_content_description">Ondoa %1$s</string>
     <string name="mtrl_exceed_max_badge_number_content_description" ns2:ignore="PluralsCandidate">Zaidi ya arifa %1$d mpya</string>
@@ -170,13 +210,15 @@
     <string name="mtrl_timepicker_confirm">Sawa</string>
     <string msgid="542007171693138492" name="navigation_menu">"Menyu ya kusogeza"</string>
     <string msgid="6610465462668679431" name="not_selected">"Hujachagua"</string>
-    <string msgid="875452955155264703" name="off">"Imezimwa"</string>
-    <string msgid="8655164131929253426" name="on">"Imewashwa"</string>
     <string name="password_toggle_content_description">Onyesha nenosiri</string>
     <string msgid="5941395253238309765" name="range_end">"Mwisho wa masafa"</string>
     <string msgid="7097486360902471446" name="range_start">"Mwanzo wa masafa"</string>
     <string msgid="6264217191555673260" name="search_menu_title">"Tafuta"</string>
     <string msgid="6043586758067023" name="selected">"Umechagua"</string>
+    <string msgid="2792228137354697160" name="snackbar_pane_title">"Arifa"</string>
+    <string msgid="4139871816613051306" name="state_empty">"Tupu"</string>
+    <string msgid="5834637030682409883" name="state_off">"Imezimwa"</string>
+    <string msgid="1490883874751719580" name="state_on">"Imewashwa"</string>
     <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
     <string msgid="2561197295334830845" name="switch_role">"Swichi"</string>
     <string msgid="1672349317127674378" name="tab">"Kichupo"</string>

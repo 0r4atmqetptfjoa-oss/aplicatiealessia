@@ -29,13 +29,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.educationalapp.data.NamedShape
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 private const val TOTAL_SHAPE_QUESTIONS = 10
 
+data class NamedShape(val name: String, val icon: ImageVector, val color: Color)
 data class ShapeQuizQuestion(val shape: NamedShape, val options: List<NamedShape>)
 
 @Composable

@@ -74,10 +74,14 @@ fun AppNavigation(
             ShapeMatchScreen(navController, starState)
         }
         composable(Screen.Puzzle.route) {
-            PuzzleScreen(navController, starState)
+            PuzzleScreen(navController) { starsEarned ->
+                starState.value += starsEarned
+            }
         }
         composable(Screen.MemoryGame.route) {
-            MemoryGameScreen(navController, starState)
+            MemoryGameScreen(navController) { starsEarned ->
+                starState.value += starsEarned
+            }
         }
         composable(Screen.SortingGame.route) {
             SortingGameScreen(navController, starState)

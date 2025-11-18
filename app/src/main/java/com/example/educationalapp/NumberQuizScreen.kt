@@ -31,6 +31,7 @@ import kotlin.random.Random
 
 private const val TOTAL_NUMBER_QUESTIONS = 10
 
+enum class AnswerState { UNANSWERED, CORRECT, INCORRECT }
 data class NumberQuizQuestion(val number: Int, val options: List<Int>)
 
 @Composable
@@ -262,4 +263,8 @@ private fun generateNumberQuestion(): NumberQuizQuestion {
         options.add(numbers.random())
     }
     return NumberQuizQuestion(correctNumber, options.shuffled())
+}
+
+private fun lerp(start: Float, stop: Float, fraction: Float): Float {
+    return start + fraction * (stop - start)
 }

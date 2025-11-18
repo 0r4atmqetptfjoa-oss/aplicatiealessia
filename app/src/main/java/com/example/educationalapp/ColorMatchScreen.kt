@@ -9,15 +9,10 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
@@ -28,13 +23,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.educationalapp.data.NamedColor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 private const val TOTAL_COLOR_QUESTIONS = 10
 
+data class NamedColor(val name: String, val color: Color)
 data class ColorQuizQuestion(val color: NamedColor, val options: List<NamedColor>)
 
 @Composable
@@ -276,4 +271,8 @@ private fun generateColorQuestion(colors: List<NamedColor>): ColorQuizQuestion {
         options.add(colors.random())
     }
     return ColorQuizQuestion(correctColor, options.shuffled())
+}
+
+private fun lerp(start: Float, stop: Float, fraction: Float): Float {
+    return start + fraction * (stop - start)
 }
