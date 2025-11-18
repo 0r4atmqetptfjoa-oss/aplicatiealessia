@@ -9,6 +9,9 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,6 +26,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.educationalapp.QuizAnswerState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
@@ -50,14 +54,14 @@ fun ColorMatchScreen(navController: NavController, starState: MutableState<Int>)
     var questionIndex by remember { mutableStateOf(0) }
     var currentQuestion by remember { mutableStateOf(generateColorQuestion(colors)) }
     var selectedOption by remember { mutableStateOf<NamedColor?>(null) }
-    var answerState by remember { mutableStateOf(AnswerState.UNANSWERED) }
+    var answerState by remember { mutableStateOf(QuizAnswerState.UNANSWERED) }
     val coroutineScope = rememberCoroutineScope()
 
     fun nextQuestion() {
         if (questionIndex < TOTAL_COLOR_QUESTIONS - 1) {
             questionIndex++
             currentQuestion = generateColorQuestion(colors)
-            answerState = AnswerState.UNANSWERED
+            answerState = QuizAnswerState.UNANSWERED
             selectedOption = null
         } else {
             questionIndex++ // To trigger the dialog
@@ -65,15 +69,15 @@ fun ColorMatchScreen(navController: NavController, starState: MutableState<Int>)
     }
 
     fun handleAnswer(option: NamedColor) {
-        if (answerState != AnswerState.UNANSWERED) return
+        if (answerState != QuizAnswerState.UNANSWERED) return
 
         selectedOption = option
         if (option.name == currentQuestion.color.name) {
-            answerState = AnswerState.CORRECT
+            answerState = QuizAnswerState.CORRECT
             score += 10
             starState.value += 1
         } else {
-            answerState = AnswerState.INCORRECT
+            answerState = QuizAnswerState.INCORRECT
             score = (score - 5).coerceAtLeast(0)
         }
 
@@ -96,7 +100,7 @@ fun ColorMatchScreen(navController: NavController, starState: MutableState<Int>)
                 score = 0
                 questionIndex = 0
                 currentQuestion = generateColorQuestion(colors)
-                answerState = AnswerState.UNANSWERED
+                answerState = QuizAnswerState.UNANSWERED
                 selectedOption = null
             }
         }
@@ -156,12 +160,12 @@ private fun ColorQuizHeader(navController: NavController, questionIndex: Int, sc
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ColorOptionCard(option: NamedColor, selectedOption: NamedColor?, answerState: AnswerState, onClick: () -> Unit) {
+private fun ColorOptionCard(option: NamedColor, selectedOption: NamedColor?, answerState: QuizAnswerState, onClick: () -> Unit) {
     val isSelected = option == selectedOption
     val shakeController = remember { Animatable(0f) }
 
     LaunchedEffect(answerState, isSelected) {
-        if (isSelected && answerState == AnswerState.INCORRECT) {
+        if (isSelected && answerState == QuizAnswerState.INCORRECT) {
             shakeController.animateTo(
                 targetValue = 1f,
                 animationSpec = keyframes {
@@ -175,8 +179,8 @@ private fun ColorOptionCard(option: NamedColor, selectedOption: NamedColor?, ans
     val borderColor by animateColorAsState(
         targetValue = when {
             !isSelected -> Color.Transparent
-            answerState == AnswerState.CORRECT -> Color.White
-            answerState == AnswerState.INCORRECT -> Color(0xFFD32F2F)
+            answerState == QuizAnswerState.CORRECT -> Color.White
+            answerState == QuizAnswerState.INCORRECT -> Color(0xFFD32F2F)
             else -> Color.Transparent
         }, label = "borderColor"
     )
@@ -190,7 +194,7 @@ private fun ColorOptionCard(option: NamedColor, selectedOption: NamedColor?, ans
         colors = CardDefaults.cardColors(containerColor = option.color)
     ) {
         Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-            if (isSelected && answerState == AnswerState.CORRECT) {
+            if (isSelected && answerState == QuizAnswerState.CORRECT) {
                 ColorCorrectAnswerParticles()
             }
         }

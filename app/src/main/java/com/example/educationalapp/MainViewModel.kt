@@ -1,6 +1,7 @@
 package com.example.educationalapp
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -8,7 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 @HiltViewModel
-class MainViewModel @Inject constructor() : ViewModel() {
+class MainViewModel @Inject constructor(application: Application) : AndroidViewModel(application) {
 
     private val _starCount = MutableStateFlow(0)
     val starCount: StateFlow<Int> get() = _starCount.asStateFlow()

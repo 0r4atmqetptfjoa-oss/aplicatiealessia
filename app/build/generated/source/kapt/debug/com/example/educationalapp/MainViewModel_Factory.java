@@ -1,10 +1,12 @@
 package com.example.educationalapp;
 
+import android.app.Application;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
 import javax.annotation.processing.Generated;
+import javax.inject.Provider;
 
 @ScopeMetadata
 @QualifierMetadata
@@ -21,20 +23,22 @@ import javax.annotation.processing.Generated;
     "cast"
 })
 public final class MainViewModel_Factory implements Factory<MainViewModel> {
+  private final Provider<Application> applicationProvider;
+
+  public MainViewModel_Factory(Provider<Application> applicationProvider) {
+    this.applicationProvider = applicationProvider;
+  }
+
   @Override
   public MainViewModel get() {
-    return newInstance();
+    return newInstance(applicationProvider.get());
   }
 
-  public static MainViewModel_Factory create() {
-    return InstanceHolder.INSTANCE;
+  public static MainViewModel_Factory create(Provider<Application> applicationProvider) {
+    return new MainViewModel_Factory(applicationProvider);
   }
 
-  public static MainViewModel newInstance() {
-    return new MainViewModel();
-  }
-
-  private static final class InstanceHolder {
-    private static final MainViewModel_Factory INSTANCE = new MainViewModel_Factory();
+  public static MainViewModel newInstance(Application application) {
+    return new MainViewModel(application);
   }
 }

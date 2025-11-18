@@ -29,6 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.educationalapp.QuizAnswerState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
@@ -52,14 +53,14 @@ fun ShapeMatchScreen(navController: NavController, starState: MutableState<Int>)
     var questionIndex by remember { mutableStateOf(0) }
     var currentQuestion by remember { mutableStateOf(generateShapeQuestion(shapes)) }
     var selectedOption by remember { mutableStateOf<NamedShape?>(null) }
-    var answerState by remember { mutableStateOf(AnswerState.UNANSWERED) }
+    var answerState by remember { mutableStateOf(QuizAnswerState.UNANSWERED) }
     val coroutineScope = rememberCoroutineScope()
 
     fun nextQuestion() {
         if (questionIndex < TOTAL_SHAPE_QUESTIONS - 1) {
             questionIndex++
             currentQuestion = generateShapeQuestion(shapes)
-            answerState = AnswerState.UNANSWERED
+            answerState = QuizAnswerState.UNANSWERED
             selectedOption = null
         } else {
             questionIndex++ // To trigger the dialog
@@ -67,15 +68,15 @@ fun ShapeMatchScreen(navController: NavController, starState: MutableState<Int>)
     }
 
     fun handleAnswer(option: NamedShape) {
-        if (answerState != AnswerState.UNANSWERED) return
+        if (answerState != QuizAnswerState.UNANSWERED) return
 
         selectedOption = option
         if (option.name == currentQuestion.shape.name) {
-            answerState = AnswerState.CORRECT
+            answerState = QuizAnswerState.CORRECT
             score += 10
             starState.value += 1
         } else {
-            answerState = AnswerState.INCORRECT
+            answerState = QuizAnswerState.INCORRECT
             score = (score - 5).coerceAtLeast(0)
         }
 
@@ -98,7 +99,7 @@ fun ShapeMatchScreen(navController: NavController, starState: MutableState<Int>)
                 score = 0
                 questionIndex = 0
                 currentQuestion = generateShapeQuestion(shapes)
-                answerState = AnswerState.UNANSWERED
+                answerState = QuizAnswerState.UNANSWERED
                 selectedOption = null
             }
         }
@@ -158,12 +159,12 @@ private fun ShapeQuizHeader(navController: NavController, questionIndex: Int, sc
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ShapeOptionCard(option: NamedShape, selectedOption: NamedShape?, answerState: AnswerState, onClick: () -> Unit) {
+private fun ShapeOptionCard(option: NamedShape, selectedOption: NamedShape?, answerState: QuizAnswerState, onClick: () -> Unit) {
     val isSelected = option == selectedOption
     val shakeController = remember { Animatable(0f) }
 
     LaunchedEffect(answerState, isSelected) {
-        if (isSelected && answerState == AnswerState.INCORRECT) {
+        if (isSelected && answerState == QuizAnswerState.INCORRECT) {
             shakeController.animateTo(
                 targetValue = 1f,
                 animationSpec = keyframes {
@@ -177,8 +178,8 @@ private fun ShapeOptionCard(option: NamedShape, selectedOption: NamedShape?, ans
     val cardColor by animateColorAsState(
         targetValue = when {
             !isSelected -> MaterialTheme.colorScheme.surface
-            answerState == AnswerState.CORRECT -> Color(0xFF81C784) // Green
-            answerState == AnswerState.INCORRECT -> Color(0xFFE57373) // Red
+            answerState == QuizAnswerState.CORRECT -> Color(0xFF81C784) // Green
+            answerState == QuizAnswerState.INCORRECT -> Color(0xFFE57373) // Red
             else -> MaterialTheme.colorScheme.surface
         }, label = "cardColor"
     )
@@ -197,7 +198,7 @@ private fun ShapeOptionCard(option: NamedShape, selectedOption: NamedShape?, ans
                 modifier = Modifier.size(60.dp),
                 tint = option.color
             )
-            if (isSelected && answerState == AnswerState.CORRECT) {
+            if (isSelected && answerState == QuizAnswerState.CORRECT) {
                 ShapeCorrectAnswerParticles()
             }
         }
@@ -278,4 +279,8 @@ private fun generateShapeQuestion(shapes: List<NamedShape>): ShapeQuizQuestion {
         options.add(shapes.random())
     }
     return ShapeQuizQuestion(correctShape, options.shuffled())
+}
+
+private fun lerp(start: Float, stop: Float, fraction: Float): Float {
+    return start + fraction * (stop - start)
 }

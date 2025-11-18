@@ -25,13 +25,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.educationalapp.QuizAnswerState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 private const val TOTAL_QUESTIONS = 10
 
-enum class AnswerState { UNANSWERED, CORRECT, INCORRECT }
 data class QuizQuestion(val letter: Char, val options: List<Char>)
 
 @Composable
@@ -40,14 +40,14 @@ fun AlphabetQuizScreen(navController: NavController, starState: MutableState<Int
     var questionIndex by remember { mutableStateOf(0) }
     var currentQuestion by remember { mutableStateOf(generateQuestion()) }
     var selectedOption by remember { mutableStateOf<Char?>(null) }
-    var answerState by remember { mutableStateOf(AnswerState.UNANSWERED) }
+    var answerState by remember { mutableStateOf(QuizAnswerState.UNANSWERED) }
     val coroutineScope = rememberCoroutineScope()
 
     fun nextQuestion() {
         if (questionIndex < TOTAL_QUESTIONS - 1) {
             questionIndex++
             currentQuestion = generateQuestion()
-            answerState = AnswerState.UNANSWERED
+            answerState = QuizAnswerState.UNANSWERED
             selectedOption = null
         } else {
             questionIndex++ // To trigger the dialog
@@ -55,15 +55,15 @@ fun AlphabetQuizScreen(navController: NavController, starState: MutableState<Int
     }
 
     fun handleAnswer(option: Char) {
-        if (answerState != AnswerState.UNANSWERED) return
+        if (answerState != QuizAnswerState.UNANSWERED) return
 
         selectedOption = option
         if (option == currentQuestion.letter) {
-            answerState = AnswerState.CORRECT
+            answerState = QuizAnswerState.CORRECT
             score += 10
             starState.value += 1
         } else {
-            answerState = AnswerState.INCORRECT
+            answerState = QuizAnswerState.INCORRECT
             score = (score - 5).coerceAtLeast(0)
         }
 
@@ -86,7 +86,7 @@ fun AlphabetQuizScreen(navController: NavController, starState: MutableState<Int
                 score = 0
                 questionIndex = 0
                 currentQuestion = generateQuestion()
-                answerState = AnswerState.UNANSWERED
+                answerState = QuizAnswerState.UNANSWERED
                 selectedOption = null
             }
         }
@@ -150,12 +150,12 @@ private fun QuizHeader(navController: NavController, questionIndex: Int, score: 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun OptionCard(option: Char, selectedOption: Char?, answerState: AnswerState, onClick: () -> Unit) {
+private fun OptionCard(option: Char, selectedOption: Char?, answerState: QuizAnswerState, onClick: () -> Unit) {
     val isSelected = option == selectedOption
     val shakeController = remember { Animatable(0f) }
 
     LaunchedEffect(answerState, isSelected) {
-        if (isSelected && answerState == AnswerState.INCORRECT) {
+        if (isSelected && answerState == QuizAnswerState.INCORRECT) {
             shakeController.animateTo(
                 targetValue = 1f,
                 animationSpec = keyframes {
@@ -169,8 +169,8 @@ private fun OptionCard(option: Char, selectedOption: Char?, answerState: AnswerS
     val cardColor by animateColorAsState(
         targetValue = when {
             !isSelected -> MaterialTheme.colorScheme.surface
-            answerState == AnswerState.CORRECT -> Color(0xFF81C784) // Green
-            answerState == AnswerState.INCORRECT -> Color(0xFFE57373) // Red
+            answerState == QuizAnswerState.CORRECT -> Color(0xFF81C784) // Green
+            answerState == QuizAnswerState.INCORRECT -> Color(0xFFE57373) // Red
             else -> MaterialTheme.colorScheme.surface
         }, label = "cardColor"
     )
@@ -188,7 +188,7 @@ private fun OptionCard(option: Char, selectedOption: Char?, answerState: AnswerS
     ) {
         Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
             Text(text = option.toString(), fontSize = 48.sp, fontWeight = FontWeight.Bold)
-             if (isSelected && answerState == AnswerState.CORRECT) {
+             if (isSelected && answerState == QuizAnswerState.CORRECT) {
                 CorrectAnswerParticles()
             }
         }
