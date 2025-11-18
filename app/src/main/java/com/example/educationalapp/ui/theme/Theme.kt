@@ -1,13 +1,15 @@
 package com.example.educationalapp.ui.theme
 
+import android.os.Build
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.Color
-import com.example.educationalapp.ui.theme.PastelPink
-import com.example.educationalapp.ui.theme.PastelBlue
-import com.example.educationalapp.ui.theme.PastelYellow
 
 private val DarkColorScheme = darkColorScheme(
     primary = PastelPink,
@@ -29,14 +31,26 @@ private val LightColorScheme = lightColorScheme(
     onSurface = Color.Black
 )
 
+/**
+ * A Material3 theme that optionally supports dynamic color on Android 12+.
+ * If [useDynamicColors] is true and the device supports dynamic color, the theme
+ * will use the system's dynamic light/dark color scheme. Otherwise it falls back
+ * to the pastel palette defined above.
+ */
 @Composable
 fun EducationalAppTheme(
-    darkTheme: Boolean = false,
+    useDynamicColors: Boolean = true,
+    darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val colors = if (darkTheme) DarkColorScheme else LightColorScheme
+    val colorScheme = if (useDynamicColors && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        val context = LocalContext.current
+        if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+    } else {
+        if (darkTheme) DarkColorScheme else LightColorScheme
+    }
     MaterialTheme(
-        colorScheme = colors,
+        colorScheme = colorScheme,
         typography = Typography,
         content = content
     )
