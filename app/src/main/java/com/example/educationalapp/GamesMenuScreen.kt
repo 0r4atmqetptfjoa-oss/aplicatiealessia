@@ -59,7 +59,7 @@ import androidx.navigation.NavController
 /**
  * A massively upgraded games menu screen designed for a premium experience.
  * The screen now displays games in a responsive grid with icons and subtle
- * animations. Locked games are overlaid with a semi-transparent layer and a
+ * animations. Locked games are overlaid with a semi‑transparent layer and a
  * lock icon prompting the user to upgrade. Micro‑interactions provide
  * immediate feedback when tapping on a card.
  */

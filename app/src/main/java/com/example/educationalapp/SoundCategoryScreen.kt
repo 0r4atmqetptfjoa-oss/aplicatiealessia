@@ -1,37 +1,68 @@
 package com.example.educationalapp
 
-import android.media.ToneGenerator
 import android.media.AudioManager
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.*
+import android.media.ToneGenerator
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.compose.foundation.layout.Box
 
 /**
- * Displays a grid of sound items for a given category.  When an item is
- * selected its corresponding tone is played using ToneGenerator.  After
- * exploring five items the child receives a star.  Categories include
- * birds, vehicles, farm, jungle and maritime; unrecognised categories
- * default to an empty list.  To add new categories provide an entry in
- * the 'itemsForCategory' map.
+ * Enhanced sound category screen presenting a grid of sound items with
+ * rich feedback and styling.  Each item is a card with a large emoji
+ * representing the sound.  Pressing an item plays a tone and awards a
+ * star after exploring five unique sounds.  A background image and
+ * header unify the look with other menus.
  */
-data class CategoryItem(val name: String, val emoji: String, val toneType: Int)
-
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun SoundCategoryScreen(navController: NavController, starState: MutableState<Int>, category: String) {
-    // Map categories to their list of sound items.  Tone types are chosen from
-    // ToneGenerator constants to provide unique sounds.
+fun SoundCategoryScreen(
+    navController: NavController,
+    starState: MutableState<Int>,
+    category: String
+) {
+    // Define each sound item with a name, emoji and ToneGenerator type.
+    data class CategoryItem(val name: String, val emoji: String, val toneType: Int)
     val itemsForCategory: Map<String, List<CategoryItem>> = mapOf(
         "birds" to listOf(
             CategoryItem("Vrăbiuță", "🐦", ToneGenerator.TONE_CDMA_HIGH_L),
@@ -60,10 +91,10 @@ fun SoundCategoryScreen(navController: NavController, starState: MutableState<In
         )
     )
     val items = itemsForCategory[category] ?: emptyList()
-    // track number of plays to award stars after exploring multiple sounds
+    // State to track plays and feedback messages.  Award a star after
+    // exploring five sounds.
     var plays by remember { mutableStateOf(0) }
-    val feedback = remember { mutableStateOf("") }
-    // ToneGenerator should be released when Composable leaves composition
+    var feedback by remember { mutableStateOf("") }
     val toneGenerator = remember { ToneGenerator(AudioManager.STREAM_MUSIC, 100) }
     DisposableEffect(Unit) {
         onDispose { toneGenerator.release() }
@@ -73,36 +104,118 @@ fun SoundCategoryScreen(navController: NavController, starState: MutableState<In
         plays++
         if (plays >= 5) {
             starState.value += 1
-            feedback.value = "Bravo! Ai explorat 5 sunete și ai câștigat o stea."
+            feedback = "Bravo! Ai explorat 5 sunete și ai câștigat o stea."
             plays = 0
         }
     }
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        val capitalized = category.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
-        Text(text = "Categorie: $capitalized", modifier = Modifier.padding(bottom = 16.dp))
-        if (items.isNotEmpty()) {
-            LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = Modifier.weight(1f)) {
-                items(items) { item ->
-                    Card(modifier = Modifier.padding(8.dp).fillMaxWidth().aspectRatio(1f)) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
+    Box(modifier = Modifier.fillMaxSize()) {
+        Image(
+            painter = painterResource(id = R.drawable.lumea_background),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
+        Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+            val capitalized = category.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+            Text(
+                text = "Categorie: $capitalized",
+                style = MaterialTheme.typography.displayMedium,
+                fontFamily = FontFamily.Cursive,
+                modifier = Modifier
+                    .padding(bottom = 16.dp)
+                    .align(Alignment.CenterHorizontally)
+            )
+            if (items.isNotEmpty()) {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(items.size) { idx ->
+                        val item = items[idx]
+                        val interactionSource = remember { MutableInteractionSource() }
+                        val isPressed by interactionSource.collectIsPressedAsState()
+                        val scale by animateFloatAsState(
+                            targetValue = if (isPressed) 0.95f else 1f,
+                            animationSpec = tween(durationMillis = 150),
+                            label = "soundPressScale"
+                        )
+                        var visible by remember { mutableStateOf(false) }
+                        LaunchedEffect(Unit) { visible = true }
+                        AnimatedVisibility(
+                            visible = visible,
+                            enter = slideInVertically(initialOffsetY = { it / 2 }) + fadeIn(),
+                            exit = slideOutVertically() + fadeOut()
                         ) {
-                            Button(onClick = { playTone(item) }) {
-                                Text(text = "${item.emoji}\n${item.name}")
+                            Card(
+                                onClick = { playTone(item) },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .aspectRatio(1f)
+                                    .graphicsLayer {
+                                        scaleX = scale
+                                        scaleY = scale
+                                    },
+                                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                                interactionSource = interactionSource
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(12.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Center,
+                                        modifier = Modifier.fillMaxSize()
+                                    ) {
+                                        Text(
+                                            text = item.emoji,
+                                            style = MaterialTheme.typography.displayLarge
+                                        )
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text(
+                                            text = item.name,
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontFamily = FontFamily.Cursive
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
                 }
+            } else {
+                Text(
+                    text = "Nu există sunete pentru această categorie.",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontFamily = FontFamily.Cursive,
+                    modifier = Modifier.padding(16.dp)
+                )
             }
-        } else {
-            Text(text = "Nu există sunete pentru această categorie.")
+            if (feedback.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = feedback,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+            }
         }
-        if (feedback.value.isNotEmpty()) {
-            Text(text = feedback.value, modifier = Modifier.padding(vertical = 8.dp))
-        }
-        Button(onClick = { navController.navigate(Screen.SoundsMenu.route) }) {
-            Text(text = "Înapoi la Meniu Sunete")
+        // Back arrow to return to the sounds menu
+        IconButton(
+            onClick = { navController.navigate(Screen.SoundsMenu.route) },
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(16.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.ArrowBack,
+                contentDescription = "Înapoi",
+                modifier = Modifier.size(36.dp)
+            )
         }
     }
 }
