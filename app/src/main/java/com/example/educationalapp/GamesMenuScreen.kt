@@ -23,8 +23,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Cake
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.ColorLens
 import androidx.compose.material.icons.filled.Extension
@@ -32,6 +32,9 @@ import androidx.compose.material.icons.filled.FormatListNumbered
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Memory
+import androidx.compose.material.icons.filled.Pets
+import androidx.compose.material.icons.filled.Pin
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material3.Card
@@ -81,12 +84,16 @@ fun GamesMenuScreen(
     // Build a list of available games. Icons are from the Material Icons set.
     val games = listOf(
         GameEntry("Quiz Alfabet", Screen.AlphabetQuiz.route, true, Icons.Default.TextFields),
-        GameEntry("Quiz Numere", Screen.NumberQuiz.route, true, Icons.Default.FormatListNumbered),
+        GameEntry("Joc Matematică", Screen.MathGame.route, true, Icons.Default.FormatListNumbered),
         GameEntry("Potrivire Culori", Screen.ColorMatch.route, true, Icons.Default.ColorLens),
         GameEntry("Potrivire Forme", Screen.ShapeMatch.route, true, Icons.Default.Category),
         GameEntry("Puzzle Simplu", Screen.Puzzle.route, true, Icons.Default.Extension),
         GameEntry("Joc Memorie", Screen.MemoryGame.route, true, Icons.Default.Memory),
-        GameEntry("Joc Sortare", Screen.SortingGame.route, true, Icons.Default.Sort)
+        GameEntry("Sortare Animale", Screen.AnimalSortingGame.route, true, Icons.Default.Pets),
+        GameEntry("Joc de Gătit", Screen.CookingGame.route, false, Icons.Default.Cake),
+        GameEntry("Joc Instrumente", Screen.InstrumentsGame.route, false, Icons.Default.Sort), // Placeholder icon
+        GameEntry("Joc Blocuri", Screen.BlocksGame.route, false, Icons.Default.Place), // Placeholder icon
+        GameEntry("Joc Labirint", Screen.MazeGame.route, false, Icons.Default.Pin) // Placeholder icon
     )
     Box(modifier = Modifier.fillMaxSize()) {
         // Background image covering the entire screen

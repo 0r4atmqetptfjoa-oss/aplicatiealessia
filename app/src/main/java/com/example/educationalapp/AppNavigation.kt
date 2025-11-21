@@ -21,12 +21,16 @@ sealed class Screen(val route: String) {
     object Paywall : Screen("paywall")
     object ParentalGate : Screen("parental_gate")
     object AlphabetQuiz : Screen("alphabet_quiz")
-    object NumberQuiz : Screen("number_quiz")
+    object MathGame : Screen("math_game") // Renamed from NumberQuiz
     object ColorMatch : Screen("color_match")
     object ShapeMatch : Screen("shape_match")
     object Puzzle : Screen("puzzle")
     object MemoryGame : Screen("memory_game")
-    object SortingGame : Screen("sorting_game")
+    object AnimalSortingGame : Screen("animal_sorting_game") // Renamed from SortingGame
+    object CookingGame : Screen("cooking_game")
+    object InstrumentsGame : Screen("instruments_game")
+    object BlocksGame : Screen("blocks_game")
+    object MazeGame : Screen("maze_game")
     object StoryBook : Screen("story_book")
     object Piano : Screen("piano")
     object Drums : Screen("drums")
@@ -87,8 +91,8 @@ fun AppNavigation(
         composable(Screen.AlphabetQuiz.route) {
             AlphabetQuizScreen(navController, starState)
         }
-        composable(Screen.NumberQuiz.route) {
-            NumberQuizScreen(navController, starState)
+        composable(Screen.MathGame.route) {
+            NumberQuizScreen(navController, starState) // Placeholder, will be renamed
         }
         composable(Screen.ColorMatch.route) {
             ColorMatchScreen(navController, starState)
@@ -106,8 +110,20 @@ fun AppNavigation(
                 starState.value += starsEarned
             }
         }
-        composable(Screen.SortingGame.route) {
-            SortingGameScreen(navController, starState)
+        composable(Screen.AnimalSortingGame.route) {
+            SortingGameScreen(navController, starState) // Placeholder, will be renamed
+        }
+        composable(Screen.CookingGame.route) {
+            CookingGameScreen(navController, starState)
+        }
+        composable(Screen.InstrumentsGame.route) {
+            InstrumentsGameScreen(navController, starState)
+        }
+        composable(Screen.BlocksGame.route) {
+            BlocksGameScreen(navController, starState)
+        }
+        composable(Screen.MazeGame.route) {
+            MazeGameScreen(navController, starState)
         }
         composable(Screen.Piano.route) {
             PianoScreen(navController, starState)
