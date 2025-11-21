@@ -21,6 +21,7 @@ drawable ic_upgrade
 drawable lumea_background
 mipmap ic_launcher
 mipmap ic_launcher_round
+raw placeholder_animation
 raw song_0
 raw song_1
 raw song_2

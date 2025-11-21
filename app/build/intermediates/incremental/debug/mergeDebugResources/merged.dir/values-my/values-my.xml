@@ -4,11 +4,6 @@
     <item quantity="one">အကြောင်းကြားချက်အသစ် %d ခု</item>
     <item quantity="other">အကြောင်းကြားချက်အသစ် %d ခု</item>
   </plurals>
-    <string name="__arcore_cancel">မလုပ်တော့</string>
-    <string name="__arcore_continue">ဆက်လုပ်ရန်</string>
-    <string name="__arcore_install_app">ဤအပလီကေးရှင်းသည် \'AR အတွက် Google Play ဝန်ဆောင်မှုများ\' ၏ နောက်ဆုံးဗားရှင်းကို လိုအပ်သည်။</string>
-    <string name="__arcore_install_feature">ဤဝန်ဆောင်မှုသည် \'AR အတွက် Google Play ဝန်ဆောင်မှုများ\' ၏ နောက်ဆုံးဗားရှင်းကို လိုအပ်သည်။</string>
-    <string name="__arcore_installing">\'AR အတွက် Google Play ဝန်ဆောင်မှုများ\' ကို ထည့်သွင်းနေသည်…</string>
     <string msgid="5976598919945601918" name="abc_action_bar_home_description">"မူလနေရာကို ပြန်သွားရန်"</string>
     <string msgid="8388173803310557296" name="abc_action_bar_up_description">"အပေါ်သို့ ရွှေ့ရန်"</string>
     <string msgid="3937310113216875497" name="abc_action_menu_overflow_description">"နောက်ထပ် ရွေးစရာများ"</string>
@@ -135,10 +130,15 @@
     <string msgid="3177828188723359358" name="m3c_dropdown_menu_collapsed">"ချုံ့ထားသည်"</string>
     <string msgid="2360841780724299882" name="m3c_dropdown_menu_expanded">"ချဲ့ထားသည်"</string>
     <string msgid="8687821690726149911" name="m3c_dropdown_menu_toggle">"ဆွဲချမီနူးကို ပြောင်းရန်"</string>
+    <string msgid="6072492480528318635" name="m3c_floating_toolbar_collapse">"ကိရိယာဘား ချုံ့ရန်"</string>
+    <string msgid="6880757017246780255" name="m3c_floating_toolbar_expand">"ကိရိယာဘား ချဲ့ရန်"</string>
     <string msgid="6152806324422087846" name="m3c_search_bar_search">"ရှာရန်"</string>
     <string msgid="6152755701819882931" name="m3c_snackbar_dismiss">"ပယ်ရန်"</string>
+    <string msgid="3868801555855510515" name="m3c_snackbar_pane_title">"သတိပေးချက်"</string>
     <string msgid="7655536806087401899" name="m3c_suggestions_available">"အကြံပြုချက်များသည် အောက်တွင်ရှိသည်"</string>
+    <string msgid="409352516511718051" name="m3c_time_input_dialog_title">"အချိန်ထည့်ပါ"</string>
     <string msgid="2786685010796619560" name="m3c_time_picker_am">"AM"</string>
+    <string msgid="7412665527536641863" name="m3c_time_picker_dialog_title">"အချိန်ရွေးပါ"</string>
     <string msgid="2349193472625211372" name="m3c_time_picker_hour">"နာရီ"</string>
     <string msgid="9179527532316922345" name="m3c_time_picker_hour_24h_suffix">"%1$d နာရီ"</string>
     <string msgid="8876759303332837035" name="m3c_time_picker_hour_selection">"နာရီ ရွေးရန်"</string>
@@ -150,8 +150,12 @@
     <string msgid="7661234488295443182" name="m3c_time_picker_minute_text_field">"မိနစ်ကြာ"</string>
     <string msgid="5865171949528594571" name="m3c_time_picker_period_toggle_description">"AM (သို့) PM ရွေးရန်"</string>
     <string msgid="6616362054113087709" name="m3c_time_picker_pm">"PM"</string>
+    <string msgid="4145073906612931838" name="m3c_time_picker_toggle_keyboard">"အချိန်ထည့်သွင်းမှုအတွက် စာရိုက်နည်းသို့ ပြောင်းရန်"</string>
+    <string msgid="8841786098195101324" name="m3c_time_picker_toggle_touch">"အချိန်ထည့်သွင်းမှုအတွက် နာရီမုဒ်သို့ ပြောင်းရန်"</string>
     <string msgid="1805687647081129904" name="m3c_tooltip_long_press_label">"အကြံပြုချက်ပြ ပေါ့အပ်ဝင်းဒိုး ပြရန်"</string>
     <string msgid="5460405025248574620" name="m3c_tooltip_pane_description">"အကြံပြုချက်ပြ ပေါ့အပ် ဝင်းဒိုး"</string>
+    <string msgid="6564222473543418073" name="m3c_wide_navigation_rail_close_rail">"ဘားပိတ်ရန်"</string>
+    <string msgid="8350283435461615411" name="m3c_wide_navigation_rail_pane_title">"လမ်းကြောင်းပြဘား"</string>
     <string name="material_clock_toggle_content_description">AM (သို့) PM ရွေးရန်</string>
     <string name="material_hour_24h_suffix">%1$s နာရီ</string>
     <string name="material_hour_selection">နာရီ ရွေးရန်</string>

@@ -29,7 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
@@ -84,10 +83,8 @@ fun AvatarCreatorScreen(navController: NavController, starState: MutableState<In
                 1 -> {
                     fun drawStar(x: Float, y: Float) {
                         val starSize = radius * 0.12f
-                        rotate(0f) {
-                            drawLine(Color.Black, Offset(x - starSize, y), Offset(x + starSize, y), strokeWidth = 3f)
-                            drawLine(Color.Black, Offset(x, y - starSize), Offset(x, y + starSize), strokeWidth = 3f)
-                        }
+                        drawLine(Color.Black, Offset(x - starSize, y), Offset(x + starSize, y), strokeWidth = 3f)
+                        drawLine(Color.Black, Offset(x, y - starSize), Offset(x, y + starSize), strokeWidth = 3f)
                     }
                     drawStar(centerX - eyeXOffset, eyeY)
                     drawStar(centerX + eyeXOffset, eyeY)
