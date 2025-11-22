@@ -55,7 +55,7 @@ fun PuzzleScreen(navController: NavController, onGameWon: (stars: Int) -> Unit) 
 
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
-            painter = painterResource(id = R.drawable.lumea_background),
+            painter = painterResource(id = R.drawable.generic_background_mainmenu_morning_f0001),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()

@@ -1,9 +1,11 @@
 package com.example.educationalapp
 
+import android.graphics.BitmapFactory
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.animateValue
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
@@ -36,10 +38,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -112,12 +114,6 @@ fun DrawingScreen(navController: NavController, starState: MutableState<Int>) {
                     drawPath(path = path, color = currentColor, style = Stroke(width = 6f))
                 }
             }
-
-            BouncingBallAnimation(
-                modifier = Modifier
-                    .size(50.dp)
-                    .align(Alignment.TopEnd)
-            )
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -141,68 +137,3 @@ fun DrawingScreen(navController: NavController, starState: MutableState<Int>) {
         }
     }
 }
-
-@Composable
-fun BouncingBallAnimation(modifier: Modifier = Modifier) {
-    val infiniteTransition = rememberInfiniteTransition(label = "bouncing_ball")
-    val yOffset by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 50f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1000, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ), label = "ball_bounce"
-    )
-
-    Canvas(modifier = modifier.graphicsLayer { translationY = yOffset }) {
-        drawCircle(
-            color = Color.Blue,
-            radius = size.minDimension / 2
-        )
-    }
-}
-
-/*
- * Puteți utiliza acest Composable pentru a reda o animație dintr-o foaie de calcul (sprite sheet).
- * Asigurați-vă că adăugați fișierul de imagine în `res/drawable` și actualizați `drawableResId`.
- *
- * @param modifier Modificatorul care va fi aplicat animației.
- * @param drawableResId ID-ul resursei pentru foaia de calcul.
- * @param totalFrames Numărul total de cadre din foaia de calcul (presupunând că sunt pe un singur rând orizontal).
- * @param frameDurationMillis Durata de afișare a fiecărui cadru.
- */
-/*
-@Composable
-fun SpriteSheetAnimation(
-    modifier: Modifier = Modifier,
-    @DrawableRes drawableResId: Int,
-    totalFrames: Int,
-    frameDurationMillis: Int
-) {
-    val imageBitmap = imageResource(id = drawableResId)
-    val frameWidth = imageBitmap.width / totalFrames
-
-    val infiniteTransition = rememberInfiniteTransition(label = "sprite_animation_transition")
-    val currentFrame by infiniteTransition.animateValue(
-        initialValue = 0,
-        targetValue = totalFrames,
-        typeConverter = Int.VectorConverter,
-        animationSpec = infiniteRepeatable(
-            animation = tween(
-                durationMillis = totalFrames * frameDurationMillis,
-                easing = LinearEasing
-            ),
-            repeatMode = RepeatMode.Restart
-        ), label = "sprite_frame"
-    )
-
-    Canvas(modifier = modifier) {
-        drawImage(
-            image = imageBitmap,
-            srcOffset = IntOffset(currentFrame * frameWidth, 0),
-            srcSize = IntSize(frameWidth, imageBitmap.height),
-            dstSize = IntSize(size.width.toInt(), size.height.toInt())
-        )
-    }
-}
-*/

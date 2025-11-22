@@ -96,7 +96,7 @@ fun MemoryGameScreen(navController: NavController, onGameWon: (stars: Int) -> Un
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Image(painter = painterResource(id = R.drawable.lumea_background), contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+        Image(painter = painterResource(id = R.drawable.generic_background_mainmenu_morning_f0001), contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
 
         Column(
             modifier = Modifier.fillMaxSize().padding(16.dp),
