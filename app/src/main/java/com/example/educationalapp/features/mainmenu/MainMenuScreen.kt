@@ -1,5 +1,8 @@
 package com.example.educationalapp.features.mainmenu
 
+import android.content.res.Resources
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -19,8 +22,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -91,7 +96,12 @@ fun MainMenuScreen(
             }
 
             // Titlu
-            val titleSheet = ImageBitmap.imageResource(id = R.drawable.titlu_sheet)
+            val titleSheet = loadResizedBitmap(
+                res = LocalContext.current.resources,
+                resId = R.drawable.titlu_sheet,
+                reqWidth = 1280,
+                reqHeight = 720
+            )
             SpriteAnimation(
                 modifier = Modifier.constrainAs(title) {
                     top.linkTo(topBar.bottom)
@@ -156,4 +166,37 @@ private fun RowScope.ModuleButton(module: MainMenuModule, navController: NavCont
             style = MaterialTheme.typography.bodyLarge.copy(color = Color.White)
         )
     }
+}
+
+fun loadResizedBitmap(res: Resources, resId: Int, reqWidth: Int, reqHeight: Int): ImageBitmap {
+    val options = BitmapFactory.Options().apply {
+        inJustDecodeBounds = true
+    }
+    BitmapFactory.decodeResource(res, resId, options)
+
+    // Calculate inSampleSize
+    options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight)
+
+    // Decode bitmap with inSampleSize set
+    options.inJustDecodeBounds = false
+    // Enable mutable to allow hardware acceleration compatibility checks if needed
+    options.inMutable = true
+    
+    val bitmap = BitmapFactory.decodeResource(res, resId, options)
+    return bitmap.asImageBitmap()
+}
+
+fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
+    val (height: Int, width: Int) = options.outHeight to options.outWidth
+    var inSampleSize = 1
+
+    if (height > reqHeight || width > reqWidth) {
+        val halfHeight: Int = height / 2
+        val halfWidth: Int = width / 2
+
+        while ((halfHeight / inSampleSize) >= reqHeight && (halfWidth / inSampleSize) >= reqWidth) {
+            inSampleSize *= 2
+        }
+    }
+    return inSampleSize
 }

@@ -10,7 +10,6 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.unit.IntSize
 
 @Composable
 fun SpriteAnimation(
@@ -22,6 +21,11 @@ fun SpriteAnimation(
     loop: Boolean = true,
     modifier: Modifier = Modifier
 ) {
+    // Check for oversized bitmaps to prevent GPU texture limit errors
+    if (sheet.width > 4096 || sheet.height > 4096) {
+        throw IllegalArgumentException("Sprite sheet dimensions (${sheet.width}x${sheet.height}) exceed the maximum recommended texture size (4096x4096). Downscale the bitmap before use.")
+    }
+
     val transition = rememberInfiniteTransition(label = "SpriteTransition")
     
     val frameIndex by transition.animateValue(
