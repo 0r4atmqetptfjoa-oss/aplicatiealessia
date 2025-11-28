@@ -10,56 +10,63 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
+import kotlin.math.ceil
 
 @Composable
 fun SpriteAnimation(
     sheet: ImageBitmap,
-    frameWidth: Int,
-    frameHeight: Int,
     frameCount: Int,
+    columns: Int, // Adăugat: Numărul de coloane din imagine (ex: 8 pentru titlu, 5 pentru butoane)
     fps: Int = 30,
     loop: Boolean = true,
     modifier: Modifier = Modifier
 ) {
-    // Check for oversized bitmaps to prevent GPU texture limit errors
-    if (sheet.width > 4096 || sheet.height > 4096) {
-        throw IllegalArgumentException("Sprite sheet dimensions (${sheet.width}x${sheet.height}) exceed the maximum recommended texture size (4096x4096). Downscale the bitmap before use.")
-    }
-
     val transition = rememberInfiniteTransition(label = "SpriteTransition")
-    
+
     val frameIndex by transition.animateValue(
         initialValue = 0,
-        targetValue = frameCount, 
+        targetValue = frameCount,
         typeConverter = Int.VectorConverter,
         animationSpec = infiniteRepeatable(
             animation = tween(
-                durationMillis = (frameCount * 1000) / fps, 
-                easing = LinearEasing 
+                durationMillis = (frameCount * 1000) / fps,
+                easing = LinearEasing
             ),
-            repeatMode = if (loop) RepeatMode.Restart else RepeatMode.Restart 
+            repeatMode = RepeatMode.Restart
         ),
         label = "FrameIndex"
     )
 
     Canvas(modifier = modifier) {
-        val cols = if (frameWidth > 0) sheet.width / frameWidth else 1
+        // [MODIFICARE MAJORĂ] Calculăm dimensiunile dinamic bazat pe imaginea reală încărcată
+        // Asta previne eroarea când imaginea este redimensionată de Android
+        val sheetWidth = sheet.width
+        val sheetHeight = sheet.height
+        
+        // Calculăm dimensiunea unui singur cadru
+        val frameWidth = sheetWidth / columns
+        val rows = ceil(frameCount.toFloat() / columns).toInt()
+        val frameHeight = if (rows > 0) sheetHeight / rows else sheetHeight
+
         val currentFrame = frameIndex % frameCount
-        val col = currentFrame % cols
-        val row = currentFrame / cols
+        val col = currentFrame % columns
+        val row = currentFrame / columns
+        
         val srcX = col * frameWidth
         val srcY = row * frameHeight
 
         drawIntoCanvas { canvas ->
-            // Use native Android Paint directly to fix import issues
             val nativePaint = android.graphics.Paint().apply {
                 isAntiAlias = true
                 isFilterBitmap = true
                 isDither = true
             }
-            val srcRect = Rect(srcX, srcY, srcX + frameWidth, srcY + frameHeight)
-            val dstRect = Rect(0, 0, size.width.toInt(), size.height.toInt())
             
+            // Decupăm exact cadrul curent
+            val srcRect = Rect(srcX, srcY, srcX + frameWidth, srcY + frameHeight)
+            // Îl desenăm pe tot spațiul disponibil în UI
+            val dstRect = Rect(0, 0, size.width.toInt(), size.height.toInt())
+
             canvas.nativeCanvas.drawBitmap(
                 sheet.asAndroidBitmap(),
                 srcRect,

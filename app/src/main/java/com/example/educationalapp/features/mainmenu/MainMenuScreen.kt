@@ -1,7 +1,6 @@
 package com.example.educationalapp.features.mainmenu
 
 import android.content.res.Resources
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateFloatAsState
@@ -39,12 +38,12 @@ import com.example.educationalapp.R
 import com.example.educationalapp.Screen
 import com.example.educationalapp.ui.components.SpriteAnimation
 
+// Structura actualizată pentru a include coloanele
 data class MainMenuModule(
     val route: String,
     @DrawableRes val sheetRes: Int,
     val title: String,
-    val frameWidth: Int,
-    val frameHeight: Int,
+    val columns: Int, // Câte coloane are imaginea (ex: 5)
     val frameCount: Int,
     val fps: Int
 )
@@ -56,19 +55,25 @@ fun MainMenuScreen(
 ) {
     val animatedStars by animateFloatAsState(targetValue = starCount.toFloat(), label = "animatedStars")
 
+    // Configurare module conform fișierelor JSON trimise (5 coloane, 24 cadre)
     val modules = listOf(
-        MainMenuModule(Screen.GamesMenu.route, R.drawable.jocuri_sheet, stringResource(id = R.string.main_menu_button_games), 512, 512, 24, 30),
-        MainMenuModule(Screen.InstrumentsMenu.route, R.drawable.instrumente_sheet, stringResource(id = R.string.main_menu_button_instruments), 512, 512, 24, 30),
-        MainMenuModule(Screen.SongsMenu.route, R.drawable.cantece_sheet, stringResource(id = R.string.main_menu_button_songs), 512, 512, 24, 30),
-        MainMenuModule(Screen.SoundsMenu.route, R.drawable.sunete_sheet, stringResource(id = R.string.main_menu_button_sounds), 512, 512, 24, 30),
-        MainMenuModule(Screen.StoriesMenu.route, R.drawable.povesti_sheet, stringResource(id = R.string.main_menu_button_stories), 512, 512, 24, 30),
+        MainMenuModule(Screen.GamesMenu.route, R.drawable.jocuri_sheet, stringResource(id = R.string.main_menu_button_games), 5, 24, 24),
+        MainMenuModule(Screen.InstrumentsMenu.route, R.drawable.instrumente_sheet, stringResource(id = R.string.main_menu_button_instruments), 5, 24, 24),
+        MainMenuModule(Screen.SongsMenu.route, R.drawable.cantece_sheet, stringResource(id = R.string.main_menu_button_songs), 5, 24, 24),
+        MainMenuModule(Screen.SoundsMenu.route, R.drawable.sunete_sheet, stringResource(id = R.string.main_menu_button_sounds), 5, 24, 24),
+        MainMenuModule(Screen.StoriesMenu.route, R.drawable.povesti_sheet, stringResource(id = R.string.main_menu_button_stories), 5, 24, 24),
     )
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Image(painter = painterResource(id = R.drawable.background_meniu_principal), contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+        Image(
+            painter = painterResource(id = R.drawable.background_meniu_principal),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
 
         ConstraintLayout(modifier = Modifier.fillMaxSize().safeDrawingPadding()) {
-            val (topBar, title, bottomBar) = createRefs()
+            val (topBar, titleRef, bottomBar) = createRefs()
 
             // Top Bar
             Row(
@@ -87,7 +92,7 @@ fun MainMenuScreen(
                 }
                 IconButton(onClick = { navController.navigate(Screen.Paywall.route) }) {
                     Image(
-                        imageVector = Icons.Default.Star, // Placeholder
+                        imageVector = Icons.Default.Star, // Placeholder Upgrade
                         contentDescription = stringResource(id = R.string.label_upgrade),
                         modifier = Modifier.size(40.dp),
                         colorFilter = ColorFilter.tint(Color.White)
@@ -95,37 +100,44 @@ fun MainMenuScreen(
                 }
             }
 
-            // Titlu
-            val titleSheet = loadResizedBitmap(
+            // --- TITLU ANIMAT ---
+            // Încarcăm titlul optimizat pentru a nu depăși memoria, dar păstrând proporțiile
+            val titleSheet = loadOptimizedBitmap(
                 res = LocalContext.current.resources,
-                resId = R.drawable.titlu_sheet,
-                reqWidth = 1280,
-                reqHeight = 720
+                resId = R.drawable.titlu_sheet
             )
+            
             SpriteAnimation(
-                modifier = Modifier.constrainAs(title) {
-                    top.linkTo(topBar.bottom)
-                    bottom.linkTo(bottomBar.top)
+                modifier = Modifier.constrainAs(titleRef) {
+                    top.linkTo(topBar.bottom, margin = 10.dp)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
-                }.height(180.dp).aspectRatio(1.77f),
+                    // Dimensiune titlu pe ecran
+                }.fillMaxWidth(0.7f).aspectRatio(2f), // Ajustează aspect ratio după nevoie
                 sheet = titleSheet,
-                frameWidth = 1280,
-                frameHeight = 720,
+                columns = 8,   // Titlul are 8 coloane conform JSON
                 frameCount = 60,
                 fps = 30
             )
 
-            // Butoane de jos
+            // --- BUTOANE MENIU ---
+            // Aranjament pe două rânduri sau Grid
             Row(
                 modifier = Modifier.constrainAs(bottomBar) {
-                    bottom.linkTo(parent.bottom, margin = 16.dp)
+                    bottom.linkTo(parent.bottom, margin = 32.dp)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 }.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
+                horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.Bottom
             ) {
+                // Afișăm doar primele 3 pentru spațiu, sau poți folosi un LazyVerticalGrid dacă sunt multe
+                // Aici le punem într-un rând cu scroll orizontal sau wrap dacă e nevoie.
+                // Pentru simplitate, afișăm toate într-un rând cu weight
+                
+                // NOTĂ: Dacă sunt 5 butoane mari, ar fi mai bine pe 2 rânduri, 
+                // dar aici le punem într-un rând cu overlap sau scroll.
+                // Varianta simplă: Row cu weight.
                 modules.forEach { module ->
                     ModuleButton(module = module, navController = navController)
                 }
@@ -138,65 +150,80 @@ fun MainMenuScreen(
 private fun RowScope.ModuleButton(module: MainMenuModule, navController: NavController) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
-    val scale by animateFloatAsState(if (isPressed) 0.95f else 1f, tween(100), label = "scale")
+    
+    // Efect de "bounce" la apăsare
+    val scale by animateFloatAsState(if (isPressed) 0.85f else 1f, tween(100), label = "scale")
+    
     val buttonSheet = ImageBitmap.imageResource(id = module.sheetRes)
 
     Column(
         modifier = Modifier
             .weight(1f)
-            .clickable(onClick = { navController.navigate(module.route) }, indication = null, interactionSource = interactionSource)
-            .padding(vertical = 8.dp)
-            .graphicsLayer { scaleX = scale; scaleY = scale },
+            .clickable(
+                onClick = { navController.navigate(module.route) },
+                indication = null,
+                interactionSource = interactionSource
+            )
+            .graphicsLayer { 
+                scaleX = scale
+                scaleY = scale
+            },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        // Buton MARE (110dp) și animat continuu
         SpriteAnimation(
-            modifier = Modifier.size(48.dp),
+            modifier = Modifier.size(110.dp), // Dimensiune mult mai mare
             sheet = buttonSheet,
-            frameWidth = module.frameWidth,
-            frameHeight = module.frameHeight,
+            columns = module.columns,
             frameCount = module.frameCount,
-            fps = module.fps
+            fps = module.fps,
+            loop = true // Animație continuă
         )
+        Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = module.title,
-            fontSize = 12.sp,
+            fontSize = 14.sp,
             textAlign = TextAlign.Center,
             fontFamily = FontFamily.Cursive,
-            style = MaterialTheme.typography.bodyLarge.copy(color = Color.White)
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = Color.White,
+                shadow = androidx.compose.ui.graphics.Shadow(
+                    color = Color.Black,
+                    blurRadius = 4f
+                )
+            )
         )
     }
 }
 
-fun loadResizedBitmap(res: Resources, resId: Int, reqWidth: Int, reqHeight: Int): ImageBitmap {
+/**
+ * Încarcă un bitmap optimizat pentru Sprite Sheet.
+ * Dacă imaginea e mai mare de 4096px (limita OpenGL), o micșorează proporțional.
+ */
+fun loadOptimizedBitmap(res: Resources, resId: Int): ImageBitmap {
     val options = BitmapFactory.Options().apply {
         inJustDecodeBounds = true
     }
     BitmapFactory.decodeResource(res, resId, options)
 
-    // Calculate inSampleSize
-    options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight)
-
-    // Decode bitmap with inSampleSize set
-    options.inJustDecodeBounds = false
-    // Enable mutable to allow hardware acceleration compatibility checks if needed
-    options.inMutable = true
-    
-    val bitmap = BitmapFactory.decodeResource(res, resId, options)
-    return bitmap.asImageBitmap()
-}
-
-fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
-    val (height: Int, width: Int) = options.outHeight to options.outWidth
+    // Limita sigură pentru texturi este 4096 sau 2048 pe telefoane vechi.
+    // Titlul original are probabil ~10,000px lățime (8 x 1280). Trebuie redus.
+    val maxTextureSize = 2048 // Folosim o valoare sigură
     var inSampleSize = 1
 
-    if (height > reqHeight || width > reqWidth) {
-        val halfHeight: Int = height / 2
-        val halfWidth: Int = width / 2
-
-        while ((halfHeight / inSampleSize) >= reqHeight && (halfWidth / inSampleSize) >= reqWidth) {
+    if (options.outWidth > maxTextureSize || options.outHeight > maxTextureSize) {
+        val halfWidth = options.outWidth / 2
+        val halfHeight = options.outHeight / 2
+        while ((halfWidth / inSampleSize) >= maxTextureSize && (halfHeight / inSampleSize) >= maxTextureSize) {
             inSampleSize *= 2
         }
     }
-    return inSampleSize
+
+    options.inJustDecodeBounds = false
+    options.inSampleSize = inSampleSize
+    options.inMutable = true
+
+    val bitmap = BitmapFactory.decodeResource(res, resId, options)
+    return bitmap.asImageBitmap()
 }
