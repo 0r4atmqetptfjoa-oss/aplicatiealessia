@@ -13,7 +13,6 @@ import com.example.educationalapp.R
 fun AnimatedBackground(modifier: Modifier = Modifier) {
     Box(modifier = modifier.fillMaxSize()) {
         Image(
-            // Folosim imaginea statică existentă
             painter = painterResource(id = R.drawable.background_meniu_principal),
             contentDescription = null,
             contentScale = ContentScale.Crop,
