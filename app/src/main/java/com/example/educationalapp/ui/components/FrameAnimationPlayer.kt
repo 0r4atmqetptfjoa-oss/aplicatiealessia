@@ -1,28 +1,27 @@
 package com.example.educationalapp.ui.components
 
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import coil.compose.AsyncImage
+import kotlinx.coroutines.delay
 
-/**
- * Displays a drawable resource. 
- *
- * This is a step towards a full frame-by-frame animation player. The final
- * implementation will handle loading and displaying a sequence of drawable
- * resources to create an animation effect.
- */
 @Composable
-fun FrameAnimationPlayer(
-    modifier: Modifier = Modifier,
-    @DrawableRes drawableId: Int,
-) {
-    Image(
-        painter = painterResource(id = drawableId),
-        contentDescription = null, // decorative element
-        modifier = modifier,
-        contentScale = ContentScale.Fit
-    )
+fun FrameAnimationPlayer(modifier: Modifier = Modifier, drawableId: Int, frameDelay: Long) {
+    val frame = remember { mutableStateOf(0) }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(frameDelay)
+            frame.value = (frame.value + 1) % 10 // Assuming 10 frames
+        }
+    }
+
+    Box(modifier = modifier) {
+        AsyncImage(
+            model = drawableId,
+            contentDescription = null
+        )
+    }
 }

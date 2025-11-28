@@ -26,19 +26,23 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun StoryBookScreen(navController: NavController, starState: MutableState<Int>) {
-    val pages = listOf(
-        "A fost odată ca niciodată un ursuleț curios care iubea să citească.",
-        "Într-o zi, ursulețul a găsit o carte magică în bibliotecă.",
-        "Cartea l-a purtat într-o aventură prin pădure, unde a întâlnit prieteni noi.",
-        "La final, ursulețul a învățat că lectura îl poate duce oriunde dorește să meargă."
-    )
-    var pageIndex by remember { mutableStateOf(0) }
-    var finished by remember { mutableStateOf(false) }
+fun StoryBookScreen(
+    navController: NavController, 
+    starState: MutableState<Int>,
+    viewModel: StoryBookViewModel = hiltViewModel()
+) {
+    var pageIndex by remember { mutableStateOf(viewModel.pageIndex) }
+
+    if (viewModel.finished) {
+        LaunchedEffect(Unit) {
+            viewModel.onFinished { starState.value += 3 }
+        }
+    }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text(text = "Poveste Interactivă", modifier = Modifier.padding(bottom = 16.dp))
@@ -47,33 +51,20 @@ fun StoryBookScreen(navController: NavController, starState: MutableState<Int>) 
                 slideInHorizontally(initialOffsetX = { it }, animationSpec = tween(400)) with
                     slideOutHorizontally(targetOffsetX = { -it }, animationSpec = tween(400))
             }, label = "") { targetPage ->
-                Text(text = pages[targetPage])
+                Text(text = viewModel.pages[targetPage])
             }
         }
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Button(onClick = { if (pageIndex > 0) pageIndex-- }) {
+            Button(onClick = { viewModel.onPreviousPage() }) {
                 Text(text = "Înapoi")
             }
-            Button(onClick = {
-                if (pageIndex < pages.size - 1) {
-                    pageIndex++
-                    if (pageIndex == pages.size - 1) {
-                        finished = true
-                    }
-                }
-            }) {
-                Text(text = if (pageIndex == pages.size - 1) "Sfârșit" else "Următorul")
+            Button(onClick = { viewModel.onNextPage() }) {
+                Text(text = if (pageIndex == viewModel.pages.size - 1) "Sfârșit" else "Următorul")
             }
         }
         Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = { navController.navigate(Screen.MainMenu.route) }) {
             Text(text = "Înapoi la Meniu")
-        }
-        if (finished) {
-            LaunchedEffect(Unit) {
-                starState.value += 3
-                finished = false
-            }
         }
     }
 }
