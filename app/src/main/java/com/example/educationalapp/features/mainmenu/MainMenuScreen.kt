@@ -4,7 +4,6 @@ import android.content.res.Resources
 import android.graphics.BitmapFactory
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -25,10 +24,13 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -112,7 +114,7 @@ fun MainMenuScreen(
                 )
             }
 
-            val titleSheet = remember { loadOptimizedBitmap(resources, R.drawable.titlu_sheet) }
+            val (titleSheet, titleModifier) = rememberBestTitleSheet()
             
             SpriteAnimation(
                 sheet = titleSheet,
@@ -121,7 +123,7 @@ fun MainMenuScreen(
                 fps = 30,
                 loop = true,
                 isPlaying = true,
-                modifier = Modifier.constrainAs(titleRef) {
+                modifier = titleModifier.constrainAs(titleRef) {
                     top.linkTo(topBarrier, margin = 8.dp)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
@@ -192,7 +194,7 @@ private fun RowScope.ModuleButton(module: MainMenuModule, navController: NavCont
         verticalArrangement = Arrangement.Center
     ) {
         SpriteAnimation(
-            modifier = Modifier.size(90.dp), 
+            modifier = Modifier.size(96.dp), 
             sheet = buttonSheet,
             columns = module.columns,
             frameCount = module.frameCount,
@@ -223,17 +225,63 @@ private fun RowScope.ModuleButton(module: MainMenuModule, navController: NavCont
     }
 }
 
-fun loadOptimizedBitmap(res: Resources, resId: Int, maxTextureSize: Int = 2048): ImageBitmap {
+/**
+ * Selects the best title sprite sheet based on the available screen width to ensure
+ * the animation is always crisp and never upscaled.
+ *
+ * @return A pair containing the loaded [ImageBitmap] for the best sheet and a [Modifier]
+ *         to apply to the SpriteAnimation, which sets the correct size and aspect ratio.
+ */
+@Composable
+private fun rememberBestTitleSheet(): Pair<ImageBitmap, Modifier> {
+    val context = LocalContext.current
+    val resources = context.resources
+    val density = LocalDensity.current
+    val screenWidthDp = LocalConfiguration.current.screenWidthDp.dp
+
+    // Use 70% of screen width as the target display size for the title.
+    val targetWidthDp = screenWidthDp * 0.7f
+    val targetWidthPx = with(density) { targetWidthDp.toPx() }
+
+    // Frame pixel widths for each available sheet, from smallest to largest.
+    val sheets = listOf(
+        240 to R.drawable.titlu_sheet,
+        360 to R.drawable.titlu_sheet_150p,
+        480 to R.drawable.titlu_sheet_200p,
+        720 to R.drawable.titlu_sheet_300p,
+        960 to R.drawable.titlu_sheet_400p,
+    )
+
+    // Find the smallest sheet that can be downscaled to our target width.
+    // i.e., the first sheet where its frame width is >= targetWidthPx.
+    val bestSheetRes = sheets.firstOrNull { (frameWidth, _) ->
+        frameWidth >= targetWidthPx
+    }?.second ?: R.drawable.titlu_sheet_400p // Fallback to the largest sheet
+
+    val titleSheet = remember(bestSheetRes) {
+        loadOptimizedBitmap(resources, bestSheetRes)
+    }
+
+    // The natural aspect ratio of a frame is (1920/8) / (1080 / ceil(60/8)) = 240 / 135 = 16/9
+    val frameAspectRatio = 16f / 9f
+    val modifier = Modifier
+        .fillMaxWidth(0.7f)
+        .aspectRatio(frameAspectRatio)
+
+    return titleSheet to modifier
+}
+
+fun loadOptimizedBitmap(res: Resources, resId: Int, maxTextureSize: Int = 4096): ImageBitmap {
     val options = BitmapFactory.Options().apply {
         inJustDecodeBounds = true
     }
     BitmapFactory.decodeResource(res, resId, options)
 
     var inSampleSize = 1
-
     val width = options.outWidth
     val height = options.outHeight
 
+    // Reduce sample size until the image dimensions are below the max texture size.
     while (width / inSampleSize > maxTextureSize || height / inSampleSize > maxTextureSize) {
         inSampleSize *= 2
     }

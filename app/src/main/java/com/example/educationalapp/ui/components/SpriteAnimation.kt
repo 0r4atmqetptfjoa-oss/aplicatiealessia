@@ -18,15 +18,21 @@ fun SpriteAnimation(
     sheet: ImageBitmap,
     frameCount: Int,
     columns: Int,
+    modifier: Modifier = Modifier,
+    frameIndex: Int? = null,
     fps: Int = 30,
     loop: Boolean = true,
     isPlaying: Boolean = true,
     onAnimationFinished: () -> Unit = {},
-    modifier: Modifier = Modifier
 ) {
     val animatable = remember { Animatable(0f) }
 
-    LaunchedEffect(isPlaying, loop) {
+    LaunchedEffect(isPlaying, loop, frameIndex) {
+        if (frameIndex != null) {
+            animatable.snapTo(frameIndex.toFloat())
+            return@LaunchedEffect
+        }
+
         if (isPlaying) {
             val target = frameCount.toFloat()
             if (loop) {

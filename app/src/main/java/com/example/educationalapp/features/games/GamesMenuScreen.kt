@@ -1,48 +1,128 @@
 package com.example.educationalapp.features.games
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
+import com.example.educationalapp.R
 import com.example.educationalapp.Screen
+import com.example.educationalapp.features.mainmenu.loadOptimizedBitmap
+import com.example.educationalapp.ui.components.SpriteAnimation
+
+data class Game(val name: String, val route: String)
 
 @Composable
 fun GamesMenuScreen(navController: NavController) {
-    Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Button(onClick = { navController.navigate(Screen.ColorMatch.route) }) { Text("Culori") }
-            Button(onClick = { navController.navigate(Screen.ShapeMatch.route) }) { Text("Forme") }
-            Button(onClick = { navController.navigate(Screen.AlphabetQuiz.route) }) { Text("Alfabet") }
-            Button(onClick = { navController.navigate(Screen.MathGame.route) }) { Text("Numere") }
-            Button(onClick = { navController.navigate(Screen.CookingGame.route) }) { Text("Gătit") }
-            Button(onClick = { navController.navigate(Screen.Puzzle.route) }) { Text("Puzzle") }
-            Button(onClick = { navController.navigate(Screen.MemoryGame.route) }) { Text("Memorie") }
-            Button(onClick = { /* TODO: Navigate to Hidden Objects game */ }) { Text("Obiecte ascunse") }
-            Button(onClick = { /* TODO: Navigate to Shadow Matching game */ }) { Text("Potrivire umbre") }
-            Button(onClick = { navController.navigate(Screen.AnimalSortingGame.route) }) { Text("Potrivire animale") }
+    val context = LocalContext.current
+    val resources = context.resources
+
+    val games = remember {
+        listOf(
+            Game("Culori", Screen.ColorMatch.route),
+            Game("Forme", Screen.ShapeMatch.route),
+            Game("Alfabet", Screen.AlphabetQuiz.route),
+            Game("Numere", Screen.MathGame.route),
+            Game("Gătit", Screen.CookingGame.route),
+            Game("Puzzle", Screen.Puzzle.route),
+            Game("Memorie", Screen.MemoryGame.route),
+            Game("Obiecte ascunse", ""), // TODO: Add route
+            Game("Potrivire umbre", ""), // TODO: Add route
+            Game("Potrivire animale", Screen.AnimalSortingGame.route),
+        )
+    }
+
+    val sheet = remember {
+        loadOptimizedBitmap(resources, R.drawable.jocuri_sheet)
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        AsyncImage(
+            model = R.drawable.background_meniu_principal,
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+
+        Scaffold(
+            containerColor = Color.Transparent,
+            topBar = {
+                TopAppBar(
+                    title = { Text(stringResource(id = R.string.main_menu_button_games)) },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent,
+                        titleContentColor = Color.White,
+                        navigationIconContentColor = Color.White
+                    )
+                )
+            }
+        ) { paddingValues ->
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = 112.dp),
+                modifier = Modifier.fillMaxSize().padding(paddingValues).padding(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(16.dp)
+            ) {
+                itemsIndexed(games) { index, game ->
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) {
+                            if (game.route.isNotEmpty()) {
+                                navController.navigate(game.route)
+                            }
+                        }
+                    ) {
+                        SpriteAnimation(
+                            sheet = sheet,
+                            frameCount = 24, // Assuming 24 frames from MainMenuScreen
+                            columns = 5,     // Assuming 5 columns from MainMenuScreen
+                            frameIndex = index, // Use index to show a static frame for each game
+                            modifier = Modifier.size(96.dp)
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            text = game.name,
+                            color = Color.White,
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                }
+            }
         }
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, device = "spec:width=1280dp,height=800dp,dpi=240")
 @Composable
 fun GamesMenuScreenPreview() {
     GamesMenuScreen(rememberNavController())
