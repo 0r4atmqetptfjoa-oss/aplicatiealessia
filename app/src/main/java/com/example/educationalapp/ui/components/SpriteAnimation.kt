@@ -3,8 +3,7 @@ package com.example.educationalapp.ui.components
 import android.graphics.Rect
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
@@ -16,39 +15,59 @@ import kotlin.math.ceil
 fun SpriteAnimation(
     sheet: ImageBitmap,
     frameCount: Int,
-    columns: Int, // Adăugat: Numărul de coloane din imagine (ex: 8 pentru titlu, 5 pentru butoane)
+    columns: Int, // Câte coloane are imaginea pe orizontală
     fps: Int = 30,
     loop: Boolean = true,
+    isPlaying: Boolean = true,
+    onAnimationFinished: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    val transition = rememberInfiniteTransition(label = "SpriteTransition")
+    val animatable = remember { Animatable(0f) }
 
-    val frameIndex by transition.animateValue(
-        initialValue = 0,
-        targetValue = frameCount,
-        typeConverter = Int.VectorConverter,
-        animationSpec = infiniteRepeatable(
-            animation = tween(
-                durationMillis = (frameCount * 1000) / fps,
-                easing = LinearEasing
-            ),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "FrameIndex"
-    )
+    LaunchedEffect(isPlaying, loop) {
+        if (isPlaying) {
+            val target = frameCount.toFloat()
+            if (loop) {
+                animatable.snapTo(0f)
+                animatable.animateTo(
+                    targetValue = target,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween((frameCount * 1000) / fps, easing = LinearEasing),
+                        repeatMode = RepeatMode.Restart
+                    )
+                )
+            } else {
+                animatable.snapTo(0f)
+                animatable.animateTo(
+                    targetValue = target,
+                    animationSpec = tween((frameCount * 1000) / fps, easing = LinearEasing)
+                )
+                onAnimationFinished()
+            }
+        } else {
+            animatable.snapTo(0f)
+        }
+    }
 
     Canvas(modifier = modifier) {
-        // [MODIFICARE MAJORĂ] Calculăm dimensiunile dinamic bazat pe imaginea reală încărcată
-        // Asta previne eroarea când imaginea este redimensionată de Android
+        // 1. Aflăm dimensiunile REALE ale imaginii încărcate în memorie
         val sheetWidth = sheet.width
         val sheetHeight = sheet.height
         
-        // Calculăm dimensiunea unui singur cadru
+        // 2. Calculăm dimensiunea unui singur cadru (frame)
+        // Indiferent dacă imaginea a fost micșorată de Android, matematica rămâne corectă
         val frameWidth = sheetWidth / columns
+        
+        // Calculăm numărul de rânduri necesar
         val rows = ceil(frameCount.toFloat() / columns).toInt()
-        val frameHeight = if (rows > 0) sheetHeight / rows else sheetHeight
+        // Evităm împărțirea la 0 dacă rows e calculat greșit, deși nu ar trebui
+        val safeRows = if (rows > 0) rows else 1
+        val frameHeight = sheetHeight / safeRows
 
-        val currentFrame = frameIndex % frameCount
+        // 3. Aflăm cadrul curent
+        val currentFrame = (animatable.value.toInt() % frameCount).coerceIn(0, frameCount - 1)
+        
+        // 4. Calculăm poziția X și Y a cadrului în imaginea mare
         val col = currentFrame % columns
         val row = currentFrame / columns
         
@@ -62,17 +81,23 @@ fun SpriteAnimation(
                 isDither = true
             }
             
-            // Decupăm exact cadrul curent
+            // Decupăm EXACT pătrățelul cu cadrul curent
             val srcRect = Rect(srcX, srcY, srcX + frameWidth, srcY + frameHeight)
-            // Îl desenăm pe tot spațiul disponibil în UI
+            
+            // Îl desenăm pe tot spațiul disponibil în UI (dstRect)
             val dstRect = Rect(0, 0, size.width.toInt(), size.height.toInt())
 
-            canvas.nativeCanvas.drawBitmap(
-                sheet.asAndroidBitmap(),
-                srcRect,
-                dstRect,
-                nativePaint
-            )
+            try {
+                canvas.nativeCanvas.drawBitmap(
+                    sheet.asAndroidBitmap(),
+                    srcRect,
+                    dstRect,
+                    nativePaint
+                )
+            } catch (e: Exception) {
+                // Prevenim crash-ul dacă ceva e greșit la desenare, dar logăm eroarea
+                e.printStackTrace()
+            }
         }
     }
 }
