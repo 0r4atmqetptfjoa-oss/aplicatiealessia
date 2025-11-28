@@ -6,22 +6,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
-import androidx.compose.ui.graphics.asFrameworkPaint
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
+// --- IMPORTURI CRITICE ADĂUGATE ---
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.asFrameworkPaint
+// ----------------------------------
 import android.graphics.Rect
 
 @Composable
 fun SpriteAnimation(
     sheet: ImageBitmap,       // Imaginea mare (Sprite Sheet)
-    frameWidth: Int,          // Latimea unui singur cadru (din JSON)
-    frameHeight: Int,         // Inaltimea unui singur cadru (din JSON)
-    frameCount: Int,          // Numarul total de cadre (din JSON)
-    fps: Int = 30,            // Viteza (din JSON)
+    frameWidth: Int,          // Latimea unui singur cadru
+    frameHeight: Int,         // Inaltimea unui singur cadru
+    frameCount: Int,          // Numarul total de cadre
+    fps: Int = 30,            // Viteza
     loop: Boolean = true,     // Daca se repeta
     modifier: Modifier = Modifier
 ) {
@@ -44,6 +44,7 @@ fun SpriteAnimation(
     Canvas(modifier = modifier) {
         val cols = sheet.width / frameWidth
         
+        // Securitate: ne asiguram ca nu depasim indexul
         val currentFrame = frameIndex % frameCount
         
         val col = currentFrame % cols
