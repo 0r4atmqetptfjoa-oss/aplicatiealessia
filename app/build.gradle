@@ -60,6 +60,7 @@ dependencies {
     implementation("androidx.compose.material:material-icons-core")
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.compose.foundation:foundation")
+    implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
     // Lifecycle and ViewModel integration with Compose
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
     // Hilt for dependency injection
