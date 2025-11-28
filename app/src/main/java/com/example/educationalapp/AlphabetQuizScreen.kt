@@ -24,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -31,47 +32,12 @@ import kotlin.random.Random
 
 private const val TOTAL_QUESTIONS = 10
 
-data class QuizQuestion(val letter: Char, val options: List<Char>)
-
 @Composable
-fun AlphabetQuizScreen(navController: NavController, starState: MutableState<Int>) {
-    var score by remember { mutableStateOf(0) }
-    var questionIndex by remember { mutableStateOf(0) }
-    var currentQuestion by remember { mutableStateOf(generateQuestion()) }
-    var selectedOption by remember { mutableStateOf<Char?>(null) }
-    var answerState by remember { mutableStateOf(QuizAnswerState.UNANSWERED) }
-    val coroutineScope = rememberCoroutineScope()
-
-    fun nextQuestion() {
-        if (questionIndex < TOTAL_QUESTIONS - 1) {
-            questionIndex++
-            currentQuestion = generateQuestion()
-            answerState = QuizAnswerState.UNANSWERED
-            selectedOption = null
-        } else {
-            questionIndex++ // To trigger the dialog
-        }
-    }
-
-    fun handleAnswer(option: Char) {
-        if (answerState != QuizAnswerState.UNANSWERED) return
-
-        selectedOption = option
-        if (option == currentQuestion.letter) {
-            answerState = QuizAnswerState.CORRECT
-            score += 10
-            starState.value += 1
-        } else {
-            answerState = QuizAnswerState.INCORRECT
-            score = (score - 5).coerceAtLeast(0)
-        }
-
-        coroutineScope.launch {
-            delay(1500) // Wait for animations
-            nextQuestion()
-        }
-    }
-
+fun AlphabetQuizScreen(
+    navController: NavController, 
+    starState: MutableState<Int>,
+    viewModel: AlphabetQuizViewModel = hiltViewModel()
+) {
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
             painter = painterResource(id = R.drawable.background_meniu_principal),
@@ -80,28 +46,22 @@ fun AlphabetQuizScreen(navController: NavController, starState: MutableState<Int
             modifier = Modifier.fillMaxSize()
         )
 
-        if (questionIndex >= TOTAL_QUESTIONS) {
-            QuizEndDialog(navController, score) {
-                score = 0
-                questionIndex = 0
-                currentQuestion = generateQuestion()
-                answerState = QuizAnswerState.UNANSWERED
-                selectedOption = null
-            }
+        if (viewModel.questionIndex >= TOTAL_QUESTIONS) {
+            QuizEndDialog(navController, viewModel.score, viewModel::restartGame)
         }
 
-        AnimatedVisibility(visible = questionIndex < TOTAL_QUESTIONS, enter = fadeIn(), exit = fadeOut()) {
+        AnimatedVisibility(visible = viewModel.questionIndex < TOTAL_QUESTIONS, enter = fadeIn(), exit = fadeOut()) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                QuizHeader(navController, questionIndex, score)
+                QuizHeader(navController, viewModel.questionIndex, viewModel.score)
                 Spacer(modifier = Modifier.height(32.dp))
 
                 Text(
-                    text = "Găsește litera: ${currentQuestion.letter}",
+                    text = "Găsește litera: ${viewModel.currentQuestion.letter}",
                     style = MaterialTheme.typography.displayMedium.copy(
                         fontFamily = FontFamily.Cursive,
                         fontWeight = FontWeight.Bold,
@@ -115,8 +75,8 @@ fun AlphabetQuizScreen(navController: NavController, starState: MutableState<Int
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    currentQuestion.options.forEach { option ->
-                        OptionCard(option, selectedOption, answerState) { handleAnswer(option) }
+                    viewModel.currentQuestion.options.forEach { option ->
+                        OptionCard(option, viewModel.selectedOption, viewModel.answerState) { viewModel.handleAnswer(option) { starState.value++ } }
                     }
                 }
             }
@@ -139,7 +99,7 @@ private fun QuizHeader(navController: NavController, questionIndex: Int, score: 
         }
         Spacer(modifier = Modifier.height(16.dp))
         LinearProgressIndicator(
-            progress = (questionIndex) / TOTAL_QUESTIONS.toFloat(),
+            progress = (questionIndex) / 10f,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(8.dp)
@@ -220,10 +180,11 @@ private fun Particle(anim: Animatable<Float, AnimationVector1D>) {
 @Composable
 private fun CorrectAnswerParticles() {
     val particles = remember { List(15) { Animatable(0f) } }
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         particles.forEachIndexed { index, animatable ->
-            launch {
+            coroutineScope.launch {
                 delay(index * 20L)
                 animatable.animateTo(
                     targetValue = 1f,
@@ -259,16 +220,6 @@ private fun QuizEndDialog(navController: NavController, score: Int, onRestart: (
             }
         }
     )
-}
-
-private fun generateQuestion(): QuizQuestion {
-    val letters = ('A'..'Z').toList()
-    val correctLetter = letters.random()
-    val options = mutableSetOf(correctLetter)
-    while (options.size < 3) {
-        options.add(letters.random())
-    }
-    return QuizQuestion(correctLetter, options.shuffled())
 }
 
 private fun lerp(start: Float, stop: Float, fraction: Float): Float {

@@ -18,82 +18,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.educationalapp.CompletionDialog
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-
-data class MemoryCard(val id: Int, val icon: ImageVector, var isFaceUp: Boolean = false, var isMatched: Boolean = false)
 
 @Composable
-fun MemoryGameScreen(navController: NavController, onGameWon: (stars: Int) -> Unit) {
-    val icons = remember {
-        listOf(
-            Icons.Default.Favorite,
-            Icons.Default.Star,
-            Icons.Default.Info,
-            Icons.Default.CheckCircle,
-            Icons.Default.ThumbUp,
-            Icons.Default.Build
-        )
-    }
-    var cards by remember { mutableStateOf(createShuffledCards(icons)) }
-    var selectedCards by remember { mutableStateOf<List<Int>>(emptyList()) }
-    var moves by remember { mutableStateOf(0) }
-    var isGameOver by remember { mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope()
-
-    fun resetGame() {
-        cards = createShuffledCards(icons)
-        selectedCards = emptyList()
-        moves = 0
-        isGameOver = false
-    }
-
-    fun onCardClicked(cardId: Int) {
-        if (selectedCards.size == 2 || cards.find { it.id == cardId }?.isFaceUp == true) return
-
-        val newCards = cards.map {
-            if (it.id == cardId) it.copy(isFaceUp = true) else it
-        }
-        cards = newCards
-        selectedCards = selectedCards + cardId
-
-        if (selectedCards.size == 2) {
-            moves++
-            val (firstCardId, secondCardId) = selectedCards
-            val firstCard = cards.find { it.id == firstCardId }!!
-            val secondCard = cards.find { it.id == secondCardId }!!
-
-            if (firstCard.icon == secondCard.icon) {
-                val matchedCards = cards.map {
-                    if (it.id == firstCardId || it.id == secondCardId) it.copy(isMatched = true) else it
-                }
-                cards = matchedCards
-                selectedCards = emptyList()
-
-                if (cards.all { it.isMatched }) {
-                    onGameWon(cards.size / 2) // Award stars
-                    isGameOver = true
-                }
-            } else {
-                coroutineScope.launch {
-                    delay(1000)
-                    val flippedBackCards = cards.map {
-                        if (it.id == firstCardId || it.id == secondCardId) it.copy(isFaceUp = false) else it
-                    }
-                    cards = flippedBackCards
-                    selectedCards = emptyList()
-                }
-            }
-        }
-    }
+fun MemoryGameScreen(
+    navController: NavController, 
+    onGameWon: (stars: Int) -> Unit,
+    viewModel: MemoryGameViewModel = hiltViewModel()
+) {
+    val cards by remember { mutableStateOf(viewModel.cards) }
+    val moves by remember { mutableStateOf(viewModel.moves) }
+    val isGameOver by remember { mutableStateOf(viewModel.isGameOver) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Image(painter = painterResource(id = R.drawable.background_meniu_principal), contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
@@ -110,13 +52,13 @@ fun MemoryGameScreen(navController: NavController, onGameWon: (stars: Int) -> Un
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(cards) { card ->
-                    MemoryCardView(card = card, onClick = { onCardClicked(card.id) })
+                    MemoryCardView(card = card, onClick = { viewModel.onCardClicked(card.id, onGameWon) })
                 }
             }
         }
 
         if (isGameOver) {
-            CompletionDialog(navController = navController, title = "Felicitări!", message = "Ai găsit toate perechile!", onRestart = ::resetGame)
+            CompletionDialog(navController = navController, title = "Felicitări!", message = "Ai găsit toate perechile!", onRestart = viewModel::resetGame)
         }
     }
 }
@@ -169,9 +111,4 @@ private fun MemoryCardView(card: MemoryCard, onClick: () -> Unit) {
             }
         }
     }
-}
-
-private fun createShuffledCards(icons: List<ImageVector>): List<MemoryCard> {
-    val gameIcons = (icons + icons).shuffled()
-    return gameIcons.mapIndexed { index, icon -> MemoryCard(id = index, icon = icon) }
 }

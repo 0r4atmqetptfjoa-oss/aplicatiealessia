@@ -3,19 +3,21 @@ package com.example.educationalapp.ui.components
 import android.graphics.Rect
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.platform.LocalDensity
 import kotlin.math.ceil
 
 @Composable
 fun SpriteAnimation(
     sheet: ImageBitmap,
     frameCount: Int,
-    columns: Int, // Câte coloane are imaginea pe orizontală
+    columns: Int,
     fps: Int = 30,
     loop: Boolean = true,
     isPlaying: Boolean = true,
@@ -49,30 +51,35 @@ fun SpriteAnimation(
         }
     }
 
-    Canvas(modifier = modifier) {
-        // 1. Aflăm dimensiunile REALE ale imaginii încărcate în memorie
-        val sheetWidth = sheet.width
-        val sheetHeight = sheet.height
-        
-        // 2. Calculăm dimensiunea unui singur cadru (frame)
-        // Indiferent dacă imaginea a fost micșorată de Android, matematica rămâne corectă
-        val frameWidth = sheetWidth / columns
-        
-        // Calculăm numărul de rânduri necesar
-        val rows = ceil(frameCount.toFloat() / columns).toInt()
-        // Evităm împărțirea la 0 dacă rows e calculat greșit, deși nu ar trebui
-        val safeRows = if (rows > 0) rows else 1
-        val frameHeight = sheetHeight / safeRows
+    // 🔹 dimensiunea naturală a unui frame, în px
+    val sheetWidth = sheet.width
+    val sheetHeight = sheet.height
+    val frameWidthPx = sheetWidth / columns
+    val rows = ceil(frameCount.toFloat() / columns).toInt().coerceAtLeast(1)
+    val frameHeightPx = sheetHeight / rows
 
-        // 3. Aflăm cadrul curent
+    // 🔹 transformăm px -> dp ca să facem Canvas exact cât un frame
+    val density = LocalDensity.current
+    val frameWidthDp = with(density) { frameWidthPx.toDp() }
+    val frameHeightDp = with(density) { frameHeightPx.toDp() }
+
+    // 🔹 întâi punem dimensiunea naturală, apoi aplicăm modifier-ul utilizatorului.
+    // Dacă utilizatorul pune .size(115.dp), ACELA câștigă (e ultimul).
+    val baseModifier = Modifier
+        .size(frameWidthDp, frameHeightDp)
+        .then(modifier)
+
+    Canvas(modifier = baseModifier) {
+        // recalculăm aici, dar e ieftin
+        val frameWidth = size.width.toInt()   // 1:1 cu dp -> px
+        val frameHeight = size.height.toInt()
+
         val currentFrame = (animatable.value.toInt() % frameCount).coerceIn(0, frameCount - 1)
-        
-        // 4. Calculăm poziția X și Y a cadrului în imaginea mare
         val col = currentFrame % columns
         val row = currentFrame / columns
-        
-        val srcX = col * frameWidth
-        val srcY = row * frameHeight
+
+        val srcX = col * frameWidthPx
+        val srcY = row * frameHeightPx
 
         drawIntoCanvas { canvas ->
             val nativePaint = android.graphics.Paint().apply {
@@ -80,12 +87,21 @@ fun SpriteAnimation(
                 isFilterBitmap = true
                 isDither = true
             }
-            
-            // Decupăm EXACT pătrățelul cu cadrul curent
-            val srcRect = Rect(srcX, srcY, srcX + frameWidth, srcY + frameHeight)
-            
-            // Îl desenăm pe tot spațiul disponibil în UI (dstRect)
-            val dstRect = Rect(0, 0, size.width.toInt(), size.height.toInt())
+
+            val srcRect = android.graphics.Rect(
+                srcX,
+                srcY,
+                srcX + frameWidthPx,
+                srcY + frameHeightPx
+            )
+
+            // ❗ dstRect acum are FIX dimensiunea Canvas-ului, care e setată la 1:1 cu frame-ul
+            val dstRect = android.graphics.Rect(
+                0,
+                0,
+                frameWidth,
+                frameHeight
+            )
 
             try {
                 canvas.nativeCanvas.drawBitmap(
@@ -95,7 +111,6 @@ fun SpriteAnimation(
                     nativePaint
                 )
             } catch (e: Exception) {
-                // Prevenim crash-ul dacă ceva e greșit la desenare, dar logăm eroarea
                 e.printStackTrace()
             }
         }

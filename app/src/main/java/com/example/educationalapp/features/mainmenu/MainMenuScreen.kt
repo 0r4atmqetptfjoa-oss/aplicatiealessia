@@ -26,7 +26,6 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
@@ -35,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.example.educationalapp.R
 import com.example.educationalapp.Screen
 import com.example.educationalapp.ui.components.SpriteAnimation
@@ -66,8 +66,8 @@ fun MainMenuScreen(
     )
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Image(
-            painter = painterResource(id = R.drawable.background_meniu_principal),
+        AsyncImage(
+            model = R.drawable.background_meniu_principal,
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
@@ -115,17 +115,17 @@ fun MainMenuScreen(
             val titleSheet = remember { loadOptimizedBitmap(resources, R.drawable.titlu_sheet) }
             
             SpriteAnimation(
-                modifier = Modifier.constrainAs(titleRef) {
-                    top.linkTo(topBarrier, margin = 8.dp) 
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                }.fillMaxWidth(0.9f).aspectRatio(2.5f), 
                 sheet = titleSheet,
-                columns = 8, 
                 frameCount = 60,
+                columns = 8,
                 fps = 30,
                 loop = true,
-                isPlaying = true
+                isPlaying = true,
+                modifier = Modifier.constrainAs(titleRef) {
+                    top.linkTo(topBarrier, margin = 8.dp)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
             )
 
             Row(
@@ -192,7 +192,7 @@ private fun RowScope.ModuleButton(module: MainMenuModule, navController: NavCont
         verticalArrangement = Arrangement.Center
     ) {
         SpriteAnimation(
-            modifier = Modifier.size(115.dp), 
+            modifier = Modifier.size(90.dp), 
             sheet = buttonSheet,
             columns = module.columns,
             frameCount = module.frameCount,

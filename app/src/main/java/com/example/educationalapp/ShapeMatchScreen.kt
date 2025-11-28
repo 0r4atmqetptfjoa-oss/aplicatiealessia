@@ -9,18 +9,14 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
@@ -28,64 +24,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.educationalapp.QuizAnswerState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 private const val TOTAL_SHAPE_QUESTIONS = 10
 
-data class NamedShape(val name: String, val icon: ImageVector, val color: Color)
-data class ShapeQuizQuestion(val shape: NamedShape, val options: List<NamedShape>)
-
 @Composable
-fun ShapeMatchScreen(navController: NavController, starState: MutableState<Int>) {
-    val shapes = remember {
-        listOf(
-            NamedShape("Inimă", Icons.Default.Favorite, Color(0xFFE74C3C)),
-            NamedShape("Stea", Icons.Default.Star, Color(0xFFF1C40F)),
-            NamedShape("Info", Icons.Default.Info, Color(0xFF2ECC71)), // Placeholder
-        )
-    }
-
-    var score by remember { mutableStateOf(0) }
-    var questionIndex by remember { mutableStateOf(0) }
-    var currentQuestion by remember { mutableStateOf(generateShapeQuestion(shapes)) }
-    var selectedOption by remember { mutableStateOf<NamedShape?>(null) }
-    var answerState by remember { mutableStateOf(QuizAnswerState.UNANSWERED) }
-    val coroutineScope = rememberCoroutineScope()
-
-    fun nextQuestion() {
-        if (questionIndex < TOTAL_SHAPE_QUESTIONS - 1) {
-            questionIndex++
-            currentQuestion = generateShapeQuestion(shapes)
-            answerState = QuizAnswerState.UNANSWERED
-            selectedOption = null
-        } else {
-            questionIndex++ // To trigger the dialog
-        }
-    }
-
-    fun handleAnswer(option: NamedShape) {
-        if (answerState != QuizAnswerState.UNANSWERED) return
-
-        selectedOption = option
-        if (option.name == currentQuestion.shape.name) {
-            answerState = QuizAnswerState.CORRECT
-            score += 10
-            starState.value += 1
-        } else {
-            answerState = QuizAnswerState.INCORRECT
-            score = (score - 5).coerceAtLeast(0)
-        }
-
-        coroutineScope.launch {
-            delay(1500)
-            nextQuestion()
-        }
-    }
-
+fun ShapeMatchScreen(
+    navController: NavController, 
+    starState: MutableState<Int>,
+    viewModel: ShapeMatchViewModel = hiltViewModel()
+) {
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
             painter = painterResource(id = R.drawable.background_meniu_principal),
@@ -94,26 +46,20 @@ fun ShapeMatchScreen(navController: NavController, starState: MutableState<Int>)
             modifier = Modifier.fillMaxSize()
         )
 
-        if (questionIndex >= TOTAL_SHAPE_QUESTIONS) {
-            ShapeQuizEndDialog(navController, score) {
-                score = 0
-                questionIndex = 0
-                currentQuestion = generateShapeQuestion(shapes)
-                answerState = QuizAnswerState.UNANSWERED
-                selectedOption = null
-            }
+        if (viewModel.questionIndex >= TOTAL_SHAPE_QUESTIONS) {
+            ShapeQuizEndDialog(navController, viewModel.score, viewModel::restartGame)
         }
 
-        AnimatedVisibility(visible = questionIndex < TOTAL_SHAPE_QUESTIONS, enter = fadeIn(), exit = fadeOut()) {
+        AnimatedVisibility(visible = viewModel.questionIndex < TOTAL_SHAPE_QUESTIONS, enter = fadeIn(), exit = fadeOut()) {
             Column(
                 modifier = Modifier.fillMaxSize().padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                ShapeQuizHeader(navController, questionIndex, score)
+                ShapeQuizHeader(navController, viewModel.questionIndex, viewModel.score)
                 Spacer(modifier = Modifier.height(32.dp))
 
                 Text(
-                    text = "Atinge forma: ${currentQuestion.shape.name}",
+                    text = "Atinge forma: ${viewModel.currentQuestion.shape.name}",
                     style = MaterialTheme.typography.displayMedium.copy(
                         fontFamily = FontFamily.Cursive,
                         fontWeight = FontWeight.Bold,
@@ -127,8 +73,8 @@ fun ShapeMatchScreen(navController: NavController, starState: MutableState<Int>)
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    currentQuestion.options.forEach { option ->
-                        ShapeOptionCard(option, selectedOption, answerState) { handleAnswer(option) }
+                    viewModel.currentQuestion.options.forEach { option ->
+                        ShapeOptionCard(option, viewModel.selectedOption, viewModel.answerState) { viewModel.handleAnswer(option) { starState.value++ } }
                     }
                 }
             }
@@ -208,10 +154,11 @@ private fun ShapeOptionCard(option: NamedShape, selectedOption: NamedShape?, ans
 @Composable
 private fun ShapeCorrectAnswerParticles() {
     val particles = remember { List(15) { Animatable(0f) } }
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         particles.forEachIndexed { index, animatable ->
-            launch {
+            coroutineScope.launch {
                 delay(index * 20L)
                 animatable.animateTo(
                     targetValue = 1f,
@@ -270,15 +217,6 @@ private fun ShapeQuizEndDialog(navController: NavController, score: Int, onResta
             }
         }
     )
-}
-
-private fun generateShapeQuestion(shapes: List<NamedShape>): ShapeQuizQuestion {
-    val correctShape = shapes.random()
-    val options = mutableSetOf(correctShape)
-    while (options.size < 3) {
-        options.add(shapes.random())
-    }
-    return ShapeQuizQuestion(correctShape, options.shuffled())
 }
 
 private fun lerp(start: Float, stop: Float, fraction: Float): Float {

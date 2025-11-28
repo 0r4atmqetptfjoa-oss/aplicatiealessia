@@ -10,11 +10,17 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.educationalapp.di.BgMusicManager
 import com.example.educationalapp.ui.theme.EducationalAppTheme
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var bgMusicManager: BgMusicManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -30,5 +36,20 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        bgMusicManager.play()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        bgMusicManager.pause()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        bgMusicManager.release()
     }
 }

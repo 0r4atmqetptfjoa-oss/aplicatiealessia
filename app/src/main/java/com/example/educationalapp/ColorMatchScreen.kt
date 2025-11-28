@@ -25,68 +25,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.educationalapp.QuizAnswerState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 private const val TOTAL_COLOR_QUESTIONS = 10
 
-data class NamedColor(val name: String, val color: Color)
-data class ColorQuizQuestion(val color: NamedColor, val options: List<NamedColor>)
-
 @Composable
-fun ColorMatchScreen(navController: NavController, starState: MutableState<Int>) {
-    val colors = remember {
-        listOf(
-            NamedColor("Roșu", Color(0xFFE74C3C)),
-            NamedColor("Verde", Color(0xFF2ECC71)),
-            NamedColor("Albastru", Color(0xFF3498DB)),
-            NamedColor("Galben", Color(0xFFF1C40F)),
-            NamedColor("Mov", Color(0xFF9B59B6)),
-            NamedColor("Portocaliu", Color(0xFFE67E22)),
-            NamedColor("Roz", Color(0xFFF5A9BC)),
-        )
-    }
-
-    var score by remember { mutableStateOf(0) }
-    var questionIndex by remember { mutableStateOf(0) }
-    var currentQuestion by remember { mutableStateOf(generateColorQuestion(colors)) }
-    var selectedOption by remember { mutableStateOf<NamedColor?>(null) }
-    var answerState by remember { mutableStateOf(QuizAnswerState.UNANSWERED) }
-    val coroutineScope = rememberCoroutineScope()
-
-    fun nextQuestion() {
-        if (questionIndex < TOTAL_COLOR_QUESTIONS - 1) {
-            questionIndex++
-            currentQuestion = generateColorQuestion(colors)
-            answerState = QuizAnswerState.UNANSWERED
-            selectedOption = null
-        } else {
-            questionIndex++ // To trigger the dialog
-        }
-    }
-
-    fun handleAnswer(option: NamedColor) {
-        if (answerState != QuizAnswerState.UNANSWERED) return
-
-        selectedOption = option
-        if (option.name == currentQuestion.color.name) {
-            answerState = QuizAnswerState.CORRECT
-            score += 10
-            starState.value += 1
-        } else {
-            answerState = QuizAnswerState.INCORRECT
-            score = (score - 5).coerceAtLeast(0)
-        }
-
-        coroutineScope.launch {
-            delay(1500)
-            nextQuestion()
-        }
-    }
-
+fun ColorMatchScreen(
+    navController: NavController, 
+    starState: MutableState<Int>,
+    viewModel: ColorMatchViewModel = hiltViewModel()
+) {
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
             painter = painterResource(id = R.drawable.background_meniu_principal),
@@ -95,26 +47,20 @@ fun ColorMatchScreen(navController: NavController, starState: MutableState<Int>)
             modifier = Modifier.fillMaxSize()
         )
 
-        if (questionIndex >= TOTAL_COLOR_QUESTIONS) {
-            ColorQuizEndDialog(navController, score) {
-                score = 0
-                questionIndex = 0
-                currentQuestion = generateColorQuestion(colors)
-                answerState = QuizAnswerState.UNANSWERED
-                selectedOption = null
-            }
+        if (viewModel.questionIndex >= TOTAL_COLOR_QUESTIONS) {
+            ColorQuizEndDialog(navController, viewModel.score, viewModel::restartGame)
         }
 
-        AnimatedVisibility(visible = questionIndex < TOTAL_COLOR_QUESTIONS, enter = fadeIn(), exit = fadeOut()) {
+        AnimatedVisibility(visible = viewModel.questionIndex < TOTAL_COLOR_QUESTIONS, enter = fadeIn(), exit = fadeOut()) {
             Column(
                 modifier = Modifier.fillMaxSize().padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                ColorQuizHeader(navController, questionIndex, score)
+                ColorQuizHeader(navController, viewModel.questionIndex, viewModel.score)
                 Spacer(modifier = Modifier.height(32.dp))
 
                 Text(
-                    text = "Atinge culoarea: ${currentQuestion.color.name}",
+                    text = "Atinge culoarea: ${viewModel.currentQuestion.color.name}",
                     style = MaterialTheme.typography.displayMedium.copy(
                         fontFamily = FontFamily.Cursive,
                         fontWeight = FontWeight.Bold,
@@ -128,8 +74,8 @@ fun ColorMatchScreen(navController: NavController, starState: MutableState<Int>)
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    currentQuestion.options.forEach { option ->
-                        ColorOptionCard(option, selectedOption, answerState) { handleAnswer(option) }
+                    viewModel.currentQuestion.options.forEach { option ->
+                        ColorOptionCard(option, viewModel.selectedOption, viewModel.answerState) { viewModel.handleAnswer(option) { starState.value++ } }
                     }
                 }
             }
@@ -204,10 +150,11 @@ private fun ColorOptionCard(option: NamedColor, selectedOption: NamedColor?, ans
 @Composable
 private fun ColorCorrectAnswerParticles() {
     val particles = remember { List(15) { Animatable(0f) } }
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         particles.forEachIndexed { index, animatable ->
-            launch {
+            coroutineScope.launch {
                 delay(index * 20L)
                 animatable.animateTo(
                     targetValue = 1f,
@@ -266,15 +213,6 @@ private fun ColorQuizEndDialog(navController: NavController, score: Int, onResta
             }
         }
     )
-}
-
-private fun generateColorQuestion(colors: List<NamedColor>): ColorQuizQuestion {
-    val correctColor = colors.random()
-    val options = mutableSetOf(correctColor)
-    while (options.size < 3) {
-        options.add(colors.random())
-    }
-    return ColorQuizQuestion(correctColor, options.shuffled())
 }
 
 private fun lerp(start: Float, stop: Float, fraction: Float): Float {
