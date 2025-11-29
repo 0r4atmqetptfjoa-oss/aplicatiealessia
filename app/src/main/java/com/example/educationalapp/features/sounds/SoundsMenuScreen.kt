@@ -14,8 +14,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,16 +25,13 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.example.educationalapp.R
-import com.example.educationalapp.features.mainmenu.loadOptimizedBitmap
 import com.example.educationalapp.ui.components.SpriteAnimation
 
 data class SoundCategory(val name: String, val route: String)
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SoundsMenuScreen(navController: NavController) {
-    val context = LocalContext.current
-    val resources = context.resources
-
     val categories = remember {
         listOf(
             SoundCategory("Ferma", ""), // TODO: Add route
@@ -44,9 +42,7 @@ fun SoundsMenuScreen(navController: NavController) {
         )
     }
 
-    val sheet = remember {
-        loadOptimizedBitmap(resources, R.drawable.sunete_sheet)
-    }
+    val sheet = ImageBitmap.imageResource(id = R.drawable.sunete_sheet)
 
     Box(modifier = Modifier.fillMaxSize()) {
         AsyncImage(
@@ -60,7 +56,7 @@ fun SoundsMenuScreen(navController: NavController) {
             containerColor = Color.Transparent,
             topBar = {
                 TopAppBar(
-                    title = { Text(stringResource(id = R.string.main_menu_button_sounds)) },
+                    title = { Text(stringResource(id = R.string.main_menu_button_sounds), style = MaterialTheme.typography.headlineSmall) },
                     navigationIcon = {
                         IconButton(onClick = { navController.popBackStack() }) {
                             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -76,10 +72,10 @@ fun SoundsMenuScreen(navController: NavController) {
         ) { paddingValues ->
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(minSize = 112.dp),
-                modifier = Modifier.fillMaxSize().padding(paddingValues).padding(16.dp),
+                modifier = Modifier.fillMaxSize().padding(paddingValues),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
-                contentPadding = PaddingValues(16.dp)
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp)
             ) {
                 itemsIndexed(categories) { index, category ->
                     Column(
@@ -98,7 +94,7 @@ fun SoundsMenuScreen(navController: NavController) {
                             frameCount = 24, // Assuming 24 frames from MainMenuScreen
                             columns = 5,     // Assuming 5 columns from MainMenuScreen
                             frameIndex = index, // Use index to show a static frame
-                            modifier = Modifier.size(96.dp)
+                            modifier = Modifier.size(80.dp)
                         )
 
                         Spacer(modifier = Modifier.height(8.dp))

@@ -1,6 +1,9 @@
 package com.example.educationalapp.ui.components
 
+import android.content.res.Resources
+import android.graphics.BitmapFactory
 import android.graphics.Rect
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.size
@@ -8,11 +11,21 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlin.math.ceil
 
+/**
+ * A composable that displays a sprite sheet animation.
+ *
+ * The animation's total duration is controlled by the `frameCount` and `fps` parameters.
+ * For the cinematic title (60 frames), an `fps` of 24 will result in a 2.5-second loop (60 / 24 = 2.5).
+ */
 @Composable
 fun SpriteAnimation(
     sheet: ImageBitmap,
@@ -35,12 +48,14 @@ fun SpriteAnimation(
 
         if (isPlaying) {
             val target = frameCount.toFloat()
+            val duration = (frameCount * 1000) / fps
+
             if (loop) {
                 animatable.snapTo(0f)
                 animatable.animateTo(
                     targetValue = target,
                     animationSpec = infiniteRepeatable(
-                        animation = tween((frameCount * 1000) / fps, easing = LinearEasing),
+                        animation = tween(duration, easing = LinearEasing),
                         repeatMode = RepeatMode.Restart
                     )
                 )
@@ -48,7 +63,7 @@ fun SpriteAnimation(
                 animatable.snapTo(0f)
                 animatable.animateTo(
                     targetValue = target,
-                    animationSpec = tween((frameCount * 1000) / fps, easing = LinearEasing)
+                    animationSpec = tween(duration, easing = LinearEasing)
                 )
                 onAnimationFinished()
             }
@@ -57,28 +72,27 @@ fun SpriteAnimation(
         }
     }
 
-    // 🔹 dimensiunea naturală a unui frame, în px
     val sheetWidth = sheet.width
     val sheetHeight = sheet.height
     val frameWidthPx = sheetWidth / columns
     val rows = ceil(frameCount.toFloat() / columns).toInt().coerceAtLeast(1)
     val frameHeightPx = sheetHeight / rows
 
-    // 🔹 transformăm px -> dp ca să facem Canvas exact cât un frame
     val density = LocalDensity.current
     val frameWidthDp = with(density) { frameWidthPx.toDp() }
     val frameHeightDp = with(density) { frameHeightPx.toDp() }
 
-    // 🔹 întâi punem dimensiunea naturală, apoi aplicăm modifier-ul utilizatorului.
-    // Dacă utilizatorul pune .size(115.dp), ACELA câștigă (e ultimul).
-    val baseModifier = Modifier
-        .size(frameWidthDp, frameHeightDp)
-        .then(modifier)
+    val baseModifier = if (modifier.toString().contains("Constraints") || modifier.toString().contains("Size")) {
+        modifier
+    } else {
+        Modifier
+            .size(frameWidthDp, frameHeightDp)
+            .then(modifier)
+    }
 
     Canvas(modifier = baseModifier) {
-        // recalculăm aici, dar e ieftin
-        val frameWidth = size.width.toInt()   // 1:1 cu dp -> px
-        val frameHeight = size.height.toInt()
+        val canvasWidth = size.width.toInt()
+        val canvasHeight = size.height.toInt()
 
         val currentFrame = (animatable.value.toInt() % frameCount).coerceIn(0, frameCount - 1)
         val col = currentFrame % columns
@@ -94,20 +108,8 @@ fun SpriteAnimation(
                 isDither = true
             }
 
-            val srcRect = android.graphics.Rect(
-                srcX,
-                srcY,
-                srcX + frameWidthPx,
-                srcY + frameHeightPx
-            )
-
-            // ❗ dstRect acum are FIX dimensiunea Canvas-ului, care e setată la 1:1 cu frame-ul
-            val dstRect = android.graphics.Rect(
-                0,
-                0,
-                frameWidth,
-                frameHeight
-            )
+            val srcRect = Rect(srcX, srcY, srcX + frameWidthPx, srcY + frameHeightPx)
+            val dstRect = Rect(0, 0, canvasWidth, canvasHeight)
 
             try {
                 canvas.nativeCanvas.drawBitmap(
@@ -121,4 +123,53 @@ fun SpriteAnimation(
             }
         }
     }
+}
+
+/**
+ * A reusable composable helper that loads an [ImageBitmap] from a drawable resource asynchronously.
+ * It uses an internal `loadOptimizedBitmap` function to decode the bitmap on a background thread (Dispatchers.IO),
+ * preventing the UI thread from being blocked. The decoded bitmap is then returned as state.
+ *
+ * @param resId The ID of the drawable resource.
+ * @param maxTextureSize The maximum size (width or height) of the decoded bitmap. This is used to downsample large images to prevent excessive memory usage.
+ * @return The loaded [ImageBitmap], or `null` if it's still loading.
+ */
+@Composable
+fun rememberSheet(
+    @DrawableRes resId: Int,
+    maxTextureSize: Int = 2048
+): ImageBitmap? {
+    val context = LocalContext.current
+    val resources = context.resources
+
+    var sheet by remember(resId) { mutableStateOf<ImageBitmap?>(null) }
+
+    LaunchedEffect(resId, maxTextureSize) {
+        sheet = withContext(Dispatchers.IO) {
+            loadOptimizedBitmap(resources, resId, maxTextureSize)
+        }
+    }
+
+    return sheet
+}
+
+private fun loadOptimizedBitmap(res: Resources, resId: Int, maxTextureSize: Int): ImageBitmap {
+    val options = BitmapFactory.Options().apply {
+        inJustDecodeBounds = true
+    }
+    BitmapFactory.decodeResource(res, resId, options)
+
+    var inSampleSize = 1
+    val width = options.outWidth
+    val height = options.outHeight
+
+    while (width / inSampleSize > maxTextureSize || height / inSampleSize > maxTextureSize) {
+        inSampleSize *= 2
+    }
+
+    options.inJustDecodeBounds = false
+    options.inSampleSize = inSampleSize
+
+    val bitmap = BitmapFactory.decodeResource(res, resId, options)
+    return bitmap.asImageBitmap()
 }
