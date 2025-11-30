@@ -9,8 +9,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import kotlin.random.Random
 
-data class Animal(val name: String, val icon: String)
-
 @Composable
 fun AnimalSoundsScreen(navController: NavController, starState: MutableState<Int>) {
     val animals = remember {
@@ -53,7 +51,7 @@ fun AnimalSoundsScreen(navController: NavController, starState: MutableState<Int
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text(text = "Sunete Animale", modifier = Modifier.padding(bottom = 16.dp))
-        Text(text = "Ce animal este acesta? ${currentAnimal.icon}", modifier = Modifier.padding(bottom = 16.dp))
+        Text(text = "Ce animal este acesta? ${currentAnimal.emoji}", modifier = Modifier.padding(bottom = 16.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             options.forEach { option ->
                 Button(onClick = {

@@ -16,7 +16,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
 /**
@@ -98,10 +97,9 @@ fun AlphabetQuizScreen(navController: NavController, starState: MutableState<Int
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        // Use the main menu background as a placeholder.  Custom backgrounds can
-        // be supplied via the assets directory under games/alphabet_quiz/backgrounds.
+        // Use the alphabet quiz background.
         Image(
-            painter = painterResource(id = R.drawable.background_meniu_principal),
+            painter = painterResource(id = R.drawable.bg_game_alphabet),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()

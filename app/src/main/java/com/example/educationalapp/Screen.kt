@@ -20,6 +20,7 @@ sealed class Screen(val route: String) {
     object MarineSounds : Screen("marine_sounds")
     object FarmSounds : Screen("farm_sounds")
     object BirdSounds : Screen("bird_sounds")
+    object VehicleSounds : Screen("vehicle_sounds")
 
     // Game routes
     object AlphabetQuiz : Screen("alphabet_quiz")

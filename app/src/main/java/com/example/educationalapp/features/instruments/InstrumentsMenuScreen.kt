@@ -1,5 +1,6 @@
 package com.example.educationalapp.features.instruments
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -14,9 +15,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,8 +25,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.educationalapp.R
 import com.example.educationalapp.ui.components.SpriteAnimation
-import androidx.compose.foundation.Image
-import androidx.compose.ui.res.painterResource
+import com.example.educationalapp.ui.components.rememberSheet
 
 data class Instrument(val name: String, val route: String)
 
@@ -42,11 +41,11 @@ fun InstrumentsMenuScreen(navController: NavController) {
         )
     }
 
-    val sheet = ImageBitmap.imageResource(id = R.drawable.instrumente_sheet)
+    val sheet = rememberSheet(resId = R.drawable.instrumente_sheet)
 
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
-            painter = painterResource(id = R.drawable.background_meniu_principal),
+            painter = painterResource(id = R.drawable.bg_game_instruments),
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
@@ -89,13 +88,15 @@ fun InstrumentsMenuScreen(navController: NavController) {
                             }
                         }
                     ) {
-                        SpriteAnimation(
-                            sheet = sheet,
-                            frameCount = 24, // Assuming 24 frames from MainMenuScreen
-                            columns = 5,     // Assuming 5 columns from MainMenuScreen
-                            frameIndex = index, // Use index to show a static frame
-                            modifier = Modifier.size(80.dp)
-                        )
+                        if(sheet != null) {
+                            SpriteAnimation(
+                                sheet = sheet,
+                                frameCount = 24, // Assuming 24 frames from MainMenuScreen
+                                columns = 5,     // Assuming 5 columns from MainMenuScreen
+                                frameIndex = index, // Use index to show a static frame
+                                modifier = Modifier.size(80.dp)
+                            )
+                        }
 
                         Spacer(modifier = Modifier.height(8.dp))
 

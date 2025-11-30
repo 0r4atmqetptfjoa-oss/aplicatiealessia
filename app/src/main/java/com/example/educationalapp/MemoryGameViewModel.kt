@@ -11,17 +11,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-data class MemoryCard(val id: Int, val icon: ImageVector, var isFaceUp: Boolean = false, var isMatched: Boolean = false)
-
 class MemoryGameViewModel : ViewModel() {
 
     private val icons = listOf(
-        Icons.Default.Favorite,
-        Icons.Default.Star,
-        Icons.Default.Info,
-        Icons.Default.CheckCircle,
-        Icons.Default.ThumbUp,
-        Icons.Default.Build
+        "🐶", "🐱", "🐭", "🐹", "🐰", "🦊"
     )
 
     var cards by mutableStateOf(createShuffledCards(icons))
@@ -51,7 +44,7 @@ class MemoryGameViewModel : ViewModel() {
             val firstCard = cards.find { it.id == firstCardId }!!
             val secondCard = cards.find { it.id == secondCardId }!!
 
-            if (firstCard.icon == secondCard.icon) {
+            if (firstCard.value == secondCard.value) {
                 val matchedCards = cards.map {
                     if (it.id == firstCardId || it.id == secondCardId) it.copy(isMatched = true) else it
                 }
@@ -75,8 +68,8 @@ class MemoryGameViewModel : ViewModel() {
         }
     }
 
-    private fun createShuffledCards(icons: List<ImageVector>): List<MemoryCard> {
+    private fun createShuffledCards(icons: List<String>): List<MemoryCard> {
         val gameIcons = (icons + icons).shuffled()
-        return gameIcons.mapIndexed { index, icon -> MemoryCard(id = index, icon = icon) }
+        return gameIcons.mapIndexed { index, icon -> MemoryCard(id = index, value = icon) }
     }
 }

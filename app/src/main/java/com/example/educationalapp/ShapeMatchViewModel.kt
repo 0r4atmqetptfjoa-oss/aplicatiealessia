@@ -15,9 +15,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
-data class NamedShape(val name: String, val icon: ImageVector, val color: Color)
-data class ShapeQuizQuestion(val shape: NamedShape, val options: List<NamedShape>)
-
 class ShapeMatchViewModel : ViewModel() {
 
     private val shapes = listOf(

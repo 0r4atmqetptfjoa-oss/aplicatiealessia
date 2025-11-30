@@ -44,7 +44,7 @@ fun SortingGameScreen(navController: NavController, starState: MutableState<Int>
 
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
-            painter = painterResource(id = R.drawable.background_meniu_principal),
+            painter = painterResource(id = R.drawable.bg_game_sorting),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()

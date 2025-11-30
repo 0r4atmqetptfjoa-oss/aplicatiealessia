@@ -30,7 +30,7 @@ fun SettingsScreen(
     Box(modifier = Modifier.fillMaxSize()) {
         // Fundal ca în restul aplicației
         Image(
-            painter = painterResource(id = R.drawable.background_meniu_principal),
+            painter = painterResource(id = R.drawable.bg_category_games),
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop

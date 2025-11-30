@@ -21,14 +21,6 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 
 /**
- * Represents a card in the memory game.  Each card has a value (emoji), a flag
- * indicating whether it is currently face up and another flag indicating
- * whether it has been matched.  Cards that are matched remain face up and
- * cannot be selected again.
- */
-data class MemoryCard(val id: Int, val value: String, var isFaceUp: Boolean = false, var isMatched: Boolean = false)
-
-/**
  * Shuffle a list of emoji strings into pairs of [MemoryCard] objects.  Each
  * emoji appears twice in the resulting list.  Cards are given unique
  * identifiers and the list is shuffled to randomise their positions.  This
@@ -120,7 +112,7 @@ fun MemoryGameScreen(navController: NavController, starState: MutableState<Int>)
 
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
-            painter = painterResource(id = R.drawable.background_meniu_principal),
+            painter = painterResource(id = R.drawable.bg_game_memory),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()

@@ -6,7 +6,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
@@ -15,9 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -27,51 +25,42 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.educationalapp.R
 import com.example.educationalapp.Screen
-import com.example.educationalapp.ui.components.SpriteAnimation
 
 /**
  * Represents a simple data model for games displayed in the games menu. Each entry
- * has a user‑friendly name and a navigation route defined in [Screen].
+ * has a user‑friendly name, an icon, and a navigation route defined in [Screen].
  */
-data class Game(val name: String, val route: String)
+data class Game(val name: String, val icon: Int, val route: String)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GamesMenuScreen(navController: NavController) {
-    // Define the list of games to show in the menu.  This list has been expanded
-    // to include new games such as sorting, block matching, hidden objects and
-    // shadow matching.  If a route is empty the navigation is disabled.
+    // Define the list of games to show in the menu.
     val games = remember {
         listOf(
-            Game("Culori", Screen.ColorMatch.route),
-            Game("Forme", Screen.ShapeMatch.route),
-            Game("Alfabet", Screen.AlphabetQuiz.route),
-            Game("Numere", Screen.MathGame.route),
-            Game("Sortare", Screen.SortingGame.route),
-            Game("Puzzle", Screen.Puzzle.route),
-            Game("Memorie", Screen.MemoryGame.route),
-            // Sequence memory game: repeat the colours in the shown order
-            Game("Secvențe", Screen.SequenceMemoryGame.route),
-            Game("Blocuri", Screen.BlocksGame.route),
-            Game("Gătit", Screen.CookingGame.route),
-            Game("Labirint", Screen.MazeGame.route),
-            Game("Ascunse", Screen.HiddenObjectsGame.route),
-            Game("Umbre", Screen.ShadowMatchGame.route),
-            Game("Animale", Screen.AnimalSortingGame.route),
-            Game("Instrumente", Screen.InstrumentsGame.route),
-            // New coding game teaches sequencing and problem solving
-            Game("Codare", Screen.CodingGame.route)
+            Game("Culori", R.drawable.icon_game_colors, Screen.ColorMatch.route),
+            Game("Forme", R.drawable.icon_game_shapes, Screen.ShapeMatch.route),
+            Game("Alfabet", R.drawable.icon_game_alphabet, Screen.AlphabetQuiz.route),
+            Game("Numere", R.drawable.icon_game_math, Screen.MathGame.route),
+            Game("Sortare", R.drawable.icon_game_sorting, Screen.SortingGame.route),
+            Game("Puzzle", R.drawable.icon_game_puzzle, Screen.Puzzle.route),
+            Game("Memorie", R.drawable.icon_game_memory, Screen.MemoryGame.route),
+            Game("Secvențe", R.drawable.icon_game_sequence, Screen.SequenceMemoryGame.route),
+            Game("Blocuri", R.drawable.main_menu_icon_jocuri, Screen.BlocksGame.route),
+            Game("Gătit", R.drawable.main_menu_icon_jocuri, Screen.CookingGame.route),
+            Game("Labirint", R.drawable.main_menu_icon_jocuri, Screen.MazeGame.route),
+            Game("Ascunse", R.drawable.icon_game_hiddenobjects, Screen.HiddenObjectsGame.route),
+            Game("Umbre", R.drawable.main_menu_icon_jocuri, Screen.ShadowMatchGame.route),
+            Game("Animale", R.drawable.icon_game_animals, Screen.AnimalSortingGame.route),
+            Game("Instrumente", R.drawable.icon_game_instruments, Screen.InstrumentsGame.route),
+            Game("Codare", R.drawable.main_menu_icon_jocuri, Screen.CodingGame.route)
         )
     }
-
-    // Sprite sheet used for game icons.  Each frame of the sheet is used as a
-    // static icon for a game entry.
-    val sheet: ImageBitmap = ImageBitmap.imageResource(id = R.drawable.jocuri_sheet)
 
     Box(modifier = Modifier.fillMaxSize()) {
         // Background image for the games menu
         Image(
-            painter = painterResource(id = R.drawable.background_meniu_principal),
+            painter = painterResource(id = R.drawable.bg_category_games),
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
@@ -109,7 +98,7 @@ fun GamesMenuScreen(navController: NavController) {
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp)
             ) {
-                itemsIndexed(games) { index, game ->
+                items(games) { game ->
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.clickable(
@@ -121,11 +110,9 @@ fun GamesMenuScreen(navController: NavController) {
                             }
                         }
                     ) {
-                        SpriteAnimation(
-                            sheet = sheet,
-                            frameCount = 24, // Use 24 frames consistent with main menu
-                            columns = 5,
-                            frameIndex = index % 24, // Use index modulo frame count to avoid overflow
+                        Image(
+                            painter = painterResource(id = game.icon),
+                            contentDescription = game.name,
                             modifier = Modifier.size(80.dp)
                         )
 

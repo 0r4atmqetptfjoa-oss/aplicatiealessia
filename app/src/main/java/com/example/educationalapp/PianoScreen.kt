@@ -13,7 +13,7 @@ import androidx.compose.ui.res.painterResource
 fun PianoScreen(navController: NavController) {
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
-            painter = painterResource(id = R.drawable.background_meniu_principal),
+            painter = painterResource(id = R.drawable.bg_game_instruments),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()

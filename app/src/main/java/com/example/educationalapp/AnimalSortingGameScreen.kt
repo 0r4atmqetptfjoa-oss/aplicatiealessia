@@ -19,7 +19,6 @@ import androidx.compose.ui.unit.sp
  * describing its habitat (land, water or air).  Used in the animal sorting
  * game where players categorise animals into their correct habitats.
  */
-data class Animal(val name: String, val emoji: String, val category: String)
 
 private const val TOTAL_ANIMAL_QUESTIONS = 10
 
@@ -90,7 +89,7 @@ fun AnimalSortingGameScreen(navController: NavController, starState: MutableStat
 
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
-            painter = painterResource(id = R.drawable.background_meniu_principal),
+            painter = painterResource(id = R.drawable.bg_game_sorting),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()

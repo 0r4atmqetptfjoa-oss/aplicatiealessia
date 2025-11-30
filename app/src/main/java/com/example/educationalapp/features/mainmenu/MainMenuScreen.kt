@@ -20,7 +20,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -30,8 +29,10 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.navigation.NavController
+import com.example.educationalapp.ParallaxMainMenuBackground
 import com.example.educationalapp.R
 import com.example.educationalapp.Screen
+import com.example.educationalapp.SnowfallEffect
 import com.example.educationalapp.ui.theme.KidFontFamily
 
 data class MainMenuModule(
@@ -46,7 +47,7 @@ fun MainMenuScreen(
     starCount: Int,
 ) {
     val modules = listOf(
-        MainMenuModule(Screen.GamesMenu.route, R.drawable.main_menu_icon_jocuri, stringResource(id = R.string.main_menu_button_games)),
+        MainMenuModule("games", R.drawable.main_menu_icon_jocuri, stringResource(id = R.string.main_menu_button_games)),
         MainMenuModule(Screen.InstrumentsMenu.route, R.drawable.main_menu_icon_instrumente, stringResource(id = R.string.main_menu_button_instruments)),
         MainMenuModule(Screen.SongsMenu.route, R.drawable.main_menu_icone_cantece, stringResource(id = R.string.main_menu_button_songs)),
         MainMenuModule(Screen.SoundsMenu.route, R.drawable.main_menu_icon_sunete, stringResource(id = R.string.main_menu_button_sounds)),
@@ -54,12 +55,7 @@ fun MainMenuScreen(
     )
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Image(
-            painter = painterResource(id = R.drawable.background_meniu_principal),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
-        )
+        ParallaxMainMenuBackground()
 
         ConstraintLayout(modifier = Modifier.fillMaxSize().safeDrawingPadding()) {
             val (starsRef, upgradeRef, titleRef, settingsRef, menuRowRef) = createRefs()
@@ -121,7 +117,7 @@ fun MainMenuScreen(
                         bottom.linkTo(menuRowRef.top)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
-                        width = Dimension.percent(0.6f)
+                        width = Dimension.percent(0.5f) // Title is smaller
                     }
                     .aspectRatio(16f / 9f)
                     .graphicsLayer {
@@ -132,7 +128,7 @@ fun MainMenuScreen(
             // Menu Buttons (GREEN ZONE)
             Row(
                 modifier = Modifier.constrainAs(menuRowRef) {
-                    bottom.linkTo(parent.bottom, margin = 32.dp)
+                    bottom.linkTo(parent.bottom, margin = 24.dp) // Icons are lower
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                     width = Dimension.percent(0.95f)
@@ -165,6 +161,9 @@ fun MainMenuScreen(
                 )
             }
         }
+
+        // Snowfall effect on top of everything
+        SnowfallEffect()
     }
 }
 
@@ -205,11 +204,11 @@ private fun ModuleButton(
             painter = painterResource(id = module.iconRes),
             contentDescription = module.title,
             modifier = Modifier
-                .size(96.dp)
+                .size(108.dp) // Icons are bigger
                 .graphicsLayer {
                     shadowElevation = animShadowElevation
                     if (animShadowElevation > 0) {
-                       spotShadowColor = Color(0.9f, 0.9f, 0.5f)
+                        spotShadowColor = Color(0.9f, 0.9f, 0.5f)
                     }
                 }
         )

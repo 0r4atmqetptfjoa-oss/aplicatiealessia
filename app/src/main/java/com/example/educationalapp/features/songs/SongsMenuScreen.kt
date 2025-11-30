@@ -15,9 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -28,6 +26,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.educationalapp.R
 import com.example.educationalapp.Screen
 import com.example.educationalapp.ui.components.SpriteAnimation
+import com.example.educationalapp.ui.components.rememberSheet
 
 /**
  * Data model representing a song entry in the songs menu. Each song has a name and a route
@@ -50,12 +49,12 @@ fun SongsMenuScreen(navController: NavController) {
 
     // Load the sprite sheet for song icons.  A single frame from this sheet is used as the icon
     // for each song entry.  Replace this resource with your own animated sheet when available.
-    val sheet: ImageBitmap = ImageBitmap.imageResource(id = R.drawable.cantece_sheet)
+    val sheet = rememberSheet(resId = R.drawable.cantece_sheet)
 
     Box(modifier = Modifier.fillMaxSize()) {
         // Background image for the songs menu.  Using the main menu background as a placeholder.
         Image(
-            painter = painterResource(id = R.drawable.background_meniu_principal),
+            painter = painterResource(id = R.drawable.bg_category_games),
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
@@ -107,13 +106,15 @@ fun SongsMenuScreen(navController: NavController) {
                             }
                         }
                     ) {
-                        SpriteAnimation(
-                            sheet = sheet,
-                            frameCount = 24, // Use 24 frames consistent with the main menu sheet
-                            columns = 5,
-                            frameIndex = index % 24,
-                            modifier = Modifier.size(80.dp)
-                        )
+                        if (sheet != null) {
+                            SpriteAnimation(
+                                sheet = sheet,
+                                frameCount = 24, // Use 24 frames consistent with the main menu sheet
+                                columns = 5,
+                                frameIndex = index % 24,
+                                modifier = Modifier.size(80.dp)
+                            )
+                        }
 
                         Spacer(modifier = Modifier.height(8.dp))
 

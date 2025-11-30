@@ -1,5 +1,6 @@
 package com.example.educationalapp
 
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -9,15 +10,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.educationalapp.features.games.GamesMenuScreen
+import com.example.educationalapp.features.games.*
 import com.example.educationalapp.features.instruments.InstrumentsMenuScreen
 import com.example.educationalapp.features.mainmenu.MainMenuScreen
 import com.example.educationalapp.features.songs.SongsMenuScreen
 import com.example.educationalapp.features.songs.SongPlayerScreen
 import com.example.educationalapp.features.sounds.*
 import com.example.educationalapp.features.stories.StoriesMenuScreen
-import com.example.educationalapp.features.games.CodingGameScreen
-import com.example.educationalapp.features.games.SequenceMemoryGameScreen
 
 /**
  * The central navigation graph for the application.  This function wires together
@@ -69,12 +68,29 @@ fun AppNavigation(viewModel: MainViewModel) {
             )
         }
 
+        composable("games") {
+            GamesCategoryScreen { selected ->
+                navController.navigate(selected.destination)
+            }
+        }
+
+        composable("alphabet") { GameContainer(gamesList[0]) { AlphabetQuizScreen(navController = navController, starState = starState) } }
+        composable("colors") { GameContainer(gamesList[1]) { ColorMatchScreen(navController = navController, starState = starState) } }
+        composable("shapes") { GameContainer(gamesList[2]) { ShapeMatchScreen(navController = navController, starState = starState) } }
+        composable("puzzle") { GameContainer(gamesList[3]) { JigsawPuzzleScreen(navController = navController, starState = starState) } }
+        composable("memory") { GameContainer(gamesList[4]) { MemoryGameScreen(navController = navController, starState = starState) } }
+        composable("hidden") { GameContainer(gamesList[5]) { HiddenObjectsGameScreen(navController = navController, starState = starState) } }
+        composable("sorting") { GameContainer(gamesList[6]) { SortingGameScreen(navController = navController, starState = starState) } }
+        composable("instruments") { GameContainer(gamesList[7]) { InstrumentsGameScreen(navController = navController, starState = starState) } }
+        composable("vehicles") { GameContainer(gamesList[8]) { Text("Vehicles Screen") } } // Placeholder
+        composable("sequence") { GameContainer(gamesList[9]) { SequenceMemoryGameScreen(navController = navController, starState = starState) } }
+        composable("math") { GameContainer(gamesList[10]) { MathGameScreen(navController = navController, starState = starState) } }
+
         // Menu screens
         composable(Screen.SoundsMenu.route) { SoundsMenuScreen(navController) }
         composable(Screen.InstrumentsMenu.route) { InstrumentsMenuScreen(navController) }
         composable(Screen.StoriesMenu.route) { StoriesMenuScreen(navController) }
         composable(Screen.SongsMenu.route) { SongsMenuScreen(navController) }
-        composable(Screen.GamesMenu.route) { GamesMenuScreen(navController) }
 
         // Individual sound screens
         composable(Screen.WildSounds.route) { WildSoundsScreen() }
@@ -85,69 +101,6 @@ fun AppNavigation(viewModel: MainViewModel) {
         // Paywall or placeholder
         composable(Screen.Paywall.route) {
             NotImplementedScreen(navController = navController, title = "Paywall")
-        }
-
-        // Game screens.  Each screen receives the shared starState so that earned
-        // stars update the global counter.  Some games dispatch their own star
-        // increments via callbacks.
-        composable(Screen.AlphabetQuiz.route) {
-            // Alphabet quiz where players match letters
-            AlphabetQuizScreen(navController = navController, starState = starState)
-        }
-        composable(Screen.MathGame.route) {
-            MathGameScreen(navController = navController, starState = starState)
-        }
-        composable(Screen.ColorMatch.route) {
-            // Colour matching game – simplified version using colour swatches
-            ColorMatchScreen(navController = navController, starState = starState)
-        }
-        composable(Screen.ShapeMatch.route) {
-            // Shape matching game – identify shapes by name
-            ShapeMatchScreen(navController = navController, starState = starState)
-        }
-        composable(Screen.Puzzle.route) {
-            // Sliding puzzle game – rearrange tiles into order
-            JigsawPuzzleScreen(navController = navController, starState = starState)
-        }
-        composable(Screen.MemoryGame.route) {
-            // Memory matching game – find emoji pairs
-            MemoryGameScreen(navController = navController, starState = starState)
-        }
-        composable(Screen.SortingGame.route) {
-            // Number sorting game with increasing difficulty
-            SortingGameScreen(navController = navController, starState = starState)
-        }
-        composable(Screen.BlocksGame.route) {
-            BlockGameScreen(navController = navController, starState = starState)
-        }
-        composable(Screen.HiddenObjectsGame.route) {
-            // Hidden objects game – find the target emoji in the grid
-            HiddenObjectsGameScreen(navController = navController, starState = starState)
-        }
-        composable(Screen.ShadowMatchGame.route) {
-            ShadowMatchGameScreen(navController = navController, starState = starState)
-        }
-        composable(Screen.AnimalSortingGame.route) {
-            // Animal sorting game – categorise animals by habitat
-            AnimalSortingGameScreen(navController = navController, starState = starState)
-        }
-        composable(Screen.MazeGame.route) {
-            MazeGameScreen(navController = navController, starState = starState)
-        }
-        composable(Screen.CookingGame.route) {
-            CookingGameScreen(navController = navController, starState = starState)
-        }
-        composable(Screen.InstrumentsGame.route) {
-            InstrumentsGameScreen(navController = navController, starState = starState)
-        }
-
-        // Coding game screen
-        composable(Screen.CodingGame.route) {
-            CodingGameScreen(navController = navController, starState = starState)
-        }
-
-        composable(Screen.SequenceMemoryGame.route) {
-            SequenceMemoryGameScreen(navController = navController, starState = starState)
         }
 
         // Song player screens.  Each screen loads a specific song based on the route

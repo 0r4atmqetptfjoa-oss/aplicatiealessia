@@ -18,13 +18,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
-/**
- * Represents a geometric shape with a name, icon and tint colour.  This simple
- * structure is used to drive the shape matching game where players match a
- * shape's name to its icon.
- */
-data class NamedShape(val name: String, val icon: androidx.compose.ui.graphics.vector.ImageVector, val color: Color)
-
 private const val TOTAL_SHAPE_QUESTIONS = 10
 
 /**
@@ -108,7 +101,7 @@ fun ShapeMatchScreen(navController: NavController, starState: MutableState<Int>)
 
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
-            painter = painterResource(id = R.drawable.background_meniu_principal),
+            painter = painterResource(id = R.drawable.bg_game_shapes),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
