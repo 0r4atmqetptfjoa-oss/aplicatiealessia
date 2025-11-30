@@ -31,6 +31,11 @@ class MainViewModel @Inject constructor(application: Application) : AndroidViewM
         _starCount.value = count
     }
 
+    fun addStars(delta: Int) {
+        _starCount.value = (_starCount.value + delta).coerceAtLeast(0)
+    }
+
+
     fun toggleFullVersion() {
         _hasFullVersion.value = !_hasFullVersion.value
     }

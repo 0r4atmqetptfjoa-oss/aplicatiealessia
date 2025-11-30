@@ -1,5 +1,6 @@
 package com.example.educationalapp.ui.components
 
+import android.content.res.AssetManager
 import android.content.res.Resources
 import android.graphics.BitmapFactory
 import android.graphics.Rect
@@ -18,6 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.InputStream
 import kotlin.math.ceil
 
 /**
@@ -153,6 +155,27 @@ fun rememberSheet(
     return sheet
 }
 
+@Composable
+fun rememberAssetSheet(
+    path: String,
+    maxTextureSize: Int = 2048
+): ImageBitmap? {
+    val context = LocalContext.current
+    val assets = context.assets
+
+    var sheet by remember(path) { mutableStateOf<ImageBitmap?>(null) }
+
+    LaunchedEffect(path, maxTextureSize) {
+        sheet = withContext(Dispatchers.IO) {
+            runCatching {
+                loadOptimizedBitmapFromAssets(assets, path, maxTextureSize)
+            }.getOrNull()
+        }
+    }
+
+    return sheet
+}
+
 private fun loadOptimizedBitmap(res: Resources, resId: Int, maxTextureSize: Int): ImageBitmap {
     val options = BitmapFactory.Options().apply {
         inJustDecodeBounds = true
@@ -172,4 +195,30 @@ private fun loadOptimizedBitmap(res: Resources, resId: Int, maxTextureSize: Int)
 
     val bitmap = BitmapFactory.decodeResource(res, resId, options)
     return bitmap.asImageBitmap()
+}
+
+private fun loadOptimizedBitmapFromAssets(assets: AssetManager, path: String, maxTextureSize: Int): ImageBitmap {
+    val options = BitmapFactory.Options().apply {
+        inJustDecodeBounds = true
+    }
+    var inputStream: InputStream = assets.open(path)
+    BitmapFactory.decodeStream(inputStream, null, options)
+    inputStream.close()
+
+    var inSampleSize = 1
+    val width = options.outWidth
+    val height = options.outHeight
+
+    while (width / inSampleSize > maxTextureSize || height / inSampleSize > maxTextureSize) {
+        inSampleSize *= 2
+    }
+
+    options.inJustDecodeBounds = false
+    options.inSampleSize = inSampleSize
+
+    inputStream = assets.open(path)
+    val bitmap = BitmapFactory.decodeStream(inputStream, null, options)
+    inputStream.close()
+
+    return bitmap!!.asImageBitmap()
 }

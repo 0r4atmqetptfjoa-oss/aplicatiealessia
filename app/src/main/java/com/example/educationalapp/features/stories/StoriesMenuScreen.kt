@@ -23,10 +23,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import coil.compose.AsyncImage
 import com.example.educationalapp.R
 import com.example.educationalapp.Screen
 import com.example.educationalapp.ui.components.SpriteAnimation
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
 
 data class Story(val name: String, val route: String)
 
@@ -45,8 +46,8 @@ fun StoriesMenuScreen(navController: NavController) {
     val sheet = ImageBitmap.imageResource(id = R.drawable.povesti_sheet)
 
     Box(modifier = Modifier.fillMaxSize()) {
-        AsyncImage(
-            model = R.drawable.background_meniu_principal,
+        Image(
+            painter = painterResource(id = R.drawable.background_meniu_principal),
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop

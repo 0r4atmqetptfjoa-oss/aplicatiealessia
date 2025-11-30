@@ -4,7 +4,6 @@ import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
@@ -19,31 +18,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.navigation.NavController
+import com.example.educationalapp.R
 import com.example.educationalapp.Screen
-import com.example.educationalapp.ui.components.SpriteAnimation
-import com.example.educationalapp.ui.components.rememberSheet
 import com.example.educationalapp.ui.theme.KidFontFamily
-import kotlinx.coroutines.delay
 
 data class MainMenuModule(
     val route: String,
-    @DrawableRes val sheetRes: Int,
+    @DrawableRes val iconRes: Int,
     val title: String,
-    val columns: Int,
-    val frameCount: Int,
-    val fps: Int
 )
 
 @Composable
@@ -51,51 +45,26 @@ fun MainMenuScreen(
     navController: NavController,
     starCount: Int,
 ) {
-    val animatedStars by animateFloatAsState(targetValue = starCount.toFloat(), label = "animatedStars")
-
-    val titleSheet = rememberSheet(com.example.educationalapp.R.drawable.titlu_sheet, maxTextureSize = 2048)
-    val backgroundBitmap = rememberSheet(com.example.educationalapp.R.drawable.background_meniu_principal, maxTextureSize = 2048)
-
     val modules = listOf(
-        MainMenuModule(Screen.GamesMenu.route, com.example.educationalapp.R.drawable.jocuri_sheet, stringResource(id = com.example.educationalapp.R.string.main_menu_button_games), 5, 25, 24),
-        MainMenuModule(Screen.InstrumentsMenu.route, com.example.educationalapp.R.drawable.instrumente_sheet, stringResource(id = com.example.educationalapp.R.string.main_menu_button_instruments), 5, 25, 24),
-        MainMenuModule(Screen.SongsMenu.route, com.example.educationalapp.R.drawable.cantece_sheet, stringResource(id = com.example.educationalapp.R.string.main_menu_button_songs), 5, 25, 24),
-        MainMenuModule(Screen.SoundsMenu.route, com.example.educationalapp.R.drawable.sunete_sheet, stringResource(id = com.example.educationalapp.R.string.main_menu_button_sounds), 5, 25, 24),
-        MainMenuModule(Screen.StoriesMenu.route, com.example.educationalapp.R.drawable.povesti_sheet, stringResource(id = com.example.educationalapp.R.string.main_menu_button_stories), 5, 25, 24),
+        MainMenuModule(Screen.GamesMenu.route, R.drawable.main_menu_icon_jocuri, stringResource(id = R.string.main_menu_button_games)),
+        MainMenuModule(Screen.InstrumentsMenu.route, R.drawable.main_menu_icon_instrumente, stringResource(id = R.string.main_menu_button_instruments)),
+        MainMenuModule(Screen.SongsMenu.route, R.drawable.main_menu_icone_cantece, stringResource(id = R.string.main_menu_button_songs)),
+        MainMenuModule(Screen.SoundsMenu.route, R.drawable.main_menu_icon_sunete, stringResource(id = R.string.main_menu_button_sounds)),
+        MainMenuModule(Screen.StoriesMenu.route, R.drawable.main_menu_icon_povesti, stringResource(id = R.string.main_menu_button_stories)),
     )
 
-    var isTitlePlaying by remember { mutableStateOf(false) }
-    var idleTrigger by remember { mutableStateOf(0) }
-
-    LaunchedEffect(idleTrigger) {
-        delay(5000) // 5-second idle delay
-        isTitlePlaying = true
-    }
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .pointerInput(Unit) {
-                detectTapGestures(onPress = {
-                    isTitlePlaying = false
-                    idleTrigger++
-                })
-            }
-    ) {
-        if (backgroundBitmap != null) {
-            Image(
-                bitmap = backgroundBitmap,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
-        } else {
-            Spacer(Modifier.fillMaxSize().graphicsLayer(alpha = 0f)) // Placeholder
-        }
+    Box(modifier = Modifier.fillMaxSize()) {
+        Image(
+            painter = painterResource(id = R.drawable.background_meniu_principal),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
 
         ConstraintLayout(modifier = Modifier.fillMaxSize().safeDrawingPadding()) {
-            val (starsRef, upgradeRef, titleRef, buttonsRef, settingsRef) = createRefs()
+            val (starsRef, upgradeRef, titleRef, settingsRef, menuRowRef) = createRefs()
 
+            // Top Bar Items
             Row(
                 modifier = Modifier.constrainAs(starsRef) {
                     top.linkTo(parent.top, margin = 16.dp)
@@ -111,7 +80,7 @@ fun MainMenuScreen(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "${animatedStars.toInt()}",
+                    text = "$starCount",
                     style = androidx.compose.material3.MaterialTheme.typography.titleLarge.copy(color = Color.White)
                 )
             }
@@ -131,59 +100,58 @@ fun MainMenuScreen(
                 )
             }
 
-            if (titleSheet != null) {
-                val infiniteTransition = rememberInfiniteTransition(label = "titleBounce")
-                val bounceScale by infiniteTransition.animateFloat(
-                    initialValue = 0.98f,
-                    targetValue = 1.02f,
-                    animationSpec = infiniteRepeatable(
-                        animation = tween(durationMillis = 2200, easing = FastOutSlowInEasing),
-                        repeatMode = RepeatMode.Reverse
-                    ),
-                    label = "titleBounceScale"
-                )
+            // Title (RED ZONE)
+            val infiniteTransition = rememberInfiniteTransition(label = "titleFloat")
+            val titleOffsetY by infiniteTransition.animateFloat(
+                initialValue = -8f,
+                targetValue = 8f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(durationMillis = 4000, easing = EaseInOutCubic),
+                    repeatMode = RepeatMode.Reverse
+                ),
+                label = "titleFloatY"
+            )
 
-                SpriteAnimation(
-                    sheet = titleSheet,
-                    frameCount = 60,
-                    columns = 8,
-                    fps = 24,
-                    loop = true,
-                    isPlaying = true,
-                    modifier = Modifier
-                        .constrainAs(titleRef) {
-                            top.linkTo(parent.top, margin = 64.dp)
-                            start.linkTo(parent.start)
-                            end.linkTo(parent.end)
-                        }
-                        .fillMaxWidth(0.85f)
-                        .aspectRatio(16f / 9f)
-                        .graphicsLayer {
-                            scaleX = bounceScale
-                            scaleY = bounceScale
-                        }
-                )
-            }
+            Image(
+                painter = painterResource(id = R.drawable.main_menu_title),
+                contentDescription = "Titlu",
+                modifier = Modifier
+                    .constrainAs(titleRef) {
+                        top.linkTo(parent.top)
+                        bottom.linkTo(menuRowRef.top)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                        width = Dimension.percent(0.6f)
+                    }
+                    .aspectRatio(16f / 9f)
+                    .graphicsLayer {
+                        translationY = titleOffsetY
+                    }
+            )
 
+            // Menu Buttons (GREEN ZONE)
             Row(
-                modifier = Modifier.constrainAs(buttonsRef) {
-                    bottom.linkTo(parent.bottom, margin = 48.dp)
+                modifier = Modifier.constrainAs(menuRowRef) {
+                    bottom.linkTo(parent.bottom, margin = 32.dp)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
-                    width = Dimension.fillToConstraints
-                }.padding(horizontal = 16.dp),
+                    width = Dimension.percent(0.95f)
+                },
                 horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.Bottom
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 modules.forEach { module ->
-                    ModuleButton(module = module, navController = navController)
+                    ModuleButton(
+                        module = module,
+                        navController = navController
+                    )
                 }
             }
 
+
+            // Settings Button
             IconButton(
-                onClick = {
-                     navController.navigate(Screen.SettingsScreen.route)
-                },
+                onClick = { navController.navigate(Screen.SettingsScreen.route) },
                 modifier = Modifier.constrainAs(settingsRef) {
                     bottom.linkTo(parent.bottom, margin = 16.dp)
                     end.linkTo(parent.end, margin = 16.dp)
@@ -201,68 +169,59 @@ fun MainMenuScreen(
 }
 
 @Composable
-private fun RowScope.ModuleButton(module: MainMenuModule, navController: NavController) {
-    var isPlaying by remember { mutableStateOf(false) }
-    val buttonSheet = rememberSheet(module.sheetRes, maxTextureSize = 2048)
+private fun ModuleButton(
+    modifier: Modifier = Modifier,
+    module: MainMenuModule,
+    navController: NavController
+) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
-    val pressScale by animateFloatAsState(
-        targetValue = if (isPressed || isPlaying) 1.0f else 0.95f,
-        animationSpec = tween(durationMillis = 150, easing = FastOutSlowInEasing),
-        label = "buttonPressScale"
+    val animScale by animateFloatAsState(
+        targetValue = if (isPressed) 0.85f else 1f,
+        animationSpec = spring(stiffness = Spring.StiffnessMedium, dampingRatio = Spring.DampingRatioMediumBouncy),
+        label = "pressScale"
+    )
+    val animShadowElevation by animateFloatAsState(
+        targetValue = if (isPressed) 30f else 0f,
+        animationSpec = tween(durationMillis = if (isPressed) 50 else 300),
+        label = "pressGlow"
     )
 
     Column(
-        modifier = Modifier
-            .weight(1f)
-            .graphicsLayer {
-                scaleX = pressScale
-                scaleY = pressScale
-            }
+        modifier = modifier
             .clickable(
                 interactionSource = interactionSource,
-                indication = null
-            ) {
-                if (!isPlaying) {
-                    isPlaying = true
-                }
-            },
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        if (buttonSheet != null) {
-            SpriteAnimation(
-                modifier = Modifier.size(96.dp),
-                sheet = buttonSheet,
-                columns = module.columns,
-                frameCount = module.frameCount,
-                fps = module.fps,
-                loop = false,
-                isPlaying = isPlaying,
-                onAnimationFinished = {
-                    isPlaying = false
-                    navController.navigate(module.route)
-                }
+                indication = null,
+                onClick = { navController.navigate(module.route) }
             )
-        } else {
-            Spacer(Modifier.size(96.dp)) // Placeholder to maintain layout
-        }
-
-        Spacer(modifier = Modifier.height(4.dp))
-
+            .graphicsLayer {
+                scaleX = animScale
+                scaleY = animScale
+            },
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            painter = painterResource(id = module.iconRes),
+            contentDescription = module.title,
+            modifier = Modifier
+                .size(96.dp)
+                .graphicsLayer {
+                    shadowElevation = animShadowElevation
+                    if (animShadowElevation > 0) {
+                       spotShadowColor = Color(0.9f, 0.9f, 0.5f)
+                    }
+                }
+        )
+        Spacer(Modifier.height(4.dp))
         Text(
             text = module.title,
             style = TextStyle(
                 fontFamily = KidFontFamily,
-                fontSize = 16.sp,
-                letterSpacing = 0.4.sp,
+                fontSize = 18.sp,
                 color = Color.White,
-                shadow = Shadow(
-                    color = Color(0x80000000),
-                    offset = Offset(1f, 1.5f),
-                    blurRadius = 3f
-                )
+                textAlign = TextAlign.Center,
+                shadow = Shadow(color = Color(0x99000000), offset = Offset(1f, 2f), blurRadius = 4f)
             )
         )
     }

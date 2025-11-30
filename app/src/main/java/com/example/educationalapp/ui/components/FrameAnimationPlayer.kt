@@ -4,8 +4,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import coil.compose.AsyncImage
 import kotlinx.coroutines.delay
+import androidx.compose.ui.res.painterResource
 
 @Composable
 fun FrameAnimationPlayer(modifier: Modifier = Modifier, drawableId: Int, frameDelay: Long) {
@@ -19,8 +19,8 @@ fun FrameAnimationPlayer(modifier: Modifier = Modifier, drawableId: Int, frameDe
     }
 
     Box(modifier = modifier) {
-        AsyncImage(
-            model = drawableId,
+        Image(
+            painter = painterResource(id = drawableId),
             contentDescription = null
         )
     }

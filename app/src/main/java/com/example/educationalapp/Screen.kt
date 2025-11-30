@@ -10,6 +10,12 @@ sealed class Screen(val route: String) {
     object Paywall : Screen("paywall")
     object SettingsScreen : Screen("settings")
 
+    // Sound routes
+    object WildSounds : Screen("wild_sounds")
+    object MarineSounds : Screen("marine_sounds")
+    object FarmSounds : Screen("farm_sounds")
+    object BirdSounds : Screen("bird_sounds")
+
     // Game routes
     object AlphabetQuiz : Screen("alphabet_quiz")
     object MathGame : Screen("math_game")

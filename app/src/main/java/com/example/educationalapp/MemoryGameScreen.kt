@@ -24,8 +24,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
 import com.example.educationalapp.CompletionDialog
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
 
 @Composable
 fun MemoryGameScreen(
@@ -38,8 +39,8 @@ fun MemoryGameScreen(
     val isGameOver by remember { mutableStateOf(viewModel.isGameOver) }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        AsyncImage(
-            model = R.drawable.background_meniu_principal,
+        Image(
+            painter = painterResource(id = R.drawable.background_meniu_principal),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()

@@ -25,10 +25,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
 
 private const val TOTAL_COLOR_QUESTIONS = 10
 
@@ -39,8 +40,8 @@ fun ColorMatchScreen(
     viewModel: ColorMatchViewModel = hiltViewModel()
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
-        AsyncImage(
-            model = R.drawable.background_meniu_principal,
+        Image(
+            painter = painterResource(id = R.drawable.background_meniu_principal),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()

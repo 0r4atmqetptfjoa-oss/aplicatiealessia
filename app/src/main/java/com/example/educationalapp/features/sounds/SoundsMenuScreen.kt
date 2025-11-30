@@ -23,9 +23,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import coil.compose.AsyncImage
 import com.example.educationalapp.R
+import com.example.educationalapp.Screen
 import com.example.educationalapp.ui.components.SpriteAnimation
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
 
 data class SoundCategory(val name: String, val route: String)
 
@@ -34,19 +36,19 @@ data class SoundCategory(val name: String, val route: String)
 fun SoundsMenuScreen(navController: NavController) {
     val categories = remember {
         listOf(
-            SoundCategory("Ferma", ""), // TODO: Add route
+            SoundCategory("Sălbatice", Screen.WildSounds.route),
+            SoundCategory("Ferma", Screen.FarmSounds.route),
+            SoundCategory("Marine", Screen.MarineSounds.route),
+            SoundCategory("Păsări", Screen.BirdSounds.route),
             SoundCategory("Vehicule", ""), // TODO: Add route
-            SoundCategory("Acvatic", ""), // TODO: Add route
-            SoundCategory("Jungla", ""), // TODO: Add route
-            SoundCategory("Păsări", ""), // TODO: Add route
         )
     }
 
     val sheet = ImageBitmap.imageResource(id = R.drawable.sunete_sheet)
 
     Box(modifier = Modifier.fillMaxSize()) {
-        AsyncImage(
-            model = R.drawable.background_meniu_principal,
+        Image(
+            painter = painterResource(id = R.drawable.background_meniu_principal),
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
