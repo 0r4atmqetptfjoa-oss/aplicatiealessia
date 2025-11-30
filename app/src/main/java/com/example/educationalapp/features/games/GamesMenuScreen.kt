@@ -1,5 +1,6 @@
 package com.example.educationalapp.features.games
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -17,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -26,32 +28,44 @@ import androidx.navigation.compose.rememberNavController
 import com.example.educationalapp.R
 import com.example.educationalapp.Screen
 import com.example.educationalapp.ui.components.SpriteAnimation
-import androidx.compose.foundation.Image
-import androidx.compose.ui.res.painterResource
 
+/**
+ * Represents a simple data model for games displayed in the games menu. Each entry
+ * has a user‑friendly name and a navigation route defined in [Screen].
+ */
 data class Game(val name: String, val route: String)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GamesMenuScreen(navController: NavController) {
+    // Define the list of games to show in the menu.  This list has been expanded
+    // to include new games such as sorting, block matching, hidden objects and
+    // shadow matching.  If a route is empty the navigation is disabled.
     val games = remember {
         listOf(
             Game("Culori", Screen.ColorMatch.route),
             Game("Forme", Screen.ShapeMatch.route),
             Game("Alfabet", Screen.AlphabetQuiz.route),
             Game("Numere", Screen.MathGame.route),
-            Game("Gătit", Screen.CookingGame.route),
+            Game("Sortare", Screen.SortingGame.route),
             Game("Puzzle", Screen.Puzzle.route),
             Game("Memorie", Screen.MemoryGame.route),
-            Game("Obiecte ascunse", ""), // TODO: Add route
-            Game("Potrivire umbre", ""), // TODO: Add route
-            Game("Potrivire animale", Screen.AnimalSortingGame.route),
+            Game("Blocuri", Screen.BlocksGame.route),
+            Game("Gătit", Screen.CookingGame.route),
+            Game("Labirint", Screen.MazeGame.route),
+            Game("Ascunse", Screen.HiddenObjectsGame.route),
+            Game("Umbre", Screen.ShadowMatchGame.route),
+            Game("Animale", Screen.AnimalSortingGame.route),
+            Game("Instrumente", Screen.InstrumentsGame.route)
         )
     }
 
-    val sheet = ImageBitmap.imageResource(id = R.drawable.jocuri_sheet)
+    // Sprite sheet used for game icons.  Each frame of the sheet is used as a
+    // static icon for a game entry.
+    val sheet: ImageBitmap = ImageBitmap.imageResource(id = R.drawable.jocuri_sheet)
 
     Box(modifier = Modifier.fillMaxSize()) {
+        // Background image for the games menu
         Image(
             painter = painterResource(id = R.drawable.background_meniu_principal),
             contentDescription = null,
@@ -63,7 +77,12 @@ fun GamesMenuScreen(navController: NavController) {
             containerColor = Color.Transparent,
             topBar = {
                 TopAppBar(
-                    title = { Text(stringResource(id = R.string.main_menu_button_games), style = MaterialTheme.typography.headlineSmall) },
+                    title = {
+                        Text(
+                            stringResource(id = R.string.main_menu_button_games),
+                            style = MaterialTheme.typography.headlineSmall
+                        )
+                    },
                     navigationIcon = {
                         IconButton(onClick = { navController.popBackStack() }) {
                             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -79,7 +98,9 @@ fun GamesMenuScreen(navController: NavController) {
         ) { paddingValues ->
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(minSize = 112.dp),
-                modifier = Modifier.fillMaxSize().padding(paddingValues),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp)
@@ -98,9 +119,9 @@ fun GamesMenuScreen(navController: NavController) {
                     ) {
                         SpriteAnimation(
                             sheet = sheet,
-                            frameCount = 24, // Assuming 24 frames from MainMenuScreen
-                            columns = 5,     // Assuming 5 columns from MainMenuScreen
-                            frameIndex = index, // Use index to show a static frame for each game
+                            frameCount = 24, // Use 24 frames consistent with main menu
+                            columns = 5,
+                            frameIndex = index % 24, // Use index modulo frame count to avoid overflow
                             modifier = Modifier.size(80.dp)
                         )
 
