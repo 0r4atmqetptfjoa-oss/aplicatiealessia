@@ -24,6 +24,21 @@ data class Instrument(val name: String)
 
 private const val TOTAL_INSTRUMENT_QUESTIONS = 8
 
+/**
+ * Generate a list of three instruments containing the correct one and two
+ * distractors.  Defined at file scope to avoid name collisions with
+ * other generateOptions functions.  The returned list is shuffled.
+ */
+private fun generateInstrumentOptions(correct: Instrument, pool: List<Instrument>): List<Instrument> {
+    val opts = mutableSetOf<Instrument>()
+    opts.add(correct)
+    while (opts.size < 3) {
+        val candidate = pool.random()
+        if (candidate != correct) opts.add(candidate)
+    }
+    return opts.shuffled()
+}
+
 @Composable
 fun InstrumentGuessGameScreen(navController: NavController, starState: MutableState<Int>) {
     val instruments = remember {
@@ -41,18 +56,10 @@ fun InstrumentGuessGameScreen(navController: NavController, starState: MutableSt
     var questionIndex by remember { mutableStateOf(0) }
     var score by remember { mutableStateOf(0) }
     var current by remember { mutableStateOf(instruments.random()) }
-    var options by remember { mutableStateOf(generateOptions(current, instruments)) }
+    var options by remember { mutableStateOf(generateInstrumentOptions(current, instruments)) }
     var showEndDialog by remember { mutableStateOf(false) }
 
-    fun generateOptions(correct: Instrument, pool: List<Instrument>): List<Instrument> {
-        val opts = mutableSetOf<Instrument>()
-        opts.add(correct)
-        while (opts.size < 3) {
-            val candidate = pool.random()
-            if (candidate != correct) opts.add(candidate)
-        }
-        return opts.shuffled()
-    }
+    // Local helper removed.  Use generateInstrumentOptions() defined at file scope.
 
     fun nextQuestion(correct: Boolean) {
         if (correct) {
@@ -66,7 +73,7 @@ fun InstrumentGuessGameScreen(navController: NavController, starState: MutableSt
         } else {
             questionIndex++
             current = instruments.random()
-            options = generateOptions(current, instruments)
+            options = generateInstrumentOptions(current, instruments)
         }
     }
 
@@ -80,7 +87,7 @@ fun InstrumentGuessGameScreen(navController: NavController, starState: MutableSt
                     questionIndex = 0
                     score = 0
                     current = instruments.random()
-                    options = generateOptions(current, instruments)
+                    options = generateInstrumentOptions(current, instruments)
                     showEndDialog = false
                 }) {
                     Text("Joacă din nou")

@@ -28,6 +28,23 @@ data class NamedColour(val name: String, val color: Color)
 private const val TOTAL_COLOUR_QUESTIONS = 10
 
 /**
+ * Generate three distinct colour options containing the correct colour and
+ * two distractors drawn from the provided pool.  This helper is defined
+ * outside the composable to avoid accidental reference to private functions
+ * in other files (e.g. MathGameScreen.generateOptions()).  The returned
+ * list is shuffled to randomise the order of the options.
+ */
+private fun generateColourOptions(correct: NamedColour, pool: List<NamedColour>): List<NamedColour> {
+    val opts = mutableSetOf<NamedColour>()
+    opts.add(correct)
+    while (opts.size < 3) {
+        val candidate = pool.random()
+        if (candidate != correct) opts.add(candidate)
+    }
+    return opts.shuffled()
+}
+
+/**
  * A simplified colour matching game. The player is shown the name of a colour and
  * must choose the correct colour swatch from three options. Correct answers
  * yield points and a star; incorrect answers deduct points. After a fixed
@@ -49,18 +66,10 @@ fun ColorMatchScreen(navController: NavController, starState: MutableState<Int>)
     var questionIndex by remember { mutableStateOf(0) }
     var score by remember { mutableStateOf(0) }
     var current by remember { mutableStateOf(colours.random()) }
-    var options by remember { mutableStateOf(generateOptions(current, colours)) }
+    var options by remember { mutableStateOf(generateColourOptions(current, colours)) }
     var showEndDialog by remember { mutableStateOf(false) }
 
-    fun generateOptions(correct: NamedColour, pool: List<NamedColour>): List<NamedColour> {
-        val opts = mutableSetOf<NamedColour>()
-        opts.add(correct)
-        while (opts.size < 3) {
-            val candidate = pool.random()
-            if (candidate != correct) opts.add(candidate)
-        }
-        return opts.shuffled()
-    }
+    // Local helper removed.  The generateColourOptions() function above is used instead.
 
     fun nextQuestion(correct: Boolean) {
         if (correct) {
@@ -74,7 +83,7 @@ fun ColorMatchScreen(navController: NavController, starState: MutableState<Int>)
         } else {
             questionIndex++
             current = colours.random()
-            options = generateOptions(current, colours)
+            options = generateColourOptions(current, colours)
         }
     }
 
@@ -88,7 +97,7 @@ fun ColorMatchScreen(navController: NavController, starState: MutableState<Int>)
                     questionIndex = 0
                     score = 0
                     current = colours.random()
-                    options = generateOptions(current, colours)
+                    options = generateColourOptions(current, colours)
                     showEndDialog = false
                 }) {
                     Text("Joacă din nou")

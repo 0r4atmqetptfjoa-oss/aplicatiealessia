@@ -27,6 +27,24 @@ import androidx.navigation.NavController
  */
 private const val TOTAL_ALPHABET_QUESTIONS = 10
 
+/**
+ * Generate a list of three unique letters containing the correct letter and
+ * two random distractors.  The options are shuffled to randomise their
+ * positions.  Defined at top level to avoid name clashes with other
+ * generateOptions functions in the project.
+ */
+private fun generateLetterOptions(correct: Char, pool: List<Char>): List<Char> {
+    // Build a set containing the correct letter and two distinct distractors.
+    val opts = mutableSetOf<Char>()
+    opts.add(correct)
+    while (opts.size < 3) {
+        val candidate = pool.random()
+        if (candidate != correct) opts.add(candidate)
+    }
+    // Shuffle the options so the correct answer isn't always in the same position
+    return opts.shuffled()
+}
+
 @Composable
 fun AlphabetQuizScreen(navController: NavController, starState: MutableState<Int>) {
     // List of uppercase letters for questions
@@ -34,23 +52,10 @@ fun AlphabetQuizScreen(navController: NavController, starState: MutableState<Int
     var questionIndex by remember { mutableStateOf(0) }
     var score by remember { mutableStateOf(0) }
     var currentLetter by remember { mutableStateOf(alphabet.random()) }
-    var options by remember { mutableStateOf(generateOptions(currentLetter, alphabet)) }
+    var options by remember { mutableStateOf(generateLetterOptions(currentLetter, alphabet)) }
     var showEndDialog by remember { mutableStateOf(false) }
 
-    /**
-     * Generate a list of three unique letters containing the correct letter and
-     * two random distractors.  The options are shuffled to randomise their
-     * positions.
-     */
-    fun generateOptions(correct: Char, pool: List<Char>): List<Char> {
-        val opts = mutableSetOf<Char>()
-        opts.add(correct)
-        while (opts.size < 3) {
-            val candidate = pool.random()
-            if (candidate != correct) opts.add(candidate)
-        }
-        return opts.shuffled()
-    }
+    // Local helper removed: use the top‑level generateLetterOptions() to avoid name clashes
 
     fun nextQuestion(correct: Boolean) {
         if (correct) {
@@ -64,7 +69,7 @@ fun AlphabetQuizScreen(navController: NavController, starState: MutableState<Int
         } else {
             questionIndex++
             currentLetter = alphabet.random()
-            options = generateOptions(currentLetter, alphabet)
+            options = generateLetterOptions(currentLetter, alphabet)
         }
     }
 
@@ -78,7 +83,7 @@ fun AlphabetQuizScreen(navController: NavController, starState: MutableState<Int
                     questionIndex = 0
                     score = 0
                     currentLetter = alphabet.random()
-                    options = generateOptions(currentLetter, alphabet)
+                    options = generateLetterOptions(currentLetter, alphabet)
                     showEndDialog = false
                 }) {
                     Text("Joacă din nou")

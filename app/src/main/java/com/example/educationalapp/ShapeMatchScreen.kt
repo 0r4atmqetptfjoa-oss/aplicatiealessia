@@ -28,6 +28,22 @@ data class NamedShape(val name: String, val icon: androidx.compose.ui.graphics.v
 private const val TOTAL_SHAPE_QUESTIONS = 10
 
 /**
+ * Generate three shape options containing the correct shape and two
+ * distractors.  This helper is defined at file scope to avoid collisions
+ * with similarly named functions in other screens.  The result is
+ * shuffled to randomise order.
+ */
+private fun generateShapeOptions(correct: NamedShape, pool: List<NamedShape>): List<NamedShape> {
+    val opts = mutableSetOf<NamedShape>()
+    opts.add(correct)
+    while (opts.size < 3) {
+        val candidate = pool.random()
+        if (candidate != correct) opts.add(candidate)
+    }
+    return opts.shuffled()
+}
+
+/**
  * A simplified shape matching game. The player sees the name of a shape and
  * must pick the correct icon from three options. Correct answers award
  * points and a star; incorrect answers deduct points. After a fixed number
@@ -45,18 +61,10 @@ fun ShapeMatchScreen(navController: NavController, starState: MutableState<Int>)
     var questionIndex by remember { mutableStateOf(0) }
     var score by remember { mutableStateOf(0) }
     var current by remember { mutableStateOf(shapes.random()) }
-    var options by remember { mutableStateOf(generateOptions(current, shapes)) }
+    var options by remember { mutableStateOf(generateShapeOptions(current, shapes)) }
     var showEndDialog by remember { mutableStateOf(false) }
 
-    fun generateOptions(correct: NamedShape, pool: List<NamedShape>): List<NamedShape> {
-        val opts = mutableSetOf<NamedShape>()
-        opts.add(correct)
-        while (opts.size < 3) {
-            val candidate = pool.random()
-            if (candidate != correct) opts.add(candidate)
-        }
-        return opts.shuffled()
-    }
+    // Local helper removed.  Use generateShapeOptions() defined at file scope.
 
     fun nextQuestion(correct: Boolean) {
         if (correct) {
@@ -70,7 +78,7 @@ fun ShapeMatchScreen(navController: NavController, starState: MutableState<Int>)
         } else {
             questionIndex++
             current = shapes.random()
-            options = generateOptions(current, shapes)
+            options = generateShapeOptions(current, shapes)
         }
     }
 
@@ -84,7 +92,7 @@ fun ShapeMatchScreen(navController: NavController, starState: MutableState<Int>)
                     questionIndex = 0
                     score = 0
                     current = shapes.random()
-                    options = generateOptions(current, shapes)
+                    options = generateShapeOptions(current, shapes)
                     showEndDialog = false
                 }) {
                     Text("Joacă din nou")

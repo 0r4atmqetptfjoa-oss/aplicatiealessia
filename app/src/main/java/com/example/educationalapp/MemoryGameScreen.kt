@@ -29,6 +29,18 @@ import kotlinx.coroutines.delay
 data class MemoryCard(val id: Int, val value: String, var isFaceUp: Boolean = false, var isMatched: Boolean = false)
 
 /**
+ * Shuffle a list of emoji strings into pairs of [MemoryCard] objects.  Each
+ * emoji appears twice in the resulting list.  Cards are given unique
+ * identifiers and the list is shuffled to randomise their positions.  This
+ * helper is defined at file scope so that it can be referenced when
+ * initialising state inside the composable.
+ */
+private fun shuffleMemoryCards(values: List<String>): List<MemoryCard> {
+    val list = (values + values).mapIndexed { index, value -> MemoryCard(id = index, value = value) }
+    return list.shuffled()
+}
+
+/**
  * A classic memory matching game. Cards are laid face down in a grid.  The
  * player flips two cards; if they match they remain face up and the player
  * earns points and a star.  If they do not match they are flipped back over.
@@ -39,16 +51,12 @@ fun MemoryGameScreen(navController: NavController, starState: MutableState<Int>)
     // List of emoji pairs to use in the game
     val emojis = listOf("🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼")
     // Initialise cards with two of each emoji
-    var cards by remember { mutableStateOf(shuffleCards(emojis)) }
+    var cards by remember { mutableStateOf(shuffleMemoryCards(emojis)) }
     var selectedIndices by remember { mutableStateOf(listOf<Int>()) }
     var score by remember { mutableStateOf(0) }
     var showEndDialog by remember { mutableStateOf(false) }
 
-    // Shuffle and assign unique IDs to cards
-    fun shuffleCards(values: List<String>): List<MemoryCard> {
-        val list = (values + values).mapIndexed { index, value -> MemoryCard(id = index, value = value) }
-        return list.shuffled()
-    }
+    // Local shuffleCards function removed.  Use shuffleMemoryCards() defined at file scope.
 
     suspend fun checkMatch() {
         // If two cards are selected, check for match
@@ -94,7 +102,7 @@ fun MemoryGameScreen(navController: NavController, starState: MutableState<Int>)
             confirmButton = {
                 Button(onClick = {
                     // Restart game
-                    cards = shuffleCards(emojis)
+                    cards = shuffleMemoryCards(emojis)
                     score = 0
                     selectedIndices = emptyList()
                     showEndDialog = false

@@ -23,23 +23,30 @@ import androidx.compose.ui.unit.sp
  * is displayed.  The player must find and tap the target within the grid.  If
  * correct, the player earns points and a star and a new target is chosen.
  */
+/**
+ * Generate a 4x4 grid of emojis for the hidden objects game.  The grid
+ * contains exactly one instance of the current target and fifteen random
+ * distractors drawn from the provided pool.  The result is shuffled.
+ */
+private fun generateHiddenObjectsGrid(pool: List<String>, currentTarget: String): List<String> {
+    val list = mutableListOf<String>()
+    list.add(currentTarget)
+    while (list.size < 16) {
+        list.add(pool.random())
+    }
+    return list.shuffled()
+}
+
 @Composable
 fun HiddenObjectsGameScreen(navController: NavController, starState: MutableState<Int>) {
     val objects = remember { listOf("🍎", "🍌", "🍇", "🍓", "🍒", "🥑", "🍉", "🍍", "🥕", "🍆", "🌽", "🥔") }
     var target by remember { mutableStateOf(objects.random()) }
-    var grid by remember { mutableStateOf(generateGrid(objects, target)) }
+    var grid by remember { mutableStateOf(generateHiddenObjectsGrid(objects, target)) }
     var score by remember { mutableStateOf(0) }
     var foundCount by remember { mutableStateOf(0) }
     var showEndDialog by remember { mutableStateOf(false) }
 
-    fun generateGrid(pool: List<String>, currentTarget: String): List<String> {
-        val list = mutableListOf<String>()
-        list.add(currentTarget)
-        while (list.size < 16) {
-            list.add(pool.random())
-        }
-        return list.shuffled()
-    }
+    // Local helper removed; use generateHiddenObjectsGrid defined at file scope.
 
     fun newRound(correct: Boolean) {
         if (correct) {
@@ -54,7 +61,7 @@ fun HiddenObjectsGameScreen(navController: NavController, starState: MutableStat
             score = (score - 5).coerceAtLeast(0)
         }
         target = objects.random()
-        grid = generateGrid(objects, target)
+        grid = generateHiddenObjectsGrid(objects, target)
     }
 
     if (showEndDialog) {
@@ -67,7 +74,7 @@ fun HiddenObjectsGameScreen(navController: NavController, starState: MutableStat
                     score = 0
                     foundCount = 0
                     target = objects.random()
-                    grid = generateGrid(objects, target)
+                    grid = generateHiddenObjectsGrid(objects, target)
                     showEndDialog = false
                 }) {
                     Text("Joacă din nou")
