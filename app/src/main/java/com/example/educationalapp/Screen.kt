@@ -41,6 +41,12 @@ sealed class Screen(val route: String) {
     // Story routes
     object StoryBook : Screen("story_book")
 
+    // Song routes – individual song screens
+    object Song1 : Screen("song1")
+    object Song2 : Screen("song2")
+    object Song3 : Screen("song3")
+    object Song4 : Screen("song4")
+
     // Other routes
     object ParentalGate : Screen("parental_gate")
 }

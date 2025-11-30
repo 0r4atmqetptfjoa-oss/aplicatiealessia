@@ -1,25 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Lumea Alessiei</string>
-
-    <!-- Main Menu -->
-    <string name="main_menu_title">LUMEA ALESSIEI</string>
-    <string name="main_menu_button_games">Jocuri</string>
-    <string name="main_menu_button_instruments">Instrumente</string>
+    <!-- Strings for the song player -->
+    <string name="song_default_title">Cântec</string>
+    <string name="song_player_title">Cântec</string>
+    <string name="song_playing_label">Se redă...</string>
+    <string name="song_paused_label">Pauză</string>
+    <!-- Placeholder menu button labels to avoid missing resources. Actual values can be replaced -->
     <string name="main_menu_button_songs">Cântece</string>
-    <string name="main_menu_button_sounds">Sunete</string>
-    <string name="main_menu_button_stories">Povești</string>
-
-    <!-- UI Labels -->
-    <string name="label_stars">Stele</string>
-    <string name="label_upgrade">Cumpără versiunea completă</string>
-    <string name="label_settings">Setări</string>
-    <string name="label_home">Acasă</string>
-    <string name="label_score">Scor: %d</string>
-
-    <!-- Game Specific -->
-    <string name="alphabet_quiz_title">Găsește litera: %c</string>
-    <string name="number_quiz_title">Găsește numărul: %d</string>
-    <string name="color_match_title">Atinge culoarea: %s</string>
-    <string name="memory_game_moves">Mutări: %d</string>
-
 </resources>

@@ -1,5 +1,6 @@
 package com.example.educationalapp.features.songs
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -17,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,27 +26,34 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.educationalapp.R
+import com.example.educationalapp.Screen
 import com.example.educationalapp.ui.components.SpriteAnimation
-import androidx.compose.foundation.Image
-import androidx.compose.ui.res.painterResource
 
+/**
+ * Data model representing a song entry in the songs menu. Each song has a name and a route
+ * corresponding to a screen where the song can be played. The routes are defined in [Screen].
+ */
 data class Song(val name: String, val route: String)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SongsMenuScreen(navController: NavController) {
+    // Define the list of songs available.  Assign each one a dedicated route defined in Screen.
     val songs = remember {
         listOf(
-            Song("Cântecul 1", ""), // TODO: Add route
-            Song("Cântecul 2", ""), // TODO: Add route
-            Song("Cântecul 3", ""), // TODO: Add route
-            Song("Cântecul 4", ""), // TODO: Add route
+            Song("Cântecul 1", Screen.Song1.route),
+            Song("Cântecul 2", Screen.Song2.route),
+            Song("Cântecul 3", Screen.Song3.route),
+            Song("Cântecul 4", Screen.Song4.route),
         )
     }
 
-    val sheet = ImageBitmap.imageResource(id = R.drawable.cantece_sheet)
+    // Load the sprite sheet for song icons.  A single frame from this sheet is used as the icon
+    // for each song entry.  Replace this resource with your own animated sheet when available.
+    val sheet: ImageBitmap = ImageBitmap.imageResource(id = R.drawable.cantece_sheet)
 
     Box(modifier = Modifier.fillMaxSize()) {
+        // Background image for the songs menu.  Using the main menu background as a placeholder.
         Image(
             painter = painterResource(id = R.drawable.background_meniu_principal),
             contentDescription = null,
@@ -52,11 +61,17 @@ fun SongsMenuScreen(navController: NavController) {
             contentScale = ContentScale.Crop
         )
 
+        // Scaffold provides a top bar and content area
         Scaffold(
             containerColor = Color.Transparent,
             topBar = {
                 TopAppBar(
-                    title = { Text(stringResource(id = R.string.main_menu_button_songs), style = MaterialTheme.typography.headlineSmall) },
+                    title = {
+                        Text(
+                            stringResource(id = R.string.main_menu_button_songs),
+                            style = MaterialTheme.typography.headlineSmall
+                        )
+                    },
                     navigationIcon = {
                         IconButton(onClick = { navController.popBackStack() }) {
                             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -70,9 +85,12 @@ fun SongsMenuScreen(navController: NavController) {
                 )
             }
         ) { paddingValues ->
+            // Lazy vertical grid to display songs in a responsive grid
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(minSize = 112.dp),
-                modifier = Modifier.fillMaxSize().padding(paddingValues),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp)
@@ -91,9 +109,9 @@ fun SongsMenuScreen(navController: NavController) {
                     ) {
                         SpriteAnimation(
                             sheet = sheet,
-                            frameCount = 24, // Assuming 24 frames from MainMenuScreen
-                            columns = 5,     // Assuming 5 columns from MainMenuScreen
-                            frameIndex = index, // Use index to show a static frame
+                            frameCount = 24, // Use 24 frames consistent with the main menu sheet
+                            columns = 5,
+                            frameIndex = index % 24,
                             modifier = Modifier.size(80.dp)
                         )
 

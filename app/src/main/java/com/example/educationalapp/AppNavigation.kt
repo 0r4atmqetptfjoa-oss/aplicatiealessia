@@ -13,6 +13,7 @@ import com.example.educationalapp.features.games.GamesMenuScreen
 import com.example.educationalapp.features.instruments.InstrumentsMenuScreen
 import com.example.educationalapp.features.mainmenu.MainMenuScreen
 import com.example.educationalapp.features.songs.SongsMenuScreen
+import com.example.educationalapp.features.songs.SongPlayerScreen
 import com.example.educationalapp.features.sounds.*
 import com.example.educationalapp.features.stories.StoriesMenuScreen
 
@@ -128,6 +129,20 @@ fun AppNavigation(viewModel: MainViewModel) {
         }
         composable(Screen.InstrumentsGame.route) {
             InstrumentsGameScreen(navController = navController, starState = starState)
+        }
+
+        // Song player screens.  Each screen loads a specific song based on the route
+        composable(Screen.Song1.route) { backStackEntry ->
+            SongPlayerScreen(navController = navController, backStackEntry = backStackEntry, starState = starState)
+        }
+        composable(Screen.Song2.route) { backStackEntry ->
+            SongPlayerScreen(navController = navController, backStackEntry = backStackEntry, starState = starState)
+        }
+        composable(Screen.Song3.route) { backStackEntry ->
+            SongPlayerScreen(navController = navController, backStackEntry = backStackEntry, starState = starState)
+        }
+        composable(Screen.Song4.route) { backStackEntry ->
+            SongPlayerScreen(navController = navController, backStackEntry = backStackEntry, starState = starState)
         }
     }
 }
