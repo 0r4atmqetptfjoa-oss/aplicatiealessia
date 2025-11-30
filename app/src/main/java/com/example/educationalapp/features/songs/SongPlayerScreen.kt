@@ -118,11 +118,4 @@ fun SongPlayerScreen(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun SongPlayerScreenPreview() {
-    val dummyNavController = object : NavController(null) {} // preview stub
-    val dummyBackEntry = NavBackStackEntry.create()
-    val stars = remember { mutableStateOf(0) }
-    SongPlayerScreen(dummyNavController, dummyBackEntry, stars)
-}
+// Preview is omitted because NavController requires a valid context.
