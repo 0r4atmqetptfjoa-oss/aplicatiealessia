@@ -38,6 +38,9 @@ sealed class Screen(val route: String) {
     object SortingGame : Screen("sorting_game")
     object ShadowMatchGame : Screen("shadow_match_game")
 
+    // New educational coding game: guide a robot through a maze using command sequences
+    object CodingGame : Screen("coding_game")
+
     // Story routes
     object StoryBook : Screen("story_book")
 

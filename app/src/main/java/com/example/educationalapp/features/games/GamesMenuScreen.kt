@@ -56,7 +56,9 @@ fun GamesMenuScreen(navController: NavController) {
             Game("Ascunse", Screen.HiddenObjectsGame.route),
             Game("Umbre", Screen.ShadowMatchGame.route),
             Game("Animale", Screen.AnimalSortingGame.route),
-            Game("Instrumente", Screen.InstrumentsGame.route)
+            Game("Instrumente", Screen.InstrumentsGame.route),
+            // New coding game teaches sequencing and problem solving
+            Game("Codare", Screen.CodingGame.route)
         )
     }
 

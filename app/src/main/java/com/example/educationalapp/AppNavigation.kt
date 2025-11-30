@@ -16,6 +16,7 @@ import com.example.educationalapp.features.songs.SongsMenuScreen
 import com.example.educationalapp.features.songs.SongPlayerScreen
 import com.example.educationalapp.features.sounds.*
 import com.example.educationalapp.features.stories.StoriesMenuScreen
+import com.example.educationalapp.features.games.CodingGameScreen
 
 /**
  * The central navigation graph for the application.  This function wires together
@@ -129,6 +130,11 @@ fun AppNavigation(viewModel: MainViewModel) {
         }
         composable(Screen.InstrumentsGame.route) {
             InstrumentsGameScreen(navController = navController, starState = starState)
+        }
+
+        // Coding game screen
+        composable(Screen.CodingGame.route) {
+            CodingGameScreen(navController = navController, starState = starState)
         }
 
         // Song player screens.  Each screen loads a specific song based on the route
