@@ -41,6 +41,9 @@ sealed class Screen(val route: String) {
     // New educational coding game: guide a robot through a maze using command sequences
     object CodingGame : Screen("coding_game")
 
+    // Sequence memory game where players repeat increasingly long sequences of colours
+    object SequenceMemoryGame : Screen("sequence_memory_game")
+
     // Story routes
     object StoryBook : Screen("story_book")
 

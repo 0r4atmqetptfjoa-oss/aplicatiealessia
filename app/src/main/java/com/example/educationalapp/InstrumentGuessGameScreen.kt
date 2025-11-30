@@ -1,88 +1,139 @@
 package com.example.educationalapp
 
-import android.media.ToneGenerator
-import android.media.AudioManager
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import kotlin.random.Random
 
 /**
- * A game where a tone representing a musical instrument is played and the
- * child must guess which instrument it is.  Since we do not include real
- * audio samples, each instrument is represented by a different tone
- * pattern.  Correct guesses yield stars and points.  This is a fun way
- * to reinforce instrument names before trying the real instrument screens.
+ * A simplified instrument guessing game.  In the original application this game
+ * played a sound and asked the user to identify the instrument.  Without
+ * access to audio playback in this environment we instead display an
+ * instrument name and ask the player to pick the matching instrument from a
+ * set of three.  Correct guesses award points and stars.
  */
-data class InstrumentTone(val name: String, val toneType: Int)
+data class Instrument(val name: String)
+
+private const val TOTAL_INSTRUMENT_QUESTIONS = 8
 
 @Composable
 fun InstrumentGuessGameScreen(navController: NavController, starState: MutableState<Int>) {
-    val instruments = listOf(
-        InstrumentTone("Pian", ToneGenerator.TONE_CDMA_HIGH_L),
-        InstrumentTone("Tobe", ToneGenerator.TONE_CDMA_LOW_L),
-        InstrumentTone("Xilofon", ToneGenerator.TONE_CDMA_MED_L)
-    )
-    val toneGenerator = remember { ToneGenerator(AudioManager.STREAM_MUSIC, 100) }
-    DisposableEffect(Unit) { onDispose { toneGenerator.release() } }
-    var current by remember { mutableStateOf(instruments[0]) }
-    var options by remember { mutableStateOf(listOf<InstrumentTone>()) }
-    var feedback by remember { mutableStateOf("") }
+    val instruments = remember {
+        listOf(
+            Instrument("Pian"),
+            Instrument("Chitară"),
+            Instrument("Tobe"),
+            Instrument("Vioară"),
+            Instrument("Flaut"),
+            Instrument("Saxofon"),
+            Instrument("Trompetă"),
+            Instrument("Xilofon")
+        )
+    }
+    var questionIndex by remember { mutableStateOf(0) }
     var score by remember { mutableStateOf(0) }
-    fun playInstrument(instrument: InstrumentTone) {
-        // Play the tone for 500 ms
-        toneGenerator.startTone(instrument.toneType, 500)
-    }
-    fun newRound() {
-        feedback = ""
-        current = instruments.random()
-        playInstrument(current)
-        val set = mutableSetOf<InstrumentTone>()
-        val list = mutableListOf<InstrumentTone>()
-        val correctIndex = Random.nextInt(3)
-        for (i in 0 until 3) {
-            if (i == correctIndex) {
-                list.add(current)
-            } else {
-                var inst: InstrumentTone
-                do {
-                    inst = instruments.random()
-                } while (inst == current || inst in set)
-                set.add(inst)
-                list.add(inst)
-            }
+    var current by remember { mutableStateOf(instruments.random()) }
+    var options by remember { mutableStateOf(generateOptions(current, instruments)) }
+    var showEndDialog by remember { mutableStateOf(false) }
+
+    fun generateOptions(correct: Instrument, pool: List<Instrument>): List<Instrument> {
+        val opts = mutableSetOf<Instrument>()
+        opts.add(correct)
+        while (opts.size < 3) {
+            val candidate = pool.random()
+            if (candidate != correct) opts.add(candidate)
         }
-        options = list
+        return opts.shuffled()
     }
-    LaunchedEffect(Unit) { newRound() }
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text(text = "Ghicește Instrumentul", modifier = Modifier.padding(bottom = 16.dp))
-        Text(text = "Ascultă sunetul și alege instrumentul corect", modifier = Modifier.padding(bottom = 16.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            options.forEach { option ->
+
+    fun nextQuestion(correct: Boolean) {
+        if (correct) {
+            score += 10
+            starState.value += 1
+        } else {
+            score = (score - 5).coerceAtLeast(0)
+        }
+        if (questionIndex + 1 >= TOTAL_INSTRUMENT_QUESTIONS) {
+            showEndDialog = true
+        } else {
+            questionIndex++
+            current = instruments.random()
+            options = generateOptions(current, instruments)
+        }
+    }
+
+    if (showEndDialog) {
+        AlertDialog(
+            onDismissRequest = { navController.navigate(Screen.MainMenu.route) },
+            title = { Text("Joc Terminat!", textAlign = TextAlign.Center) },
+            text = { Text("Felicitări! Scorul tău este $score.", textAlign = TextAlign.Center) },
+            confirmButton = {
                 Button(onClick = {
-                    if (option == current) {
-                        feedback = "Corect!";
-                        score += 10; starState.value += 2
-                    } else {
-                        feedback = "Greșit!";
-                        score = (score - 5).coerceAtLeast(0)
-                    }
-                    newRound()
-                }, modifier = Modifier.weight(1f)) {
-                    Text(text = option.name)
+                    questionIndex = 0
+                    score = 0
+                    current = instruments.random()
+                    options = generateOptions(current, instruments)
+                    showEndDialog = false
+                }) {
+                    Text("Joacă din nou")
+                }
+            },
+            dismissButton = {
+                Button(onClick = { navController.navigate(Screen.MainMenu.route) }) {
+                    Text("Meniu Principal")
                 }
             }
-        }
-        Text(text = "Scor: $score", modifier = Modifier.padding(top = 16.dp))
-        Text(text = feedback, modifier = Modifier.padding(top = 8.dp))
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = { navController.navigate(Screen.MainMenu.route) }) {
-            Text(text = "Înapoi la Meniu")
+        )
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Image(
+            painter = painterResource(id = R.drawable.background_meniu_principal),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = "Ghicește Instrumentul", style = MaterialTheme.typography.headlineSmall, color = Color.White)
+            Spacer(modifier = Modifier.height(16.dp))
+            LinearProgressIndicator(
+                progress = questionIndex / TOTAL_INSTRUMENT_QUESTIONS.toFloat(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp)
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            Text(text = "Selectează instrumentul: ${current.name}", style = MaterialTheme.typography.displayMedium, color = Color.White, textAlign = TextAlign.Center)
+            Spacer(modifier = Modifier.height(24.dp))
+            options.forEach { option ->
+                Button(
+                    onClick = { nextQuestion(option == current) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                ) {
+                    Text(option.name)
+                }
+            }
+            Spacer(modifier = Modifier.height(24.dp))
+            Text(text = "Scor: $score", color = Color.White, style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(onClick = { navController.navigate(Screen.MainMenu.route) }) {
+                Text("Înapoi la Meniu")
+            }
         }
     }
 }

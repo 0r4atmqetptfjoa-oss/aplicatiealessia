@@ -1,63 +1,135 @@
 package com.example.educationalapp
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import kotlin.random.Random
+import androidx.compose.ui.unit.sp
 
 /**
- * A sorting game where animals must be categorized into their habitats
- * (fermă, junglă, marină).  The child chooses the correct category from
- * three options.  Points and stars are awarded for correct answers.  This
- * reinforces vocabulary and animal classification.
+ * Represents an animal with a name, an emoji for display and a category
+ * describing its habitat (land, water or air).  Used in the animal sorting
+ * game where players categorise animals into their correct habitats.
  */
-data class AnimalCategory(val name: String, val category: String)
+data class Animal(val name: String, val emoji: String, val category: String)
 
+private const val TOTAL_ANIMAL_QUESTIONS = 10
+
+/**
+ * A simple animal sorting game.  The player is shown a random animal and must
+ * select whether it lives on land, in the water or in the air.  Correct
+ * answers award points and stars; incorrect answers deduct points.  After a
+ * fixed number of questions the game ends.
+ */
 @Composable
 fun AnimalSortingGameScreen(navController: NavController, starState: MutableState<Int>) {
-    val animals = listOf(
-        AnimalCategory("Vacă", "Fermă"),
-        AnimalCategory("Cal", "Fermă"),
-        AnimalCategory("Oaie", "Fermă"),
-        AnimalCategory("Leu", "Junglă"),
-        AnimalCategory("Maimuță", "Junglă"),
-        AnimalCategory("Elefant", "Junglă"),
-        AnimalCategory("Delfin", "Marină"),
-        AnimalCategory("Pește", "Marină"),
-        AnimalCategory("Rechin", "Marină")
-    )
-    val categories = listOf("Fermă", "Junglă", "Marină")
-    var current by remember { mutableStateOf(animals[0]) }
-    var feedback by remember { mutableStateOf("") }
+    val animals = remember {
+        listOf(
+            Animal("Leu", "🦁", "Pământ"),
+            Animal("Pește", "🐟", "Apă"),
+            Animal("Vultur", "🦅", "Aer"),
+            Animal("Căprioară", "🦌", "Pământ"),
+            Animal("Delfin", "🐬", "Apă"),
+            Animal("Bufniță", "🦉", "Aer"),
+            Animal("Cangur", "🦘", "Pământ"),
+            Animal("Rechin", "🦈", "Apă"),
+            Animal("Liliac", "🦇", "Aer")
+        )
+    }
+    val categories = listOf("Pământ", "Apă", "Aer")
+    var questionIndex by remember { mutableStateOf(0) }
     var score by remember { mutableStateOf(0) }
-    fun newRound() { current = animals.random(); feedback = "" }
-    LaunchedEffect(Unit) { newRound() }
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text(text = "Sortarea Animalelor", modifier = Modifier.padding(bottom = 16.dp))
-        Text(text = "Unde locuiește: ${current.name}?", modifier = Modifier.padding(bottom = 16.dp))
-        categories.forEach { cat ->
-            Button(onClick = {
-                if (cat == current.category) {
-                    feedback = "Corect!";
-                    score += 10; starState.value += 1
-                } else {
-                    feedback = "Greșit!";
-                    score = (score - 5).coerceAtLeast(0)
-                }
-                newRound()
-            }, modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
-                Text(text = cat)
-            }
+    var current by remember { mutableStateOf(animals.random()) }
+    var showEndDialog by remember { mutableStateOf(false) }
+
+    fun nextQuestion(correct: Boolean) {
+        if (correct) {
+            score += 10
+            starState.value += 1
+        } else {
+            score = (score - 5).coerceAtLeast(0)
         }
-        Text(text = "Scor: $score", modifier = Modifier.padding(top = 16.dp))
-        Text(text = feedback, modifier = Modifier.padding(top = 8.dp))
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = { navController.navigate(Screen.MainMenu.route) }) {
-            Text(text = "Înapoi la Meniu")
+        if (questionIndex + 1 >= TOTAL_ANIMAL_QUESTIONS) {
+            showEndDialog = true
+        } else {
+            questionIndex++
+            current = animals.random()
+        }
+    }
+
+    if (showEndDialog) {
+        AlertDialog(
+            onDismissRequest = { navController.navigate(Screen.MainMenu.route) },
+            title = { Text("Joc Terminat!", textAlign = TextAlign.Center) },
+            text = { Text("Felicitări! Scorul tău este $score.", textAlign = TextAlign.Center) },
+            confirmButton = {
+                Button(onClick = {
+                    questionIndex = 0
+                    score = 0
+                    current = animals.random()
+                    showEndDialog = false
+                }) {
+                    Text("Joacă din nou")
+                }
+            },
+            dismissButton = {
+                Button(onClick = { navController.navigate(Screen.MainMenu.route) }) {
+                    Text("Meniu Principal")
+                }
+            }
+        )
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Image(
+            painter = painterResource(id = R.drawable.background_meniu_principal),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = "Sortare Animale", style = MaterialTheme.typography.headlineSmall, color = Color.White)
+            Spacer(modifier = Modifier.height(16.dp))
+            LinearProgressIndicator(
+                progress = questionIndex / TOTAL_ANIMAL_QUESTIONS.toFloat(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp)
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            Text(text = current.emoji, fontSize = 64.sp)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = current.name, style = MaterialTheme.typography.titleLarge, color = Color.White)
+            Spacer(modifier = Modifier.height(24.dp))
+            categories.forEach { category ->
+                Button(
+                    onClick = { nextQuestion(category == current.category) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                ) {
+                    Text(category)
+                }
+            }
+            Spacer(modifier = Modifier.height(24.dp))
+            Text(text = "Scor: $score", color = Color.White, style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(onClick = { navController.navigate(Screen.MainMenu.route) }) {
+                Text("Înapoi la Meniu")
+            }
         }
     }
 }

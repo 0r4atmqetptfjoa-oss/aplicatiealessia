@@ -50,6 +50,8 @@ fun GamesMenuScreen(navController: NavController) {
             Game("Sortare", Screen.SortingGame.route),
             Game("Puzzle", Screen.Puzzle.route),
             Game("Memorie", Screen.MemoryGame.route),
+            // Sequence memory game: repeat the colours in the shown order
+            Game("Secvențe", Screen.SequenceMemoryGame.route),
             Game("Blocuri", Screen.BlocksGame.route),
             Game("Gătit", Screen.CookingGame.route),
             Game("Labirint", Screen.MazeGame.route),

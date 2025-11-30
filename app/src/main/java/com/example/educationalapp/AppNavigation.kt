@@ -17,6 +17,7 @@ import com.example.educationalapp.features.songs.SongPlayerScreen
 import com.example.educationalapp.features.sounds.*
 import com.example.educationalapp.features.stories.StoriesMenuScreen
 import com.example.educationalapp.features.games.CodingGameScreen
+import com.example.educationalapp.features.games.SequenceMemoryGameScreen
 
 /**
  * The central navigation graph for the application.  This function wires together
@@ -90,36 +91,44 @@ fun AppNavigation(viewModel: MainViewModel) {
         // stars update the global counter.  Some games dispatch their own star
         // increments via callbacks.
         composable(Screen.AlphabetQuiz.route) {
+            // Alphabet quiz where players match letters
             AlphabetQuizScreen(navController = navController, starState = starState)
         }
         composable(Screen.MathGame.route) {
             MathGameScreen(navController = navController, starState = starState)
         }
         composable(Screen.ColorMatch.route) {
+            // Colour matching game – simplified version using colour swatches
             ColorMatchScreen(navController = navController, starState = starState)
         }
         composable(Screen.ShapeMatch.route) {
+            // Shape matching game – identify shapes by name
             ShapeMatchScreen(navController = navController, starState = starState)
         }
         composable(Screen.Puzzle.route) {
+            // Sliding puzzle game – rearrange tiles into order
             JigsawPuzzleScreen(navController = navController, starState = starState)
         }
         composable(Screen.MemoryGame.route) {
-            MemoryGameScreen(navController = navController, onGameWon = { stars -> starState.value += stars })
+            // Memory matching game – find emoji pairs
+            MemoryGameScreen(navController = navController, starState = starState)
         }
         composable(Screen.SortingGame.route) {
+            // Number sorting game with increasing difficulty
             SortingGameScreen(navController = navController, starState = starState)
         }
         composable(Screen.BlocksGame.route) {
             BlockGameScreen(navController = navController, starState = starState)
         }
         composable(Screen.HiddenObjectsGame.route) {
+            // Hidden objects game – find the target emoji in the grid
             HiddenObjectsGameScreen(navController = navController, starState = starState)
         }
         composable(Screen.ShadowMatchGame.route) {
             ShadowMatchGameScreen(navController = navController, starState = starState)
         }
         composable(Screen.AnimalSortingGame.route) {
+            // Animal sorting game – categorise animals by habitat
             AnimalSortingGameScreen(navController = navController, starState = starState)
         }
         composable(Screen.MazeGame.route) {
@@ -135,6 +144,10 @@ fun AppNavigation(viewModel: MainViewModel) {
         // Coding game screen
         composable(Screen.CodingGame.route) {
             CodingGameScreen(navController = navController, starState = starState)
+        }
+
+        composable(Screen.SequenceMemoryGame.route) {
+            SequenceMemoryGameScreen(navController = navController, starState = starState)
         }
 
         // Song player screens.  Each screen loads a specific song based on the route

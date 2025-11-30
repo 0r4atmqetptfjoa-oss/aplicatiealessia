@@ -1,42 +1,114 @@
 package com.example.educationalapp
 
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.* // Import all default icons
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import com.example.educationalapp.CompletionDialog
-import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
 
+/**
+ * Represents a card in the memory game.  Each card has a value (emoji), a flag
+ * indicating whether it is currently face up and another flag indicating
+ * whether it has been matched.  Cards that are matched remain face up and
+ * cannot be selected again.
+ */
+data class MemoryCard(val id: Int, val value: String, var isFaceUp: Boolean = false, var isMatched: Boolean = false)
+
+/**
+ * A classic memory matching game. Cards are laid face down in a grid.  The
+ * player flips two cards; if they match they remain face up and the player
+ * earns points and a star.  If they do not match they are flipped back over.
+ * The game ends when all pairs are matched.
+ */
 @Composable
-fun MemoryGameScreen(
-    navController: NavController, 
-    onGameWon: (stars: Int) -> Unit,
-    viewModel: MemoryGameViewModel = hiltViewModel()
-) {
-    val cards by remember { mutableStateOf(viewModel.cards) }
-    val moves by remember { mutableStateOf(viewModel.moves) }
-    val isGameOver by remember { mutableStateOf(viewModel.isGameOver) }
+fun MemoryGameScreen(navController: NavController, starState: MutableState<Int>) {
+    // List of emoji pairs to use in the game
+    val emojis = listOf("🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼")
+    // Initialise cards with two of each emoji
+    var cards by remember { mutableStateOf(shuffleCards(emojis)) }
+    var selectedIndices by remember { mutableStateOf(listOf<Int>()) }
+    var score by remember { mutableStateOf(0) }
+    var showEndDialog by remember { mutableStateOf(false) }
+
+    // Shuffle and assign unique IDs to cards
+    fun shuffleCards(values: List<String>): List<MemoryCard> {
+        val list = (values + values).mapIndexed { index, value -> MemoryCard(id = index, value = value) }
+        return list.shuffled()
+    }
+
+    suspend fun checkMatch() {
+        // If two cards are selected, check for match
+        if (selectedIndices.size == 2) {
+            val first = selectedIndices[0]
+            val second = selectedIndices[1]
+            if (cards[first].value == cards[second].value) {
+                // Match found
+                cards = cards.toMutableList().also {
+                    it[first] = it[first].copy(isMatched = true)
+                    it[second] = it[second].copy(isMatched = true)
+                }
+                score += 20
+                starState.value += 1
+                if (cards.all { it.isMatched }) {
+                    showEndDialog = true
+                }
+            } else {
+                // Pause briefly to show the two cards, then flip back
+                delay(1000)
+                cards = cards.toMutableList().also {
+                    it[first] = it[first].copy(isFaceUp = false)
+                    it[second] = it[second].copy(isFaceUp = false)
+                }
+                score = (score - 5).coerceAtLeast(0)
+            }
+            selectedIndices = emptyList()
+        }
+    }
+
+    // Launch effect to monitor selections and check for matches
+    LaunchedEffect(selectedIndices) {
+        if (selectedIndices.size == 2) {
+            checkMatch()
+        }
+    }
+
+    if (showEndDialog) {
+        AlertDialog(
+            onDismissRequest = { navController.navigate(Screen.MainMenu.route) },
+            title = { Text("Felicitări!", textAlign = TextAlign.Center) },
+            text = { Text("Ai găsit toate perechile. Scorul tău este $score.", textAlign = TextAlign.Center) },
+            confirmButton = {
+                Button(onClick = {
+                    // Restart game
+                    cards = shuffleCards(emojis)
+                    score = 0
+                    selectedIndices = emptyList()
+                    showEndDialog = false
+                }) {
+                    Text("Joacă din nou")
+                }
+            },
+            dismissButton = {
+                Button(onClick = { navController.navigate(Screen.MainMenu.route) }) {
+                    Text("Meniu Principal")
+                }
+            }
+        )
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
@@ -45,74 +117,65 @@ fun MemoryGameScreen(
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
         )
-
         Column(
-            modifier = Modifier.fillMaxSize().padding(16.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            MemoryGameHeader(navController, moves)
+            Text(text = "Joc de Memorie", style = MaterialTheme.typography.headlineSmall, color = Color.White)
             Spacer(modifier = Modifier.height(16.dp))
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(3),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(cards) { card ->
-                    MemoryCardView(card = card, onClick = { viewModel.onCardClicked(card.id, onGameWon) })
+            Text(text = "Găsește toate perechile", color = Color.White)
+            Spacer(modifier = Modifier.height(16.dp))
+            // Display cards in a 4x4 grid
+            for (row in 0 until 4) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                    for (col in 0 until 4) {
+                        val index = row * 4 + col
+                        val card = cards[index]
+                        MemoryCardView(card = card) {
+                            // Only allow clicking unmatched and face down cards, and prevent selecting more than 2
+                            if (!card.isFaceUp && !card.isMatched && selectedIndices.size < 2) {
+                                cards = cards.toMutableList().also { it[index] = it[index].copy(isFaceUp = true) }
+                                selectedIndices = selectedIndices + index
+                            }
+                        }
+                    }
                 }
             }
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(text = "Scor: $score", color = Color.White, style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(onClick = { navController.navigate(Screen.MainMenu.route) }) {
+                Text("Înapoi la Meniu")
+            }
         }
-
-        if (isGameOver) {
-            CompletionDialog(navController = navController, title = "Felicitări!", message = "Ai găsit toate perechile!", onRestart = viewModel::resetGame)
-        }
-    }
-}
-
-@Composable
-private fun MemoryGameHeader(navController: NavController, moves: Int) {
-     Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        IconButton(onClick = { navController.navigate(Screen.MainMenu.route) }) {
-            Icon(Icons.Default.Home, contentDescription = "Acasă", tint = Color.White, modifier = Modifier.size(40.dp))
-        }
-        Text(text = "Mutări: $moves", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
     }
 }
 
 @Composable
 private fun MemoryCardView(card: MemoryCard, onClick: () -> Unit) {
-    val rotation by animateFloatAsState(
-        targetValue = if (card.isFaceUp) 180f else 0f,
-        animationSpec = tween(500),
-        label = "rotation"
-    )
-
+    val alpha by animateFloatAsState(targetValue = if (card.isFaceUp || card.isMatched) 1f else 0f, label = "cardFlip")
     Card(
+        onClick = onClick,
+        shape = RoundedCornerShape(8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         modifier = Modifier
-            .size(100.dp)
-            .graphicsLayer {
-                rotationY = rotation
-                cameraDistance = 8 * density
-            }
-            .clickable(onClick = onClick, indication = null, interactionSource = remember { MutableInteractionSource() }),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(8.dp)
+            .size(60.dp)
+            .padding(4.dp)
+            .background(color = MaterialTheme.colorScheme.primaryContainer)
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            if (rotation < 90f) {
-                // Card back
-                Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.primary))
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            // Show emoji when card is face up or matched; otherwise show a coloured back
+            if (card.isFaceUp || card.isMatched) {
+                Text(text = card.value, fontSize = 24.sp)
             } else {
-                // Card front
-                Icon(
-                    imageVector = card.icon,
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize().padding(8.dp).graphicsLayer { rotationY = 180f }, // Counter-rotate the icon
-                    tint = Color.White
+                Box(modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = MaterialTheme.colorScheme.secondary)
                 )
             }
         }
