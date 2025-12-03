@@ -17,6 +17,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
@@ -60,16 +61,18 @@ fun ParallaxMainMenuBackground() {
             translation = parallaxOffset * maxTranslation * 0.4f
         )
 
-        // Layer 3: Kids (mid-ground)
+        // New Layer 3: Tree (now further back)
+        ParallaxLayer(
+            drawableRes = R.drawable.bg_parallax_tree,
+            translation = parallaxOffset * maxTranslation * 0.5f, // Moves slower, appears further
+            offsetX = 40.dp, // Moved more to the right
+            offsetY = 30.dp
+        )
+
+        // New Layer 4: Kids (now in front of the tree)
         ParallaxLayer(
             drawableRes = R.drawable.bg_parallax_kids,
             translation = parallaxOffset * maxTranslation * 0.6f
-        )
-
-        // Layer 4: Tree (central element, moves slightly faster than kids)
-        ParallaxLayer(
-            drawableRes = R.drawable.bg_parallax_tree,
-            translation = parallaxOffset * maxTranslation * 0.8f
         )
 
         // Layer 5: Foreground (moves the most)
@@ -84,7 +87,9 @@ fun ParallaxMainMenuBackground() {
 private fun ParallaxLayer(
     drawableRes: Int,
     translation: Float,
-    alpha: Float = 1.0f
+    alpha: Float = 1.0f,
+    offsetX: Dp = 0.dp,
+    offsetY: Dp = 0.dp
 ) {
     Image(
         painter = painterResource(id = drawableRes),
@@ -92,7 +97,8 @@ private fun ParallaxLayer(
         modifier = Modifier
             .fillMaxSize()
             .graphicsLayer {
-                translationX = translation
+                translationX = translation + offsetX.toPx()
+                translationY = offsetY.toPx()
                 this.alpha = alpha
             },
         contentScale = ContentScale.Crop

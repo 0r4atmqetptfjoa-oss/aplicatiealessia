@@ -10,6 +10,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.educationalapp.alphabet.AlphabetGameScreen // Import the new screen
 import com.example.educationalapp.features.games.*
 import com.example.educationalapp.features.instruments.InstrumentsMenuScreen
 import com.example.educationalapp.features.mainmenu.MainMenuScreen
@@ -74,7 +75,12 @@ fun AppNavigation(viewModel: MainViewModel) {
             }
         }
 
-        composable("alphabet") { GameContainer(gamesList[0]) { AlphabetQuizScreen(navController = navController, starState = starState) } }
+        // --- UPDATED ROUTE FOR ALPHABET GAME ---
+        composable("alphabet") {
+            AlphabetGameScreen(onBackToMenu = { navController.popBackStack() })
+        }
+        // ----------------------------------------
+
         composable("colors") { GameContainer(gamesList[1]) { ColorMatchScreen(navController = navController, starState = starState) } }
         composable("shapes") { GameContainer(gamesList[2]) { ShapeMatchScreen(navController = navController, starState = starState) } }
         composable("puzzle") { GameContainer(gamesList[3]) { JigsawPuzzleScreen(navController = navController, starState = starState) } }
