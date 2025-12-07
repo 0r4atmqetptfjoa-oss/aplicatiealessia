@@ -9,8 +9,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
-import com.example.educationalapp.alphabet.AlphabetGameScreen // Import the new screen
+import com.example.educationalapp.alphabet.AlphabetGameScreen
+import com.example.educationalapp.alphabet.AlphabetMenuScreen
 import com.example.educationalapp.features.games.*
 import com.example.educationalapp.features.instruments.InstrumentsMenuScreen
 import com.example.educationalapp.features.mainmenu.MainMenuScreen
@@ -19,12 +21,12 @@ import com.example.educationalapp.features.songs.SongPlayerScreen
 import com.example.educationalapp.features.sounds.*
 import com.example.educationalapp.features.stories.StoriesMenuScreen
 
-/**
- * The central navigation graph for the application.  This function wires together
- * all of the routes defined in [Screen] with their corresponding composable
- * screens.  A shared [starState] is used to propagate the total number of
- * stars earned across all games and keep it synchronised with [MainViewModel].
- */
+object Routes {
+    const val ALPHABET_GRAPH = "alphabet_graph"
+    const val ALPHABET_MENU = "alphabet_menu"
+    const val ALPHABET_GAME = "alphabet_game"
+}
+
 @Composable
 fun AppNavigation(viewModel: MainViewModel) {
     val navController = rememberNavController()
@@ -71,15 +73,30 @@ fun AppNavigation(viewModel: MainViewModel) {
 
         composable("games") {
             GamesCategoryScreen { selected ->
-                navController.navigate(selected.destination)
+                // Navigate to the alphabet graph, not the old game
+                if (selected.destination == "alphabet") {
+                    navController.navigate(Routes.ALPHABET_GRAPH)
+                } else {
+                    navController.navigate(selected.destination)
+                }
             }
         }
 
-        // --- UPDATED ROUTE FOR ALPHABET GAME ---
-        composable("alphabet") {
-            AlphabetGameScreen(onBackToMenu = { navController.popBackStack() })
+        // --- NEW, NESTED NAVIGATION FOR ALPHABET GAME ---
+        navigation(startDestination = Routes.ALPHABET_MENU, route = Routes.ALPHABET_GRAPH) {
+            composable(Routes.ALPHABET_MENU) {
+                AlphabetMenuScreen(
+                    onPlayClick = { navController.navigate(Routes.ALPHABET_GAME) },
+                    onBackToHome = { navController.popBackStack(Screen.MainMenu.route, false) }
+                )
+            }
+            composable(Routes.ALPHABET_GAME) {
+                AlphabetGameScreen(
+                    onBackToMenu = { navController.popBackStack() }
+                )
+            }
         }
-        // ----------------------------------------
+        // --------------------------------------------------
 
         composable("colors") { GameContainer(gamesList[1]) { ColorMatchScreen(navController = navController, starState = starState) } }
         composable("shapes") { GameContainer(gamesList[2]) { ShapeMatchScreen(navController = navController, starState = starState) } }
